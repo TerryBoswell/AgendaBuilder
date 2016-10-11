@@ -5,13 +5,14 @@ var centerContainer = Ext.create('CenterContainer');
 var observer = Ext.create('AgendaBuilderObservable');
 window.agendaBuilder = {};
 Ext.define('AgendaBuilder.MainContainer', {
-
+    observer: observer,
 	extend: 'Ext.Container',
 	width: 900,
 	style:  'margin:20px;',
     height: 600,
     title:'Month Browser',
     layout: 'border',
+    rfpNumber: null,
     items: [
     	{
     		xtype	: 'container',
@@ -91,84 +92,16 @@ Ext.define('AgendaBuilder.MainContainer', {
     listeners: {
         painted: {
             element: 'el', //bind to the underlying el property on the panel
-            fn: function(){
-
-                var sampleData = {
-                                    Dates : [
-                                        {
-                                            date: new Date('10/25/2016'),
-                                            roomBlocks: 16,
-                                            meetings: [
-                                                {
-                                                    start : 7,
-                                                    end: 8,
-                                                    name: 'Breakfast',
-                                                    color: 'green'
-                                                },
-                                                {
-                                                    start : 12,
-                                                    end: 13,
-                                                    name: 'Lunch',
-                                                    color: 'green'
-                                                },
-                                                {
-                                                    start : 18.5,
-                                                    end: 20.5,
-                                                    name: 'Dinner-Plated',
-                                                    color: 'green'
-                                                },
-                                                {
-                                                    start : 8,
-                                                    end: 18,
-                                                    name: 'Meeting',
-                                                    color: 'orange'
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            date: new Date('10/26/2016'),
-                                            roomBlocks: 0,
-                                            meetings: [
-                                                {
-                                                    start : 7,
-                                                    end: 8,
-                                                    name: 'Breakfast',
-                                                    color: 'green'
-                                                },
-                                                {
-                                                    start : 12,
-                                                    end: 13,
-                                                    name: 'Lunch',
-                                                    color: 'green'
-                                                },
-                                                {
-                                                    start : 18.5,
-                                                    end: 20.5,
-                                                    name: 'Dinner-Plated',
-                                                    color: 'green'
-                                                },
-                                                {
-                                                    start : 8,
-                                                    end: 18,
-                                                    name: 'Meeting',
-                                                    color: 'orange'
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            date: new Date('10/27/2016'),
-                                            roomBlocks: 0,
-                                            meetings: []
-                                        },
-                                        {
-                                            date: new Date('10/28/2016'),
-                                            roomBlocks: 0,
-                                            meetings: []
-                                        }
-                                    ]
-                                };
+            fn: function(cmp){
                 observer.buildMeetings();
-                observer.buildDates(sampleData);
+                observer.setRfpNumber(cmp.component.rfpNumber);
+                observer.getMeetingItems();
+                observer.on({
+                    scope: this,
+                    getmeetingitems : function(data){
+                        observer.buildDates(data);
+                    }
+                })
                 window.agendaBuilder.observer = observer;
             }
         }

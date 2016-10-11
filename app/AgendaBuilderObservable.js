@@ -6,6 +6,8 @@ Ext.define('AgendaBuilderObservable', {
     // The constructor of Ext.util.Observable instances processes the config object by
     // calling Ext.apply(this, config); instead of this.initConfig(config);
     $applyConfigs: true,
+    rfpNumber: null,
+    ajaxUrlBase: 'https://etouches987.zentilaqa.com',
     buildMeetings : function(){
     	for(i = 0; i < 6; i++)
     	{
@@ -36,11 +38,15 @@ Ext.define('AgendaBuilderObservable', {
 
         return weekday[d.getDay()];
     },
-    buildDates: function(cfg){
+    buildDates: function(dates){
         var datesCtr = Ext.ComponentQuery.query('#datesCtr')[0];
         var me = this;
-        Ext.each(cfg.Dates, function(instance){
+        Ext.each(dates, function(instance){
             me.buildSingleDate(instance, datesCtr);
+            Ext.each(instance.meetings, function(meeting){
+                debugger;
+                me.createMeeting(instance.date, meeting.start_time.replace('1900/01/01 ', ''), meeting.title, '368px', 'white', 'orange', 1)
+            })
         });
         
     },
@@ -210,6 +216,76 @@ Ext.define('AgendaBuilderObservable', {
     },
     getRows: function(){
         return this.agendaBuilderRows;
-    }
+    },
+    setRfpNumber: function(n){
+        if (!n)
+            throw ('A valid rfp number must be provided');
+        this.rfpNumber = n;
+    },
+    /*******************Ajax callbacks**************/
+    onGetRoomSetups: function(obj){
+        console.dir(obj);
+    },
+    onGetMeetingItemTypes: function(obj){
+        console.dir(obj);
+    },
+    onGetMeetingItems: function(obj, scope){
+        var convertedData = [];
+        Ext.each(obj, function(data)
+        {
+            var d = {
+                date: new Date(data.date),
+                roomBlocks: data.room_block,
+                roomNight: data.room_night,
+                meetings: data.meeting_items
+            };
+            convertedData.push(d);
+        });
+        scope.fireEvent('getmeetingitems', convertedData);
+    },
+    onSaveMeetingItem: function(obj){},
+    onDeleteMeetingItem: function(obj){},
+    onSaveAlternateOptions: function(obj){},
+    /*******************Ajax calls */ 
+    getUrl: function(callUrl){
+        if (!this.ajaxUrlBase)
+            throw("ajax Url Base must be set");
+        if (!this.rfpNumber)
+            throw("rpf number must be set");
+        if (!callUrl)
+            throw("call url must be passed")
+        return this.ajaxUrlBase.concat(callUrl, this.rfpNumber, "/json/");
+    },   
+    doGet: function(url, callback){      
+        var me = this;   
+        Ext.Ajax.request({
+            url: this.getUrl(url),
+            method: 'GET',
+            scope: me,
+            success: function(response, opts) {
+                var obj = Ext.decode(response.responseText);
+                callback(obj, opts.scope);
+            },
+
+            failure: function(response, opts) {
+                console.log('server-side failure with status code ' + response.status);
+            }
+        });
+    },
+    doPost: function(url, callback, data){
+
+    },
+    getRoomSetups: function(){
+        this.doGet("/planners/rfp/meeting_room_setups/", this.onGetRoomSetups);
+    },
+    getMeetingItemTypes: function(){
+        this.doGet("/planners/rfp/meeting_item_types/", this.onGetMeetingItemTypes);
+    },
+    getMeetingItems: function(){
+        this.doGet("/planners/rfp/meeting_items/", this.onGetMeetingItems);
+    },
+    saveMeetingItem: function(){},
+    deleteMeetingItem: function(){},
+    saveAlternateOption: function(){}
 });
 
