@@ -44,8 +44,8 @@ Ext.define('AgendaBuilderObservable', {
         Ext.each(dates, function(instance){
             me.buildSingleDate(instance, datesCtr);
             Ext.each(instance.meetings, function(meeting){
-                debugger;
-                me.createMeeting(instance.date, meeting.start_time.replace('1900/01/01 ', ''), meeting.title, '368px', 'white', 'orange', 1)
+                var start = meeting.start_time.replace('1900/01/01 ', '');
+                me.createMeeting(instance.date, start, meeting.title, '368px', 'white', 'orange', 1)
             })
         });
         
