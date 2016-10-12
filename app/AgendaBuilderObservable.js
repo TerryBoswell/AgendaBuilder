@@ -8,6 +8,7 @@ Ext.define('AgendaBuilderObservable', {
     $applyConfigs: true,
     rfpNumber: null,
     ajaxUrlBase: 'https://etouches987.zentilaqa.com',
+    meeting_item_types: null,
     buildMeetings : function(){
     	for(i = 0; i < 6; i++)
     	{
@@ -45,7 +46,9 @@ Ext.define('AgendaBuilderObservable', {
             me.buildSingleDate(instance, datesCtr);
             Ext.each(instance.meetings, function(meeting){
                 var start = meeting.start_time.replace('1900/01/01 ', '');
-                me.createMeeting(instance.date, start, meeting.title, '368px', 'white', 'orange', 1)
+                var end = meeting.end_time.replace('1900/01/01 ', '');
+                var color = "#" + meeting.meeting_item_type.color;
+                me.createMeeting(instance.date, start, end, meeting.title, 'white', color, 1)
             })
         });
         
@@ -103,90 +106,96 @@ Ext.define('AgendaBuilderObservable', {
         return cols;
     },
     getColForHour: function(hour){
-        if (hour == '6:00')
+        if (hour == '06:00')
             return 3;
-        else if (hour == '6:30')
+        else if (hour == '06:30:00')
             return 4;
-        else if (hour == '7:00')
+        else if (hour == '07:00:00')
             return 5;
-        else if (hour == '7:30')
+        else if (hour == '07:30:00')
             return 6;
-        else if (hour == '8:00')
+        else if (hour == '08:00:00')
             return 7;
-        else if (hour == '8:30')
+        else if (hour == '08:30:00')
             return 8;
-        else if (hour == '9:00')
+        else if (hour == '09:00:00')
             return 9;
-        else if (hour == '9:30')
+        else if (hour == '09:30:00')
             return 10;
-        else if (hour == '10:00')
+        else if (hour == '10:00:00')
             return 11;
-        else if (hour == '10:30')
+        else if (hour == '10:30:00')
             return 12;
-        else if (hour == '11:00')
+        else if (hour == '11:00:00')
             return 13;
-        else if (hour == '11:30')
+        else if (hour == '11:30:00')
             return 14;
-        else if (hour == '12:00')
+        else if (hour == '12:00:00')
             return 15;
-        else if (hour == '12:30')
+        else if (hour == '12:30:00')
             return 16;
-        else if (hour == '13:00')
+        else if (hour == '13:00:00')
             return 17;
-        else if (hour == '13:30')
+        else if (hour == '13:30:00')
             return 18;
-        else if (hour == '14:00')
+        else if (hour == '14:00:00')
             return 19;
-        else if (hour == '14:30')
+        else if (hour == '14:30:00')
             return 20;
-        else if (hour == '15:00')
+        else if (hour == '15:00:00')
             return 21;
-        else if (hour == '15:30')
+        else if (hour == '15:30:00')
             return 22;
-        else if (hour == '16:00')
+        else if (hour == '16:00:00')
             return 23;
-        else if (hour == '16:30')
+        else if (hour == '16:30:00')
             return 24;
-        else if (hour == '17:00')
+        else if (hour == '17:00:00')
             return 25;
-        else if (hour == '17:30')
+        else if (hour == '17:30:00')
             return 26;
-        else if (hour == '18:00')
+        else if (hour == '18:00:00')
             return 27;
-        else if (hour == '18:30')
+        else if (hour == '18:30:00')
             return 28;
-        else if (hour == '19:00')
+        else if (hour == '19:00:00')
             return 29;
-        else if (hour == '19:30')
+        else if (hour == '19:30:00')
             return 30;
-        else if (hour == '20:00')
+        else if (hour == '20:00:00')
             return 31;
-        else if (hour == '20:30')
+        else if (hour == '20:30:00')
             return 32;
-        else if (hour == '21:00')
+        else if (hour == '21:00:00')
             return 33;
-        else if (hour == '21:30')
+        else if (hour == '21:30:00')
             return 34;
-        else if (hour == '22:00')
+        else if (hour == '22:00:00')
             return 35;
-        else if (hour == '22:30')
+        else if (hour == '22:30:00')
             return 36;
-        else if (hour == '23:00')
+        else if (hour == '23:00:00')
             return 37;
-        else if (hour == '23:30')
+        else if (hour == '23:30:00')
             return 38;
     },
-    createMeeting: function(date, hour, text, width, color, fontColor, rowIdx){
+    createMeeting: function(date, startHour, endHour, text, color, fontColor, rowIdx){
         var agendaBuilderRow = this.getRow(date);
         //temp to get the first row
         if (rowIdx == undefined || rowIdx == null)
             rowIdx = 0;
         var row = agendaBuilderRow.rows[rowIdx];
-        var colId = this.getColForHour(hour);
-        var hourId = row.id + "-col-" + colId;
-        var fly = Ext.fly(document.getElementById(hourId));
-        var xy = fly.getXY();
-        var height = fly.getHeight();
+        var startColId = this.getColForHour(startHour);
+        var startHourId = row.id + "-col-" + startColId;
+        var sfly = Ext.fly(document.getElementById(startHourId));
+        var xy = sfly.getXY();
+        var height = sfly.getHeight();
+
+        var endColId = this.getColForHour(endHour);
+        var endHourId = row.id + "-col-" + endColId;
+        var efly = Ext.fly(document.getElementById(endHourId))
+        var width = xy[0] - efly.getXY()[0];
+
         Ext.create('Ext.Component', {
             html: text,
             floating: true,
@@ -222,12 +231,23 @@ Ext.define('AgendaBuilderObservable', {
             throw ('A valid rfp number must be provided');
         this.rfpNumber = n;
     },
-    /*******************Ajax callbacks**************/
-    onGetRoomSetups: function(obj){
-        console.dir(obj);
+    getMeetingType: function(id){
+        if (!this.meeting_item_types)
+            throw ("Meeting Item Types must be initialized first");
+        for(var i = 0; i < this.meeting_item_types.length; i++)
+        {
+            if (this.meeting_item_types[i].id == id)
+                return this.meeting_item_types[i];
+        }
+        return null;
     },
-    onGetMeetingItemTypes: function(obj){
-        console.dir(obj);
+    /*******************Ajax callbacks**************/
+    onGetRoomSetups: function(obj, scope){
+        scope.fireEvent('getroomsetups', obj);
+    },
+    onGetMeetingItemTypes: function(obj, scope){
+        scope.meeting_item_types = obj;
+        scope.fireEvent('getmeetingitemtypes', obj);
     },
     onGetMeetingItems: function(obj, scope){
         var convertedData = [];
@@ -237,8 +257,11 @@ Ext.define('AgendaBuilderObservable', {
                 date: new Date(data.date),
                 roomBlocks: data.room_block,
                 roomNight: data.room_night,
-                meetings: data.meeting_items
+                meetings: data.meeting_items,
             };
+            Ext.each(d.meetings, function(m){
+                m.meeting_item_type = scope.getMeetingType(m.type);
+            })
             convertedData.push(d);
         });
         scope.fireEvent('getmeetingitems', convertedData);

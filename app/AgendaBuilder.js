@@ -95,11 +95,14 @@ Ext.define('AgendaBuilder.MainContainer', {
             fn: function(cmp){
                 observer.buildMeetings();
                 observer.setRfpNumber(cmp.component.rfpNumber);
-                observer.getMeetingItems();
+                observer.getMeetingItemTypes();
                 observer.on({
                     scope: this,
                     getmeetingitems : function(data){
                         observer.buildDates(data);
+                    },
+                    getmeetingitemtypes: function(){
+                        observer.getMeetingItems();
                     }
                 })
                 window.agendaBuilder.observer = observer;
