@@ -9,22 +9,31 @@ Ext.define('AgendaBuilderObservable', {
     rfpNumber: null,
     ajaxUrlBase: 'https://etouches987.zentilaqa.com',
     meeting_item_types: null,
-    buildMeetings : function(){
-    	for(i = 0; i < 6; i++)
-    	{
-	    	Ext.ComponentQuery.query("#northCtrMtg")[0].add(Ext.create('MeetingTemplate', 
-                    {
-                        html: '<div style=""><i style="padding-left:3px; padding-top:3px;" class="fa fa-bars fa-2x" aria-hidden="true"></i><span style="margin-left: 3px; margin-left:10px;">Meeting</span></div>',
-                        style:  'margin: 3px; border-radius: 5px; background-color: orange; color: white;',
-                    }));
-
-            Ext.ComponentQuery.query("#northCtrMeal")[0].add(Ext.create('MeetingTemplate', 
-                    {
-                        html: '<div style=""><i style="padding-left:3px; padding-top:3px;" class="fa fa-bars fa-2x" aria-hidden="true"></i><span style="margin-left: 3px; margin-left:10px;">Meal</span></div>',
-                        style:  'margin: 3px; border-radius: 5px; background-color: olivedrab; color: white;',
-                    }));
-	    	
-	    }
+    buildMeetings : function(meeting_item_types){
+        Ext.each(meeting_item_types, function(m){
+            var t = new Ext.Template(
+                        '<div>',
+                            '<i style="padding-left:3px; padding-top:3px;" class="fa fa-bars fa-2x" aria-hidden="true"></i>',
+                            '<span style="margin-left: 3px; margin-left:10px;">{title}</span>',
+                        '</div>',
+                        // a configuration object:
+                        {
+                            compiled: true,      // <a href='#method-compile'>compile</a> immediately
+                        }
+            );
+            var style = 'margin: 3px; border-radius: 5px; background-color: #' + m.color + '; color: white;'
+            var ctrId = "#northCtrMeal";
+            if (!m.is_meal)
+                ctrId = "#northCtrMtg";
+            var width = (m.title.length * 6) + 50;
+            Ext.ComponentQuery.query(ctrId)[0].add(Ext.create('MeetingTemplate', 
+            {
+                html: t.apply(m),
+                style:  style,
+                width: width
+            }));
+ 
+        })
     },
     getDayOfTheWeek: function(d)
     {
@@ -241,12 +250,60 @@ Ext.define('AgendaBuilderObservable', {
         }
         return null;
     },
+    /*******************Scrolling Functionality************/
+    setScrollingHandlers: function(){
+        //We are dealing with the left and right scrolling here
+        var rightNorthCtrMtg = Ext.ComponentQuery.query('#rightNorthCtrMtg')[0];
+        var leftNorthCtrMtg = Ext.ComponentQuery.query('#leftNorthCtrMtg')[0];
+        var northCtrMtg = Ext.ComponentQuery.query('#northCtrMtg')[0];
+        var northCtrMtgItems = northCtrMtg.items.items;
+        var mtgFarLeft = northCtrMtg.getX();
+        var mtgFarRight = mtgFarLeft + northCtrMtg.getWidth();
+        rightNorthCtrMtg.mon(rightNorthCtrMtg.el, 'click', function(){
+            if (northCtrMtgItems[0].getX() >= mtgFarLeft)
+                return;
+            Ext.each(northCtrMtgItems, function(i){
+                i.setX(i.getX() + 20);
+            })
+        });
+        leftNorthCtrMtg.mon(leftNorthCtrMtg.el, 'click', function(){
+            var lastItem = northCtrMtgItems[northCtrMtgItems.length - 1];
+            if (lastItem.getX() + lastItem.getWidth() <= mtgFarRight)
+                return;
+            Ext.each(northCtrMtgItems, function(i){
+                i.setX(i.getX() - 20);
+            })
+        });
+
+        var rightNorthCtrMeal = Ext.ComponentQuery.query('#rightNorthCtrMeal')[0];
+        var leftNorthCtrMeal = Ext.ComponentQuery.query('#leftNorthCtrMeal')[0];
+        var northCtrMeal = Ext.ComponentQuery.query('#northCtrMeal')[0];
+        var northCtrMealItems = northCtrMeal.items.items;
+        var mealFarLeft = northCtrMeal.getX();
+        var mealFarRight = mealFarLeft + northCtrMeal.getWidth();
+        rightNorthCtrMeal.mon(rightNorthCtrMeal.el, 'click', function(){
+            if (northCtrMealItems[0].getX() >= mealFarLeft)
+                return;
+            Ext.each(northCtrMealItems, function(i){
+                i.setX(i.getX() + 20);
+            })
+        });
+        leftNorthCtrMeal.mon(leftNorthCtrMeal.el, 'click', function(){
+            var lastItem = northCtrMealItems[northCtrMealItems.length - 1];
+            if (lastItem.getX() + lastItem.getWidth() <= mealFarRight)
+                return;
+            Ext.each(northCtrMealItems, function(i){
+                i.setX(i.getX() - 20);
+            })
+        });                
+    },
     /*******************Ajax callbacks**************/
     onGetRoomSetups: function(obj, scope){
         scope.fireEvent('getroomsetups', obj);
     },
     onGetMeetingItemTypes: function(obj, scope){
         scope.meeting_item_types = obj;
+        scope.buildMeetings(obj);
         scope.fireEvent('getmeetingitemtypes', obj);
     },
     onGetMeetingItems: function(obj, scope){

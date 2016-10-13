@@ -29,21 +29,23 @@ Ext.define('AgendaBuilder.MainContainer', {
                         {
                             width: 35,
                             xtype: 'container',
-                            style:  'background-color: #d9d9db;',
-                            html: '<div ><i style="margin-top: 2px; float: left;" class="fa fa-chevron-circle-left fa-3x" aria-hidden="true"></i></div>'
+                            itemId: 'leftNorthCtrMtg',
+                            style:  'background-color: #d9d9db;z-index:1000;',
+                            html: '<div ><i style="margin-top: 2px; margin-left: 2px; float: left;" class="fa fa-chevron-circle-left fa-3x" aria-hidden="true"></i></div>'
                         },
                         {
                             flex: 1,
                             xtype: 'container',
                             itemId: 'northCtrMtg',
-                            style:  'background-color: #d9d9db;',
+                            style:  'background-color: #d9d9db;z-index:1000;',
                             layout  : {type: 'hbox', align: 'stretch'} 
                         },
                         {
                             width: 35,
                             xtype: 'container',
-                            style:  'background-color: #d9d9db;',
-                            html: '<div ><i style="margin-top: 2px; float: right;" class="fa fa-chevron-circle-right fa-3x" aria-hidden="true"></i></div>'
+                            itemId: 'rightNorthCtrMtg',
+                            style:  'background-color: #d9d9db;z-index:1000;',
+                            html: '<div ><i style="margin-top: 2px; margin-right: 2px; float: right;" class="fa fa-chevron-circle-right fa-3x" aria-hidden="true"></i></div>'
                         
                         }
 
@@ -62,21 +64,23 @@ Ext.define('AgendaBuilder.MainContainer', {
                         {
                             width: 35,
                             xtype: 'container',
-                            style:  'background-color: #d9d9db;',
-                            html: '<div ><i style="margin-top: 2px; float: left;" class="fa fa-chevron-circle-left fa-3x" aria-hidden="true"></i></div>'
+                            itemId: 'leftNorthCtrMeal',
+                            style:  'background-color: #d9d9db;z-index:1000;',
+                            html: '<div ><i style="margin-top: 2px; margin-left: 2px; float: left;" class="fa fa-chevron-circle-left fa-3x" aria-hidden="true"></i></div>'
                         },
                         {
                             flex: 1,
                             xtype: 'container',
                             itemId: 'northCtrMeal',
-                            style:  'background-color: #d9d9db;',
+                            style:  'background-color: #d9d9db;z-index:1000;',
                             layout  : {type: 'hbox', align: 'stretch'} 
                         },
                         {
                             width: 35,
                             xtype: 'container',
-                            style:  'background-color: #d9d9db;',
-                            html: '<div ><i style="margin-top: 2px; float: right;" class="fa fa-chevron-circle-right fa-3x" aria-hidden="true"></i></div>'
+                            itemId: 'rightNorthCtrMeal',
+                            style:  'background-color: #d9d9db;z-index:1000;',
+                            html: '<div ><i style="margin-top: 2px; margin-right: 2px; float: right;" class="fa fa-chevron-circle-right fa-3x" aria-hidden="true"></i></div>'
                         
                         }
 
@@ -93,6 +97,7 @@ Ext.define('AgendaBuilder.MainContainer', {
         painted: {
             element: 'el', //bind to the underlying el property on the panel
             fn: function(cmp){
+                observer.setScrollingHandlers();
                 observer.buildMeetings();
                 observer.setRfpNumber(cmp.component.rfpNumber);
                 observer.getMeetingItemTypes();
