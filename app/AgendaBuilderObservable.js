@@ -9,8 +9,8 @@ Ext.define('AgendaBuilderObservable', {
     rfpNumber: null,
     ajaxUrlBase: 'https://etouches987.zentilaqa.com',
     meeting_item_types: null,
-    buildMeetings : function(meeting_item_types){
-        Ext.each(meeting_item_types, function(m){
+    room_setups: null,
+    createMeetingTemplateComponent: function(m){
             var t = new Ext.Template(
                         '<div>',
                             '<i style="padding-left:3px; padding-top:3px;" class="fa fa-bars fa-2x" aria-hidden="true"></i>',
@@ -22,16 +22,26 @@ Ext.define('AgendaBuilderObservable', {
                         }
             );
             var style = 'margin: 3px; border-radius: 5px; background-color: #' + m.color + '; color: white;'
-            var ctrId = "#northCtrMeal";
-            if (!m.is_meal)
-                ctrId = "#northCtrMtg";
             var width = (m.title.length * 6) + 50;
-            Ext.ComponentQuery.query(ctrId)[0].add(Ext.create('MeetingTemplate', 
+            var t = Ext.create('MeetingTemplate', 
             {
                 html: t.apply(m),
                 style:  style,
-                width: width
-            }));
+                width: width,
+                observer: this,
+                meeting: m,
+                template: t,
+                itemId: "meetingItemTemplate" + m.id
+            });
+            return t;
+    },
+    buildMeetings : function(meeting_item_types){
+        var me = this;
+        Ext.each(meeting_item_types, function(m){
+            var ctrId = "#northCtrMeal";
+            if (!m.is_meal)
+                ctrId = "#northCtrMtg";
+            Ext.ComponentQuery.query(ctrId)[0].add(me.createMeetingTemplateComponent(m));
  
         })
     },
@@ -57,10 +67,16 @@ Ext.define('AgendaBuilderObservable', {
                 var start = meeting.start_time.replace('1900/01/01 ', '');
                 var end = meeting.end_time.replace('1900/01/01 ', '');
                 var color = "#" + meeting.meeting_item_type.color;
-                me.createMeeting(instance.date, start, end, meeting.title, 'white', color, 1)
+                me.createMeeting(instance.date, start, end, meeting.title, 'white', 
+                    color, me.calculateRowIndex(meeting, instance))
             })
         });
         
+    },
+    calculateRowIndex(meeting, instance){
+        if (meeting.meeting_item_type.is_meal)
+            return 0;
+        return 1;
     },
     buildSingleDate: function(instance, parentCtr){
             var me = this;
@@ -70,6 +86,7 @@ Ext.define('AgendaBuilderObservable', {
                 date: instance.date,
                 meetings: []
             };
+            var data = instance.date.toLocaleDateString();
             var topRow = Ext.create('AgendaRow', 
                 {
                     height: 50,
@@ -83,7 +100,6 @@ Ext.define('AgendaBuilderObservable', {
                         ]
                 });
             parentCtr.add(topRow);
-
             var bottomRow = Ext.create('AgendaRow', 
                 {
                     height: 50,
@@ -94,7 +110,7 @@ Ext.define('AgendaBuilderObservable', {
                         ]
                 });
             parentCtr.add(bottomRow);
-
+            
             agendaBuilderRow.rows.push({id: topRow.id});
             agendaBuilderRow.rows.push({id: bottomRow.id});
             this.agendaBuilderRows.push(agendaBuilderRow);
@@ -250,6 +266,16 @@ Ext.define('AgendaBuilderObservable', {
         }
         return null;
     },
+    getRoomSetup: function(id){
+        if (!this.room_setups)
+            throw("Room Setups must be initialized first")
+        for(var i = 0; i < this.room_setups.length; i++)
+        {
+            if (this.room_setups[i].id == id)
+                return this.room_setups[i];
+        }
+        return null;
+    },
     /*******************Scrolling Functionality************/
     setScrollingHandlers: function(){
         //We are dealing with the left and right scrolling here
@@ -299,6 +325,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     /*******************Ajax callbacks**************/
     onGetRoomSetups: function(obj, scope){
+        scope.room_setups = obj;
         scope.fireEvent('getroomsetups', obj);
     },
     onGetMeetingItemTypes: function(obj, scope){
@@ -318,6 +345,7 @@ Ext.define('AgendaBuilderObservable', {
             };
             Ext.each(d.meetings, function(m){
                 m.meeting_item_type = scope.getMeetingType(m.type);
+                m.room_setup_type = scope.getRoomSetup(m.room_setup);
             })
             convertedData.push(d);
         });

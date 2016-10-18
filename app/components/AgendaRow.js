@@ -10,6 +10,7 @@ Ext.define('AgendaRow', {
     defaultColClass: null,
     evenColClass: null,
     oddColClass: null,
+    data: null,
     // Primitives are always OK on prototypes
     parameter: false,
     columns: [],
@@ -21,7 +22,7 @@ Ext.define('AgendaRow', {
 	        	'</tpl>',
         		'<tr>',
 		        	'<tpl for="columns">',
-		            	'<td {[this.getId({xindex})]} class="{cls}" style="{style}">{parent.columnCount} {html}', 
+		            	'<td {[this.getData()]} {[this.getId({xindex})]} class="{cls}" style="{style}">{parent.columnCount} {html}', 
 		        		'</td>',
 		        	'</tpl>',
 		        '</tr>', 
@@ -33,6 +34,11 @@ Ext.define('AgendaRow', {
 			    hoursColumns: this.hoursColumns, //30min of 18 hrs
 			    trailingColumns: this.trailingColumns,
 			    id: this.id,
+                data: this.data,
+                getData: function(){
+                    
+                    return '';
+                },
 			    getId: function(index){
 			    	return 'id="' + this.id + '-col-' + index.xindex + '"';
 			    },

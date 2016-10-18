@@ -98,11 +98,13 @@ Ext.define('AgendaBuilder.MainContainer', {
             element: 'el', //bind to the underlying el property on the panel
             fn: function(cmp){
                 observer.setScrollingHandlers();
-                observer.buildMeetings();
                 observer.setRfpNumber(cmp.component.rfpNumber);
-                observer.getMeetingItemTypes();
+                observer.getRoomSetups();
                 observer.on({
                     scope: this,
+                    getroomsetups: function(){
+                        observer.getMeetingItemTypes();
+                    },
                     getmeetingitems : function(data){
                         observer.buildDates(data);
                     },
