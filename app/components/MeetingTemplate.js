@@ -7,8 +7,6 @@ Ext.define('MeetingTemplate',
 	cls: 'meeting-item-type',
 	observer: null,
 	meeting: null,
-    //width: 100,
-    //html: '<div style="margin: 3px;padding:3px;">Meeting</div>',
     listeners: {
     	scope: this,
     	render: function(cmp, eOpts){
@@ -26,8 +24,14 @@ Ext.define('MeetingTemplate',
 			            meeting: cmp.meeting,
 			            originalXY: cmp.getXY()
 			        });
-			        
-			        var overrides = {
+					//Mask the other elements when the drag and drop meeting is created
+			        Ext.ComponentQuery.query('#MainContainer')[0].el.mask();
+					Ext.ComponentQuery.query('#northCtrMeal')[0].el.mask();
+					Ext.ComponentQuery.query('#northCtrMtg')[0].el.mask();		
+					Ext.each(Ext.query('.meeting-item-type'), function(e){
+						Ext.fly(e).el.mask();
+					});
+					var overrides = {
 			        	 // Called the instance the element is dragged.
 					        b4StartDrag : function() {
 					            // Cache the drag element
@@ -44,20 +48,15 @@ Ext.define('MeetingTemplate',
 					        },
 					        // Called when the drag operation completes
 					        endDrag : function(dropTarget) {
-					        	var hasMatch = false;
-					        	var cmps = Ext.query('#' + dropTarget.target.id);
-					        	
-					        	if (cmps && cmps.length)
-					        	{
-					        		var fly = (Ext.fly(cmps[0]));
-					        		Ext.each(document.elementsFromPoint(fly.getX(), fly.getY()), function(el){
-					        			if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1)
-					        				console.dir(el);
-					        		})
-					        		hasMatch = true;
-					        	}
+					        	var match = null;
+								
+					        	Ext.each(document.elementsFromPoint(newCmp.getX(), newCmp.getY()), function(el){
+									if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
+										match = el;
+								})
+
 					            // Invoke the animation if the invalidDrop flag is set to true
-					            if (!hasMatch) {
+					            if (match == null) {
 					                // Remove the drop invitation
 					                newCmp.el.removeCls('dropOK');
 
@@ -68,38 +67,27 @@ Ext.define('MeetingTemplate',
 					                    scope    : this,
 					                    callback : function() {
 					                        // Remove the position attribute
-					                        newCmp.el.dom.style.position = '';
+					                        //newCmp.el.dom.style.position = '';
 					                    }
 					                };
 					                // Apply the repair animation
-					                newCmp.el.setXY(newCmp.originalXY[0], newCmp.originalXY[1], animCfgObj);
+					                newCmp.setPosition(cmp.getXY()[0], cmp.getXY()[1], animCfgObj);
 					                delete newCmp.invalidDrop;
 					            }
-					        },
-					        onDragDrop : function(evtObj, targetElId) {
-						        // Wrap the drop target element with Ext.Element
-						        var dropEl = Ext.get(targetElId);
-
-						        // Perform the node move only if the drag element's
-						        // parent is not the same as the drop target
-						        if (newCmp.el.dom.parentNode.id != targetElId) {
-
-						            // Move the element
-						            dropEl.appendChild(newCmp.el);
-
-						            // Remove the drag invitation
-						            newCmp.onDragOut(evtObj, targetElId);
-
-						            // Clear the styles
-						            newCmp.el.dom.style.position ='';
-						            newCmp.el.dom.style.top = '';
-						            newCmp.el.dom.style.left = '';
-						        }
-						        else {
-						            // This was an invalid drop, initiate a repair
-						            newCmp.onInvalidDrop();
-						        }
-						    }
+								else{
+									console.dir(match);
+									console.dir(match.dataset.date);
+									console.dir(match.dataset.hour);
+									console.dir(cmp.meeting);
+									/*
+									var start = meeting.start_time.replace('1900/01/01 ', '');
+									var end = meeting.end_time.replace('1900/01/01 ', '');
+									var color = "#" + meeting.meeting_item_type.color;
+									me.createMeeting(instance.date, start, end, meeting.title, 'white', 
+										color, me.calculateRowIndex(meeting, instance))
+									*/
+								}
+					        }
 
 			        };
 

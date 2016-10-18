@@ -10,9 +10,10 @@ Ext.define('AgendaRow', {
     defaultColClass: null,
     evenColClass: null,
     oddColClass: null,
-    data: null,
+    dataField: null,
     // Primitives are always OK on prototypes
     parameter: false,
+	observer: null,	
     columns: [],
     initComponent: function() {
         this.tpl = new Ext.XTemplate(
@@ -22,7 +23,7 @@ Ext.define('AgendaRow', {
 	        	'</tpl>',
         		'<tr>',
 		        	'<tpl for="columns">',
-		            	'<td {[this.getData()]} {[this.getId({xindex})]} class="{cls}" style="{style}">{parent.columnCount} {html}', 
+		            	'<td {[this.getData(xindex)]} {[this.getId({xindex})]} class="{cls}" style="{style}">{parent.columnCount} {html}', 
 		        		'</td>',
 		        	'</tpl>',
 		        '</tr>', 
@@ -34,10 +35,21 @@ Ext.define('AgendaRow', {
 			    hoursColumns: this.hoursColumns, //30min of 18 hrs
 			    trailingColumns: this.trailingColumns,
 			    id: this.id,
-                data: this.data,
-                getData: function(){
-                    
-                    return '';
+                dataField: this.dataField,
+				observer: this.observer,
+                getData: function(i){
+					var data = '';
+                    if (this.dataField)
+					{												
+						if (this.observer)
+						{
+							data = 'data-date="'+ this.dataField + '"';						
+							var hour = this.observer.getHourForCol(i);
+							if (hour && hour.length)
+								data = 'data-hour="' + hour + '" ' + data;
+						}
+					}
+                    return data;
                 },
 			    getId: function(index){
 			    	return 'id="' + this.id + '-col-' + index.xindex + '"';
