@@ -220,19 +220,23 @@ Ext.define('AgendaBuilderObservable', {
         }
         return cols;
     },
-    createMeeting: function(date, startHour, endHour, text, color, fontColor, rowIdx){
-        var agendaBuilderRow = this.getRow(date);
+    createMeeting: function(date, startHour, endHour, text, color, fontColor, rowIdx, context){
+        if (context)
+            var me = context;
+        else
+            var me = this;
+        var agendaBuilderRow = me.getRow(date);
         //temp to get the first row
         if (rowIdx == undefined || rowIdx == null)
             rowIdx = 0;
         var row = agendaBuilderRow.rows[rowIdx];
-        var startColId = this.getColForHour(startHour);
+        var startColId = me.getColForHour(startHour);
         var startHourId = row.id + "-col-" + startColId;
         var sfly = Ext.fly(document.getElementById(startHourId));
         var xy = sfly.getXY();
         var height = sfly.getHeight();
 
-        var endColId = this.getColForHour(endHour);
+        var endColId = me.getColForHour(endHour);
         var endHourId = row.id + "-col-" + endColId;
         var efly = Ext.fly(document.getElementById(endHourId))
         var width = xy[0] - efly.getXY()[0];

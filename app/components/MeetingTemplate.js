@@ -10,6 +10,7 @@ Ext.define('MeetingTemplate',
     listeners: {
     	scope: this,
     	render: function(cmp, eOpts){
+			var observer = this.observer;
     		cmp.mon(cmp.el, 'mousedown', function(){
     				var overrides = [];
     				var newCmp = Ext.create('Ext.Component', {
@@ -75,17 +76,13 @@ Ext.define('MeetingTemplate',
 					                delete newCmp.invalidDrop;
 					            }
 								else{
-									console.dir(match);
-									console.dir(match.dataset.date);
-									console.dir(match.dataset.hour);
-									console.dir(cmp.meeting);
-									/*
-									var start = meeting.start_time.replace('1900/01/01 ', '');
-									var end = meeting.end_time.replace('1900/01/01 ', '');
-									var color = "#" + meeting.meeting_item_type.color;
-									me.createMeeting(instance.date, start, end, meeting.title, 'white', 
-										color, me.calculateRowIndex(meeting, instance))
-									*/
+									var meeting = (cmp.meeting);
+									var d = new Date(match.dataset.date + ' ' + match.dataset.hour);
+									var end = Ext.Date.add(d, Ext.Date.MINUTE, meeting.default_duration);
+									var color = "#" + meeting.color;
+									observer.createMeeting(new Date(match.dataset.date), match.dataset.hour, Ext.Date.format(end, 'H:i:s'), meeting.title, 'white', 
+										color, 1, observer);
+									
 								}
 					        }
 
