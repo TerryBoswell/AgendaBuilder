@@ -294,7 +294,7 @@ Ext.define('AgendaBuilderObservable', {
         var width = xy[0] - efly.getXY()[0];
         var datesCtr = Ext.ComponentQuery.query('#datesCtr')[0];
         var datesCtrXY = datesCtr.getXY();
-        Ext.create('Ext.Component', {
+        var cmp = Ext.create('Ext.Component', {
             html: text,
             floating: true,
             height : height - 6,
@@ -310,6 +310,13 @@ Ext.define('AgendaBuilderObservable', {
             x: xy[0] - datesCtrXY[0],
             y: xy[1] - datesCtrXY[1] + 3,
             renderTo: datesCtr.el//Ext.getBody()
+        });
+
+        new Ext.tip.ToolTip({
+            target: cmp.el,
+            html: 'Meeting ' + text,
+            modal: true,
+            mouseOffset: [60,0]
         });
     },
     getRow: function(date){
