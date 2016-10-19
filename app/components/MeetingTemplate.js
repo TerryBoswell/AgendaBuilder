@@ -11,7 +11,7 @@ Ext.define('MeetingTemplate',
     	scope: this,
     	render: function(cmp, eOpts){
 			var observer = this.observer;
-    		cmp.mon(cmp.el, 'mousedown', function(){
+    		cmp.mon(cmp.el, 'mousedown', function(e){
     				var overrides = [];
     				var newCmp = Ext.create('Ext.Component', {
 			            html: cmp.template.apply(cmp.meeting),
@@ -83,6 +83,13 @@ Ext.define('MeetingTemplate',
 									observer.createMeeting(new Date(match.dataset.date), match.dataset.hour, Ext.Date.format(end, 'H:i:s'), meeting.title, 'white', 
 										color, 1, observer);
 									
+									Ext.ComponentQuery.query('#MainContainer')[0].el.unmask();
+									Ext.ComponentQuery.query('#northCtrMeal')[0].el.unmask();
+									Ext.ComponentQuery.query('#northCtrMtg')[0].el.unmask();		
+									Ext.each(Ext.query('.meeting-item-type'), function(e){
+										Ext.fly(e).el.unmask();
+									});
+									newCmp.destroy();
 								}
 					        }
 
@@ -93,8 +100,6 @@ Ext.define('MeetingTemplate',
 		            });
 			       Ext.apply(dd, overrides);
 
-			       dd.startDrag(newCmp.getX(), newCmp.getY());
-			        
         		});
     	},
         painted: {

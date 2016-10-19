@@ -10,6 +10,7 @@ Ext.define('AgendaBuilderObservable', {
     ajaxUrlBase: 'https://etouches987.zentilaqa.com',
     meeting_item_types: null,
     room_setups: null,
+    dates: null,
     getColForHour: function(hour){
         if (hour == '06:00:00')
             return 3;
@@ -145,6 +146,7 @@ Ext.define('AgendaBuilderObservable', {
         return weekday[d.getDay()];
     },
     buildDates: function(dates){
+        this.dates = dates;
         var datesCtr = Ext.ComponentQuery.query('#datesCtr')[0];
         var me = this;
         Ext.each(dates, function(instance){
@@ -163,6 +165,56 @@ Ext.define('AgendaBuilderObservable', {
         if (meeting.meeting_item_type.is_meal)
             return 0;
         return 1;
+    },
+    addPreDays: function(count){
+        var me = this;
+        Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
+        Ext.each(Ext.query('.mtg-instance'), function(el){
+            Ext.fly(el).destroy()
+        })
+        
+        var firstDate = me.dates[0].date;
+        var newRows = [];
+        for(i = 1; i <= count; i++)
+        {
+            newRows.push({
+                date : Ext.Date.add(firstDate, Ext.Date.DAY, -i),
+                meetings: [],
+                roomBlocks: 0,
+                roomNight: 0
+            })
+        }
+        Ext.each(me.dates, function(d){
+            newRows.push(d);
+        })
+        me.agendaBuilderRows = [];
+        me.dates = [];
+        me.buildDates(newRows);
+    },
+    addPostDays: function(count){
+        var me = this;
+        Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
+        Ext.each(Ext.query('.mtg-instance'), function(el){
+            Ext.fly(el).destroy()
+        })
+        
+        var lastDate = me.dates[me.dates.length - 1].date;
+        var newRows = [];
+        Ext.each(me.dates, function(d){
+            newRows.push(d);
+        })
+        for(i = 1; i <= count; i++)
+        {
+            newRows.push({
+                date : Ext.Date.add(lastDate, Ext.Date.DAY, i),
+                meetings: [],
+                roomBlocks: 0,
+                roomNight: 0
+            })
+        }
+        me.agendaBuilderRows = [];
+        me.dates = [];
+        me.buildDates(newRows);
     },
     buildSingleDate: function(instance, parentCtr){
             var me = this;
@@ -240,12 +292,14 @@ Ext.define('AgendaBuilderObservable', {
         var endHourId = row.id + "-col-" + endColId;
         var efly = Ext.fly(document.getElementById(endHourId))
         var width = xy[0] - efly.getXY()[0];
-
+        var datesCtr = Ext.ComponentQuery.query('#datesCtr')[0];
+        var datesCtrXY = datesCtr.getXY();
         Ext.create('Ext.Component', {
             html: text,
             floating: true,
             height : height - 6,
             width: width,
+            cls: 'mtg-instance',
             style: {
                 paddingTop: '3px',
                 paddingLeft: '3px',
@@ -253,9 +307,9 @@ Ext.define('AgendaBuilderObservable', {
                 backgroundColor: fontColor,
                 borderRadius: '3px'
             },
-            x: xy[0],
-            y: xy[1] + 3,
-            renderTo: Ext.getBody()
+            x: xy[0] - datesCtrXY[0],
+            y: xy[1] - datesCtrXY[1] + 3,
+            renderTo: datesCtr.el//Ext.getBody()
         });
     },
     getRow: function(date){

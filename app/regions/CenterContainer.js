@@ -76,7 +76,7 @@ Ext.define('CenterContainer', {
 				type	: 'vbox',
 				align	: 'stretch'
 			},
-			flex	: 1
+			height	: 400
 		}
     ]
 

@@ -116,5 +116,11 @@ Ext.define('AgendaBuilder.MainContainer', {
                 window.agendaBuilder.observer = observer;
             }
         }
-    } 
+    },
+    addPreDays: function(count){
+        this.observer.addPreDays(count);
+    },
+    addPostDays: function(count){
+        this.observer.addPostDays(count);
+    }
 })
