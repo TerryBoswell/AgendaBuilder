@@ -70,14 +70,23 @@ Ext.define('CenterContainer', {
 		),
 		{
 			xtype	: 'container',
-			itemId	: 'datesCtr',
-            style   : 'overflow-y: scroll;',
-			layout	: {
-				type	: 'vbox',
-				align	: 'stretch'
-			},
-			height	: 400
+			height	: 400,
+			style   : 'overflow-y: scroll;',
+			items	: [
+					{
+						xtype	: 'container',
+						itemId	: 'datesCtr',
+						//style   : 'overflow-y: scroll;',
+						layout	: {
+							type	: 'vbox',
+							align	: 'stretch'
+						},
+						//height	: 400
+					}
+
+			]
 		}
+		
     ]
 
 })
