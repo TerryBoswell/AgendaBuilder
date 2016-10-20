@@ -100,6 +100,14 @@ Ext.define('MeetingTemplate',
 			                isTarget  : false
 		            });
 			       Ext.apply(dd, overrides);
+				    dd.setStartPosition();
+					dd.b4MouseDown(e);
+					dd.onMouseDown(e);
+	
+					dd.DDMInstance.handleMouseDown(e, dd);
+	
+					dd.DDMInstance.stopEvent(e);
+
 
         		});
     	},

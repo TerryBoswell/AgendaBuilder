@@ -108,7 +108,6 @@ Ext.define('AgendaBuilder.MainContainer', {
                     },
                     getmeetingitems : function(data){
                         observer.buildDates(data);
-                        //observer.createMeetingToolTip();
                     },
                     getmeetingitemtypes: function(){
                         observer.getMeetingItems();
