@@ -151,15 +151,19 @@ Ext.define('AgendaBuilderObservable', {
         var me = this;
         Ext.each(dates, function(instance){
             me.buildSingleDate(instance, datesCtr);
-            Ext.each(instance.meetings, function(meeting){
+            me.buildMeetingsForDate(instance, me);
+        });
+        
+    },
+    buildMeetingsForDate: function(instance, context){
+        var me = context;
+        Ext.each(instance.meetings, function(meeting){
                 var start = meeting.start_time.replace('1900/01/01 ', '');
                 var end = meeting.end_time.replace('1900/01/01 ', '');
                 var color = "#" + meeting.meeting_item_type.color;
                 me.createMeeting(instance.date, start, end, meeting.title, 'white', 
                     color, me.calculateRowIndex(meeting, instance))
-            })
-        });
-        
+            });
     },
     calculateRowIndex(meeting, instance){
         if (meeting.meeting_item_type.is_meal)
@@ -169,10 +173,7 @@ Ext.define('AgendaBuilderObservable', {
     addPreDays: function(count){
         var me = this;
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
-        Ext.each(Ext.query('.mtg-instance'), function(el){
-            Ext.fly(el).destroy()
-        })
-        
+        me.removeAllMeetings();
         var firstDate = me.dates[0].date;
         var newRows = [];
         for(i = 1; i <= count; i++)
@@ -194,10 +195,7 @@ Ext.define('AgendaBuilderObservable', {
     addPostDays: function(count){
         var me = this;
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
-        Ext.each(Ext.query('.mtg-instance'), function(el){
-            Ext.fly(el).destroy()
-        })
-        
+        me.removeAllMeetings();        
         var lastDate = me.dates[me.dates.length - 1].date;
         var newRows = [];
         Ext.each(me.dates, function(d){
@@ -222,7 +220,7 @@ Ext.define('AgendaBuilderObservable', {
             var agendaBuilderRow = {
                 rows : [],
                 date: instance.date,
-                meetings: []
+                meetings: [],
             };
             var data = instance.date.toLocaleDateString();
             var topRow = Ext.create('AgendaRow', 
@@ -263,6 +261,45 @@ Ext.define('AgendaBuilderObservable', {
                     defaultColStyle:'border-bottom: 1px solid grey'
                 });
             parentCtr.add(dvdr);
+    },
+    removeAllMeetings: function(){
+        Ext.each(Ext.query('.mtg-instance'), function(el){
+            Ext.fly(el).destroy()
+        })
+    },
+    addAdditionalRow: function(date, context){
+        if (context)
+            var me = context;
+        else
+            var me = this;
+        var agendaBuilderRow = me.getRow(date);
+        var data = date.toLocaleDateString();
+        function isOdd(num) { return ((num % 2) == 1);}
+        var evenColClass = 'evenRowBackGroundA';
+        var oddColClass = 'oddRowBackGround';
+        var datesCtr = Ext.ComponentQuery.query('#datesCtr')[0];
+        if (!isOdd(agendaBuilderRow.rows.length))
+        {
+            oddColClass = null;
+        }
+        var row = Ext.create('AgendaRow', 
+                {
+                    height: 50,
+                    evenColClass : evenColClass,
+                    oddColClass: oddColClass,
+                    dataField: data,
+                    observer: this,
+                    columns: [
+                        {cls: '', Index: 0},
+                        {html: '-HideX', cls: '', style : 'color: #43b8bc;text-align: center;height: 42px;', Index: 1}
+                        ]
+                });
+        datesCtr.insert(2, row);
+        me.removeAllMeetings();
+        Ext.each(me.dates, function(instance){
+            me.buildMeetingsForDate(instance, me);
+        })
+        
     },
     buildHourColumns: function(cnt){
         var cols = [];
@@ -356,6 +393,12 @@ Ext.define('AgendaBuilderObservable', {
                 return this.room_setups[i];
         }
         return null;
+    },
+    showMeetingEditor: function(mtgCmp, meeting){
+        Ext.create('MeetingEditor', {
+            meeting: meeting
+        }).show();
+
     },
     /*******************Scrolling Functionality************/
     setScrollingHandlers: function(){
