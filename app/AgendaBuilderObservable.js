@@ -11,6 +11,7 @@ Ext.define('AgendaBuilderObservable', {
     meeting_item_types: null,
     room_setups: null,
     dates: null,
+    totalRowCount: 0,
     getColForHour: function(hour){
         if (hour == '06:00:00')
             return 3;
@@ -161,14 +162,94 @@ Ext.define('AgendaBuilderObservable', {
                 var start = meeting.start_time.replace('1900/01/01 ', '');
                 var end = meeting.end_time.replace('1900/01/01 ', '');
                 var color = "#" + meeting.meeting_item_type.color;
+                
                 me.createMeeting(instance.date, start, end, meeting.title, 'white', 
                     color, me.calculateRowIndex(meeting, instance))
             });
     },
+    assignRowIndexes: function(instance){
+        var date = new Date(instance.date)
+        var dateStr =    Ext.Date.format(date, "m/d/Y");
+        Ext.each(instance.meetings, function(m){
+            m.start = new Date(m.start_time.replace('1900/01/01', dateStr) + ' GMT+0000');
+            m.end = new Date(m.end_time.replace('1900/01/01', dateStr) + ' GMT+0000');
+        })
+       /*********************************/
+
+        //Sort them all into order to start with
+        var sortFn = function(itemA, itemB){
+            return itemA.start.getTime() - itemB.start.getTime();
+        }
+
+        var dataOrderedData = instance.meetings.sort(sortFn);
+
+        var dict = {};
+
+        Ext.each(dataOrderedData, function(d){
+            if (dict[d.type] == undefined)
+                dict[d.type] = [];
+            dict[d.type].push(d)
+        })
+
+        //Now lets order the types by there first instance start
+        var typeOrder = [];
+        for (var property in dict) {
+            typeOrder.push({type : dict[property][0].type, start : dict[property][0].start})
+        }
+        typeOrder = typeOrder.sort(sortFn);
+
+        var typeOrderDictionary = {};
+
+        var i = 1;
+        Ext.each(typeOrder, function(t){
+            typeOrderDictionary[t.type] = i;
+        i++;
+        })
+
+        Ext.each(dataOrderedData, function(d){
+            d.rowIndex = typeOrderDictionary[d.type];
+        })
+
+        //This function will be used to detect record overlaps
+        var overLapsSamePreviousType = function(idx, data)
+        {
+            if (idx === 0)
+                return false;
+            if (idx >= data.length)
+                return false;
+            if (data[idx].type != data[idx - 1].type)
+                return false;
+            return data[idx].start < data[idx - 1].end;
+        }
+
+        //we'll order by column index now
+        var rowOrderedData = dataOrderedData.sort(function(itemA, itemB){
+            if (itemA.rowIndex == itemB.rowIndex)
+                return itemA.start.getTime() - itemB.start.getTime();
+            return itemA.rowIndex - itemB.rowIndex;
+        })
+
+        //console.dir(rowOrderedData);
+        var recordOverlaps = 0;
+        var maxRows = 0;
+        //now we will bump any records with record overlaps
+        for(i = 0; i < instance.meetings.length; i++)
+        {
+            if (overLapsSamePreviousType(i, instance.meetings))
+            {
+                    recordOverlaps++;
+            }
+            instance.meetings[i].rowIndex += recordOverlaps;
+            maxRows = instance.meetings[i].rowIndex;
+        }
+        /*********************************/
+        return maxRows;
+    },
     calculateRowIndex(meeting, instance){
-        if (meeting.meeting_item_type.is_meal)
-            return 0;
-        return 1;
+        return meeting.rowIndex - 1;
+        //if (meeting.meeting_item_type.is_meal)
+        //    return 0;
+        //return 1;
     },
     addPreDays: function(count){
         var me = this;
@@ -223,6 +304,9 @@ Ext.define('AgendaBuilderObservable', {
                 meetings: [],
             };
             var data = instance.date.toLocaleDateString();
+            //This methods assigns the row index to the meetings and returns the number
+            //of rows we need
+            var rowCount = me.assignRowIndexes(instance);
             var topRow = Ext.create('AgendaRow', 
                 {
                     height: 50,
@@ -251,9 +335,14 @@ Ext.define('AgendaBuilderObservable', {
                 });
             parentCtr.add(bottomRow);
             
+
             agendaBuilderRow.rows.push({id: topRow.id});
             agendaBuilderRow.rows.push({id: bottomRow.id});
             this.agendaBuilderRows.push(agendaBuilderRow);
+            for(j = 2; j < rowCount; j++)
+            {
+                me.addAdditionalRow(instance.date, me, agendaBuilderRow);
+            }
 
             var dvdr = Ext.create('AgendaRow', 
                 {
@@ -267,20 +356,22 @@ Ext.define('AgendaBuilderObservable', {
             Ext.fly(el).destroy()
         })
     },
-    addAdditionalRow: function(date, context){
+    addAdditionalRow: function(date, context, agendaBuilderRow, buildMeetings){
         if (context)
             var me = context;
         else
             var me = this;
-        var agendaBuilderRow = me.getRow(date);
+        if (!agendaBuilderRow)
+            agendaBuilderRow = me.getRow(date);
         var data = date.toLocaleDateString();
         function isOdd(num) { return ((num % 2) == 1);}
-        var evenColClass = 'evenRowBackGroundA';
+        var evenColClass = 'evenRowBackGroundB';
         var oddColClass = 'oddRowBackGround';
         var datesCtr = Ext.ComponentQuery.query('#datesCtr')[0];
         if (!isOdd(agendaBuilderRow.rows.length))
         {
-            oddColClass = null;
+            //oddColClass = null;
+            evenColClass = 'evenRowBackGroundB';
         }
         var row = Ext.create('AgendaRow', 
                 {
@@ -291,14 +382,16 @@ Ext.define('AgendaBuilderObservable', {
                     observer: this,
                     columns: [
                         {cls: '', Index: 0},
-                        {html: '-HideX', cls: '', style : 'color: #43b8bc;text-align: center;height: 42px;', Index: 1}
+                        {html: '-Hide', cls: '', style : 'color: #43b8bc;text-align: center;height: 42px;', Index: 1}
                         ]
                 });
-        datesCtr.insert(2, row);
-        me.removeAllMeetings();
-        Ext.each(me.dates, function(instance){
-            me.buildMeetingsForDate(instance, me);
-        })
+        //datesCtr.insert(agendaBuilderRow.rows.length, row);
+        datesCtr.add(row);
+        agendaBuilderRow.rows.push({id: row.id})
+        //me.removeAllMeetings();
+        //Ext.each(me.dates, function(instance){
+        //    me.buildMeetingsForDate(instance, me);
+        //})
         
     },
     buildHourColumns: function(cnt){
