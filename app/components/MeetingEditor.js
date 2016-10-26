@@ -13,7 +13,8 @@ Ext.define('MeetingEditor', {
         {
             xtype   : 'container',
             region  : 'center',
-            style   : 'background-color: white;'
+            itemId  : 'centerctr',
+            style   : 'background-color: white;'            
         }
     ],
     buildNorthContainer: function(meeting){
@@ -45,6 +46,7 @@ Ext.define('MeetingEditor', {
                 },
                 {
                     xtype   : 'container',
+                    style   : 'background-color: white; border-left: 1px solid rgba(0, 0, 0, .25);',                    
                     flex    : 1,
                     layout  : {
                         type    : 'vbox',
@@ -54,7 +56,7 @@ Ext.define('MeetingEditor', {
                         {
                             xtype: 'container',
                             height: 50,
-                            html: '<div style="text-align:center;">' + Ext.Date.format(meeting.date, 'l n/j') + '</div>'
+                            html: '<div style="text-align:center;font-size:x-large;">' + Ext.Date.format(meeting.date, 'l n/j') + '</div>'
                         }
                     ]
                 }
@@ -65,6 +67,7 @@ Ext.define('MeetingEditor', {
         beforeshow: function(cmp){
             cmp.title = cmp.meeting.title;
             cmp.add(cmp.buildNorthContainer(cmp.meeting));
+            Ext.ComponentQuery.query('#centerctr')[0].html = Ext.encode(cmp.meeting);
         }
     }
 

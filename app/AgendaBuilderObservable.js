@@ -12,80 +12,6 @@ Ext.define('AgendaBuilderObservable', {
     room_setups: null,
     dates: null,
     totalRowCount: 0,
-    getColForHour: function(hour){
-        if (hour == '06:00:00')
-            return 3;
-        else if (hour == '06:30:00')
-            return 4;
-        else if (hour == '07:00:00')
-            return 5;
-        else if (hour == '07:30:00')
-            return 6;
-        else if (hour == '08:00:00')
-            return 7;
-        else if (hour == '08:30:00')
-            return 8;
-        else if (hour == '09:00:00')
-            return 9;
-        else if (hour == '09:30:00')
-            return 10;
-        else if (hour == '10:00:00')
-            return 11;
-        else if (hour == '10:30:00')
-            return 12;
-        else if (hour == '11:00:00')
-            return 13;
-        else if (hour == '11:30:00')
-            return 14;
-        else if (hour == '12:00:00')
-            return 15;
-        else if (hour == '12:30:00')
-            return 16;
-        else if (hour == '13:00:00')
-            return 17;
-        else if (hour == '13:30:00')
-            return 18;
-        else if (hour == '14:00:00')
-            return 19;
-        else if (hour == '14:30:00')
-            return 20;
-        else if (hour == '15:00:00')
-            return 21;
-        else if (hour == '15:30:00')
-            return 22;
-        else if (hour == '16:00:00')
-            return 23;
-        else if (hour == '16:30:00')
-            return 24;
-        else if (hour == '17:00:00')
-            return 25;
-        else if (hour == '17:30:00')
-            return 26;
-        else if (hour == '18:00:00')
-            return 27;
-        else if (hour == '18:30:00')
-            return 28;
-        else if (hour == '19:00:00')
-            return 29;
-        else if (hour == '19:30:00')
-            return 30;
-        else if (hour == '20:00:00')
-            return 31;
-        else if (hour == '20:30:00')
-            return 32;
-        else if (hour == '21:00:00')
-            return 33;
-        else if (hour == '21:30:00')
-            return 34;
-        else if (hour == '22:00:00')
-            return 35;
-        else if (hour == '22:30:00')
-            return 36;
-        else if (hour == '23:00:00')
-            return 37;
-        else if (hour == '23:30:00')
-            return 38;            
-    },
     getHourForCol: function(col){
         var colBase = 3;
         if (col < colBase)
@@ -626,7 +552,81 @@ Ext.define('AgendaBuilderObservable', {
     },
     saveMeetingItem: function(){},
     deleteMeetingItem: function(){},
-    saveAlternateOption: function(){}
+    saveAlternateOption: function(){},
+    getColForHour: function(hour){
+        if (hour == '06:00:00')
+            return 3;
+        else if (hour == '06:30:00')
+            return 4;
+        else if (hour == '07:00:00')
+            return 5;
+        else if (hour == '07:30:00')
+            return 6;
+        else if (hour == '08:00:00')
+            return 7;
+        else if (hour == '08:30:00')
+            return 8;
+        else if (hour == '09:00:00')
+            return 9;
+        else if (hour == '09:30:00')
+            return 10;
+        else if (hour == '10:00:00')
+            return 11;
+        else if (hour == '10:30:00')
+            return 12;
+        else if (hour == '11:00:00')
+            return 13;
+        else if (hour == '11:30:00')
+            return 14;
+        else if (hour == '12:00:00')
+            return 15;
+        else if (hour == '12:30:00')
+            return 16;
+        else if (hour == '13:00:00')
+            return 17;
+        else if (hour == '13:30:00')
+            return 18;
+        else if (hour == '14:00:00')
+            return 19;
+        else if (hour == '14:30:00')
+            return 20;
+        else if (hour == '15:00:00')
+            return 21;
+        else if (hour == '15:30:00')
+            return 22;
+        else if (hour == '16:00:00')
+            return 23;
+        else if (hour == '16:30:00')
+            return 24;
+        else if (hour == '17:00:00')
+            return 25;
+        else if (hour == '17:30:00')
+            return 26;
+        else if (hour == '18:00:00')
+            return 27;
+        else if (hour == '18:30:00')
+            return 28;
+        else if (hour == '19:00:00')
+            return 29;
+        else if (hour == '19:30:00')
+            return 30;
+        else if (hour == '20:00:00')
+            return 31;
+        else if (hour == '20:30:00')
+            return 32;
+        else if (hour == '21:00:00')
+            return 33;
+        else if (hour == '21:30:00')
+            return 34;
+        else if (hour == '22:00:00')
+            return 35;
+        else if (hour == '22:30:00')
+            return 36;
+        else if (hour == '23:00:00')
+            return 37;
+        else if (hour == '23:30:00')
+            return 38;            
+    }
     
 });
 
