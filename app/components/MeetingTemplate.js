@@ -76,12 +76,13 @@ Ext.define('MeetingTemplate',
 					                delete newCmp.invalidDrop;
 					            }
 								else{
-									var meeting = (cmp.meeting);
+									var meetingTemplate = (cmp.meeting);
 									var d = new Date(match.dataset.date + ' ' + match.dataset.hour);
-									var end = Ext.Date.add(d, Ext.Date.MINUTE, meeting.default_duration);
-									var color = "#" + meeting.color;
-									observer.createMeeting(new Date(match.dataset.date), match.dataset.hour, Ext.Date.format(end, 'H:i:s'), meeting.title, 'white', 
-										color, 1, observer);
+									var end = Ext.Date.add(d, Ext.Date.MINUTE, meetingTemplate.default_duration);
+									var color = "#" + meetingTemplate.color;
+									var meeting = observer.createMeeting(new Date(match.dataset.date), match.dataset.hour, Ext.Date.format(end, 'H:i:s'), 
+										meetingTemplate.title, 'white', 
+										color, 1, observer, meetingTemplate);
 									
 									Ext.ComponentQuery.query('#MainContainer')[0].el.unmask();
 									Ext.ComponentQuery.query('#northCtrMeal')[0].el.unmask();
@@ -89,7 +90,7 @@ Ext.define('MeetingTemplate',
 									Ext.each(Ext.query('.meeting-item-type'), function(e){
 										Ext.fly(e).el.unmask();
 									});
-									observer.showMeetingEditor(cmp, cmp.meeting);
+									observer.showMeetingEditor(cmp, meeting);
 									newCmp.destroy();
 								}
 					        }
