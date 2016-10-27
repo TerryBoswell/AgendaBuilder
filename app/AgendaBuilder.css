@@ -44,6 +44,30 @@
     border-top: 1px solid black;
 }
 
+.timeInput{
+    font-size: x-large;
+    text-align: right;
+    border-radius: 3px;
+}
+
+.timeInvalid{
+    color: red;
+}
+
+.roomLayout
+{
+    margin: 5px; 
+    border-radius: 5px; 
+    background-color: #c0e4e8;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.roomLayoutSelect
+{
+    border: 3px solid teal;
+}
+
 tbody td:nth-of-type(1),
 thead th:nth-of-type(1){
     min-width: 51px !important;

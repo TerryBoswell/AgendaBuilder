@@ -426,11 +426,13 @@ Ext.define('AgendaBuilderObservable', {
         }
         return null;
     },
-    showMeetingEditor: function(mtgCmp, meeting){
+    showMeetingEditor: function(mtgCmp, meeting, observer){
+        var me = this;
         var datesCtr = Ext.ComponentQuery.query('#MainContainer')[0];
         Ext.create('MeetingEditor', {
             meeting: meeting,
-            alignTarget: datesCtr
+            alignTarget: datesCtr,
+            observer: observer
         }).show();
 
     },
@@ -480,6 +482,17 @@ Ext.define('AgendaBuilderObservable', {
                 i.setX(i.getX() - 20);
             })
         });                
+    },
+    convertTimeTo12Hrs: function(time){
+        var hr = time.substring(0,2) * 1;
+        var slice = "AM"
+        if (hr > 12)
+        {
+            hr = hr - 12;
+            slice = "PM";
+        }
+        var min = time.substring(3,5);
+        return Ext.String.format("{0}:{1} {2}", hr, min, slice);
     },
     /*******************Ajax callbacks**************/
     onGetRoomSetups: function(obj, scope){
