@@ -126,36 +126,17 @@ Ext.define('MeetingEditor', {
             ]
         };
     },
-    buildRoomLayout: function(){
-        return {
-            xtype   : 'container',
-            cls     : 'roomLayout',
-            height  : 80,
-            width   : 80,
-            html    : '<div></div>',
-            listeners: {
-            scope: this,
-            render  : function(cmp, eOpts){
-                var observer = this.observer;
-      		    cmp.mon(cmp.el, 'mouseover', function(e){
-                    cmp.el.dom.classList.add('roomLayoutSelect');
-                })
-                cmp.mon(cmp.el, 'mouseout', function(e){
-                    cmp.el.dom.classList.remove('roomLayoutSelect');
-                })
-            }
-            }
-        }
+    buildRoomLayout: function(layout){
+        return Ext.create(layout);
     },
     buildCenterComponents: function(meeting){
         return [
             {
                 xtype   : 'container',
-                style   : 'border-top: 1px solid rgba(0, 0, 0, .25); padding: 5px;',
-                height  : 100,
+                style   : 'border-top: 1px solid rgba(0, 0, 0, .25); border-bottom: 1px solid rgba(0, 0, 0, .25);  padding: 5px;',
+                height  : 150,
                 layout  : {
-                    type    : 'hbox',
-                    align   : 'stretch'
+                    type    : 'hbox'
                 },
                 defaults: {
                     flex : 1,
@@ -166,37 +147,66 @@ Ext.define('MeetingEditor', {
                 defaultType: 'container',
                 items   : [
                     {
-                        items   : this.buildRoomLayout()
+                        items   : this.buildRoomLayout('squarelayout')
                     },
                     {
                         style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
-                        items   : this.buildRoomLayout()
+                        items   : this.buildRoomLayout('ushapelayout')
                     },
                     {
                         style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
-                        items   : this.buildRoomLayout()
+                        items   : this.buildRoomLayout('roundlayout')
                     },
                     {
                         style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
-                        items   : this.buildRoomLayout()
+                        items   : this.buildRoomLayout('cocktaillayout')
                     },
                     {
                         style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
-                        items   : this.buildRoomLayout()
+                        items   : this.buildRoomLayout('theaterlayout')
                     },
                     {
                         style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
-                        items   : this.buildRoomLayout()
+                        items   : this.buildRoomLayout('classroomlayout')
                     },
                     {
                         style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
-                        items   : this.buildRoomLayout()
+                        items   : this.buildRoomLayout('boardroomlayout')
                     }
                 ]
             },
             {
                 xtype   : 'container',
                 flex    : 1
+            },
+            {
+                xtype   : 'container',
+                height  : 80,
+                style   : 'padding: 5px;',
+                layout  : {
+                    type    : 'hbox',
+                    align   : 'stretch'
+                },
+                items   : [
+                    {
+                        xtype   : 'button',
+                        text    : 'Cancel'
+                    },
+                    {
+                        xtype   : 'button',
+                        text    : 'Delete'
+                    },
+                    {
+                        xtype   : 'box',
+                        flex    : 1
+                    },
+                    {
+                        xtype   : 'button',
+                        text    : 'Save',
+                        cls     : 'important'
+                    }
+                ]
+
             }
         ];
     },
