@@ -18,36 +18,44 @@ var baseConfig = {
 };
 
 Ext.define('squarelayout', Ext.apply({
-        html: '<div class="layoutName">Square</div>'
+        html: 
+            '<img class="img-roomlayout" src="app/images/boardroom.png">' +
+            '<div class="layoutName img-banquet">Square</img></div>'
     }, baseConfig)
 );
 
 Ext.define('ushapelayout', Ext.apply({
-        html: '<div class="layoutName">U Shape</div>'
+        html: '<img class="img-roomlayout" src="app/images/u-shape.png" >' +
+              '<div class="layoutName">U Shape</div>'
     }, baseConfig)
 );
 
 Ext.define('roundlayout', Ext.apply({
-        html: '<div class="layoutName">Rounds</div>'
+        html: '<img class="img-roomlayout" src="app/images/banquet.png">' +
+                '<div class="layoutName">Rounds</div>'
     }, baseConfig)
 );
 
 Ext.define('cocktaillayout', Ext.apply({
-        html: '<div class="layoutName">Cocktail</div>'
+        html: '<img class="img-roomlayout" src="app/images/cocktail.png">' +
+                '<div class="layoutName">Cocktail</div>'
     }, baseConfig)
 );
 
 Ext.define('theaterlayout', Ext.apply({
-        html: '<div class="layoutName">Theater</div>'
+        html: '<img class="img-roomlayout" src="app/images/theater.png">' +
+                '<div class="layoutName">Theater</div>'
     }, baseConfig)
 );
 
 Ext.define('classroomlayout', Ext.apply({
-        html: '<div class="layoutName">Classroom</div>'
+        html: '<img class="img-roomlayout" src="app/images/classroom.png">' +
+                '<div class="layoutName">Classroom</div>'
     }, baseConfig)
 );
 
 Ext.define('boardroomlayout', Ext.apply({
-        html: '<div class="layoutName">Boardroom</div>'
+        html: '<img class="img-roomlayout" src="app/images/boardroom.png">' +
+                '<div class="layoutName">Boardroom</div>'
     }, baseConfig)
 );

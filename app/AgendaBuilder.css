@@ -86,3 +86,10 @@ thead th:nth-of-type(2){
     min-width: 51px !important;
     max-width: 51px !important;
 }
+
+.img-roomlayout
+{
+    display: block; 
+    margin: auto;
+    margin-top: 15px;
+}
