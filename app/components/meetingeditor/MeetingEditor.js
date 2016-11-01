@@ -9,6 +9,7 @@ Ext.define('MeetingEditor', {
     style   : 'background-color: white; padding: 10px;',
     bodyStyle: 'border: none;',
     layout  : 'border',
+    roomLayouts: [],
     observer: null,
     items: [
         {
@@ -127,7 +128,30 @@ Ext.define('MeetingEditor', {
         };
     },
     buildRoomLayout: function(layout){
-        return Ext.create(layout);
+        var newCmp = Ext.create(layout);
+        var me = this;
+        newCmp.clickHandler = function(cmp, e){
+            Ext.each(me.roomLayouts, function(c){
+                c.el.dom.classList.remove('roomLayoutSelect');
+                c.selected = false;
+            })
+            cmp.el.dom.classList.add('roomLayoutSelect');
+            cmp.selected = true;
+        }
+        newCmp.mouseOverHandler = function(cmp, e){
+             //if (cmp.selected)
+             //   return;
+             console.log('mouseOverHandler');
+            cmp.el.dom.classList.add('roomLayoutSelect');
+        };
+        newCmp.mouseOutHandler = function(cmp, e){
+            //if (cmp.selected)
+            //    return;
+            console.log('mouseOutHandler');
+            c.el.dom.classList.remove('roomLayoutSelect');    
+        };
+        me.roomLayouts.push(newCmp);
+        return newCmp;
     },
     buildCenterComponents: function(meeting){
         return [
@@ -181,7 +205,7 @@ Ext.define('MeetingEditor', {
             },
             {
                 xtype   : 'container',
-                height  : 80,
+                height  : 50,
                 style   : 'padding: 5px;',
                 layout  : {
                     type    : 'hbox',
@@ -190,11 +214,15 @@ Ext.define('MeetingEditor', {
                 items   : [
                     {
                         xtype   : 'button',
-                        text    : 'Cancel'
+                        text    : '<div class="btn">Cancel</div>'
+                    },
+                    {
+                        xtype   : 'box',
+                        width   : 10
                     },
                     {
                         xtype   : 'button',
-                        text    : 'Delete'
+                        text    : '<div class="btn">Delete</div>'
                     },
                     {
                         xtype   : 'box',
@@ -202,8 +230,7 @@ Ext.define('MeetingEditor', {
                     },
                     {
                         xtype   : 'button',
-                        text    : 'Save',
-                        cls     : 'important'
+                        text    : '<div class="btn">Save</div>'
                     }
                 ]
 
@@ -215,7 +242,7 @@ Ext.define('MeetingEditor', {
             cmp.title = cmp.meeting.title;
             cmp.add(cmp.buildNorthContainer(cmp.meeting, cmp.observer));
             Ext.ComponentQuery.query('#centerctr')[0].add(cmp.buildCenterComponents(cmp.meeting));
-            console.dir(cmp.observer)
+            
         }
     }
 
