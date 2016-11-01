@@ -139,16 +139,16 @@ Ext.define('MeetingEditor', {
             cmp.selected = true;
         }
         newCmp.mouseOverHandler = function(cmp, e){
-             //if (cmp.selected)
-             //   return;
+             if (cmp.selected)
+                return;
              console.log('mouseOverHandler');
             cmp.el.dom.classList.add('roomLayoutSelect');
         };
         newCmp.mouseOutHandler = function(cmp, e){
-            //if (cmp.selected)
-            //    return;
+            if (cmp.selected)
+                return;
             console.log('mouseOutHandler');
-            c.el.dom.classList.remove('roomLayoutSelect');    
+            cmp.el.dom.classList.remove('roomLayoutSelect');    
         };
         me.roomLayouts.push(newCmp);
         return newCmp;
