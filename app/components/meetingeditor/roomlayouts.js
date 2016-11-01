@@ -7,6 +7,7 @@ var baseConfig = {
     clickHandler: null,
     mouseOverHandler: null,
     mouseOutHandler: null,
+    extender: null,
     listeners: {
         scope: this,
         render  : function(cmp, eOpts){
@@ -22,6 +23,8 @@ var baseConfig = {
             cmp.mon(cmp.el, 'click', function(e){
                 if (cmp.clickHandler)
                     cmp.clickHandler(cmp, e);
+                if (cmp.renderExtender)
+                    cmp.renderExtender(cmp);
             })
         }
     }
@@ -45,7 +48,16 @@ Ext.define('ushapelayout', Ext.apply({
 Ext.define('roundlayout', Ext.apply({
         itemId: 'roundlayout',
         html: '<img class="img-roomlayout" src="app/images/banquet.png">' +
-                '<div class="layoutName">Rounds</div>'
+                '<div class="layoutName">Rounds</div>',
+        renderExtender: function(target){     
+            target.extender = Ext.create('Ext.Container', {
+                html: '<div class="expand"></div>',
+                target: target,
+                floating: true,
+                renderTo : target.el.dom.getElementsByClassName('layoutName')[0], //target.ownerCt.ownerCt.el,
+                style: 'padding-top: 12px'
+            })
+        }
     }, baseConfig)
 );
 

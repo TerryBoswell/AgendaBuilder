@@ -103,3 +103,29 @@ thead th:nth-of-type(2){
     background-image: none !important;
     
 }
+
+div.expand {
+  height: 80px;
+  width: 200px;
+  background: gray;
+  position: relative;
+  cursor: pointer;
+  border: 3px double black;
+  border-radius: 10px;
+  z-index: 10000;
+}
+div.expand:before {
+  content: "";
+  position: absolute;
+  top: 0%;
+  left: 50%;
+  height: 20px;
+  width: 20px;
+  background: gray;
+  box-sizing:border-box;
+  transform: rotate(225deg) translate(90%);
+  border-bottom: inherit;
+  border-right: inherit;
+  box-shadow: inherit;
+  z-index: 10000;
+}
