@@ -132,6 +132,8 @@ Ext.define('MeetingEditor', {
         var me = this;
         newCmp.clickHandler = function(cmp, e){
             Ext.each(me.roomLayouts, function(c){
+                if (!c || !c.el || !c.el.dom)
+                    return;
                 c.el.dom.classList.remove('roomLayoutSelect');
                 c.selected = false;
             })
@@ -241,6 +243,12 @@ Ext.define('MeetingEditor', {
             cmp.add(cmp.buildNorthContainer(cmp.meeting, cmp.observer));
             Ext.ComponentQuery.query('#centerctr')[0].add(cmp.buildCenterComponents(cmp.meeting));
             
+        },
+        beforehide: function(cmp){
+            Ext.each(cmp.roomLayouts, function(c){
+                c.clickHandler = null;
+                c.destroy();
+            });
         }
     }
 
