@@ -107,10 +107,10 @@ thead th:nth-of-type(2){
 div.expand {
   height: 70px;
   width: 230px;
-  background: gray;
+  background: #c0e4e8;
   position: relative;
   cursor: pointer;
-  border: 3px double black;
+  border: 3px solid teal;
   border-radius: 10px;
   z-index: 10000;
 }
@@ -121,7 +121,7 @@ div.expand:before {
   left: 50%;
   height: 20px;
   width: 20px;
-  background: gray;
+  background: #c0e4e8;
   box-sizing:border-box;
   transform: rotate(225deg) translate(90%);
   border-bottom: inherit;

@@ -8,6 +8,29 @@ var baseConfig = {
     mouseOverHandler: null,
     mouseOutHandler: null,
     extender: null,
+    renderExtender: function(target){
+            //No items have been specified to go into the extender
+            if (!target.extenderItems)
+                return;
+            var targetPos = target.el.dom.getElementsByClassName('layoutName')[0].getBoundingClientRect();
+            var pPos = target.ownerCt.ownerCt.el.dom.getBoundingClientRect();
+            var centerPos = (targetPos.width / 2) + targetPos.x - pPos.left;
+            target.extender = Ext.create('Ext.Container', {
+                html: '<div id="' + target.itemId +'div" class="expand"></div>',
+                style: 'background: rgba(1, 0, 0, 0);padding-top: 12px',
+                target: target,
+                floating: true,
+                renderTo : target.ownerCt.ownerCt.el,
+                listeners: {
+                    afterrender: function(tEl)
+                    {
+                        var x = centerPos - (tEl.getWidth()/2); //We need to adjust from the center position of the target element minus half the width of the extender
+                        tEl.setPosition(x, 90);
+                    }
+                }
+            })
+            target.ownerCt.ownerCt.el.dom.getElementsByClassName('x-css-shadow')[0].style.boxShadow=null;
+    },
     listeners: {
         scope: this,
         render  : function(cmp, eOpts){
@@ -27,35 +50,14 @@ var baseConfig = {
                     cmp.renderExtender(cmp);
             })
         },
-        beforehide: function(){
-            console.log('hide')
+        beforehide: function(){           
         },
-        beforeremove: function(){
-            console.log('remove');
+        beforeremove: function(){           
         }
     }
 };
 
-var buildRenderExtender = function(target){
-    var targetPos = target.el.dom.getElementsByClassName('layoutName')[0].getBoundingClientRect();
-            var pPos = target.ownerCt.ownerCt.el.dom.getBoundingClientRect();
-            var centerPos = (targetPos.width / 2) + targetPos.x - pPos.left;
-            target.extender = Ext.create('Ext.Container', {
-                html: '<div class="expand"></div>',
-                style: 'background: rgba(1, 0, 0, 0);padding-top: 12px',
-                target: target,
-                floating: true,
-                renderTo : target.ownerCt.ownerCt.el,
-                listeners: {
-                    afterrender: function(tEl)
-                    {
-                        var x = centerPos - (tEl.getWidth()/2); //We need to adjust from the center position of the target element minus half the width of the extender
-                        tEl.setPosition(x, 90);
-                    }
-                }
-            })
-            target.ownerCt.ownerCt.el.dom.getElementsByClassName('x-css-shadow')[0].style.boxShadow=null;
-}
+
 
 Ext.define('squarelayout', Ext.apply({
         itemId: 'squarelayout',
@@ -76,7 +78,18 @@ Ext.define('roundlayout', Ext.apply({
         itemId: 'roundlayout',
         html: '<img class="img-roomlayout" src="app/images/banquet.png">' +
                 '<div class="layoutName">Rounds</div>',
-        renderExtender : buildRenderExtender
+        extenderItems : [{
+                    xtype: 'radiogroup',
+                    // Arrange radio buttons into two columns, distributed vertically
+                    columns: 2,
+                    vertical: true,
+                    bodyPadding: 10,
+                    items: [
+                        { boxLabel: 'Item 1', name: 'rb', inputValue: '1' },
+                        { boxLabel: 'Item 2', name: 'rb', inputValue: '2', checked: true},
+                        { boxLabel: 'Item 3asdfasdfsd', name: 'rb', inputValue: '3', style:'margin:auto;'}
+                    ]
+                }]
     }, baseConfig)
 );
 
@@ -98,7 +111,7 @@ Ext.define('classroomlayout', Ext.apply({
         itemId: 'classroomlayout',
         html: '<img class="img-roomlayout" src="app/images/classroom.png">' +
                 '<div class="layoutName">Classroom</div>',
-        renderExtender : buildRenderExtender
+        extenderItems : []
     }, baseConfig)
 );
 
