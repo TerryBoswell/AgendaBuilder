@@ -156,7 +156,7 @@ Ext.define('MeetingEditor', {
             {
                 xtype   : 'container',
                 style   : 'border-top: 1px solid rgba(0, 0, 0, .25); border-bottom: 1px solid rgba(0, 0, 0, .25);  padding: 5px;',
-                height  : 150,
+                height  : 175,
                 layout  : {
                     type    : 'hbox'
                 },

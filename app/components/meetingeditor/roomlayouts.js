@@ -26,6 +26,12 @@ var baseConfig = {
                 if (cmp.renderExtender)
                     cmp.renderExtender(cmp);
             })
+        },
+        beforehide: function(){
+            console.log('hide')
+        },
+        beforeremove: function(){
+            console.log('remove');
         }
     }
 };
@@ -49,14 +55,26 @@ Ext.define('roundlayout', Ext.apply({
         itemId: 'roundlayout',
         html: '<img class="img-roomlayout" src="app/images/banquet.png">' +
                 '<div class="layoutName">Rounds</div>',
-        renderExtender: function(target){     
+        renderExtender: function(target){
+            var targetPos = target.el.dom.getElementsByClassName('layoutName')[0].getBoundingClientRect();
+            var pPos = target.ownerCt.ownerCt.el.dom.getBoundingClientRect();
+            var centerPos = (targetPos.width / 2) + targetPos.x - pPos.left;
             target.extender = Ext.create('Ext.Container', {
                 html: '<div class="expand"></div>',
+                style: 'background: rgba(1, 0, 0, 0);padding-top: 12px',
+                cls: 'foo', 
                 target: target,
                 floating: true,
-                renderTo : target.el.dom.getElementsByClassName('layoutName')[0], //target.ownerCt.ownerCt.el,
-                style: 'padding-top: 12px'
+                renderTo : target.ownerCt.ownerCt.el,
+                listeners: {
+                    afterrender: function(tEl)
+                    {
+                        var x = centerPos - 100; //100 is the width from the expand css
+                        tEl.setPosition(x, 90);
+                    }
+                }
             })
+            target.ownerCt.ownerCt.el.dom.getElementsByClassName('x-css-shadow')[0].style.boxShadow=null;
         }
     }, baseConfig)
 );
