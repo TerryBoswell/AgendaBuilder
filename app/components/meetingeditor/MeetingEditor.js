@@ -136,6 +136,8 @@ Ext.define('MeetingEditor', {
                     return;
                 c.el.dom.classList.remove('roomLayoutSelect');
                 c.selected = false;
+                if (c.extender)
+                    c.extender.destroy();
             })
             cmp.el.dom.classList.add('roomLayoutSelect');
             cmp.selected = true;

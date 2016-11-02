@@ -36,6 +36,27 @@ var baseConfig = {
     }
 };
 
+var buildRenderExtender = function(target){
+    var targetPos = target.el.dom.getElementsByClassName('layoutName')[0].getBoundingClientRect();
+            var pPos = target.ownerCt.ownerCt.el.dom.getBoundingClientRect();
+            var centerPos = (targetPos.width / 2) + targetPos.x - pPos.left;
+            target.extender = Ext.create('Ext.Container', {
+                html: '<div class="expand"></div>',
+                style: 'background: rgba(1, 0, 0, 0);padding-top: 12px',
+                target: target,
+                floating: true,
+                renderTo : target.ownerCt.ownerCt.el,
+                listeners: {
+                    afterrender: function(tEl)
+                    {
+                        var x = centerPos - (tEl.getWidth()/2); //We need to adjust from the center position of the target element minus half the width of the extender
+                        tEl.setPosition(x, 90);
+                    }
+                }
+            })
+            target.ownerCt.ownerCt.el.dom.getElementsByClassName('x-css-shadow')[0].style.boxShadow=null;
+}
+
 Ext.define('squarelayout', Ext.apply({
         itemId: 'squarelayout',
         html: 
@@ -55,27 +76,7 @@ Ext.define('roundlayout', Ext.apply({
         itemId: 'roundlayout',
         html: '<img class="img-roomlayout" src="app/images/banquet.png">' +
                 '<div class="layoutName">Rounds</div>',
-        renderExtender: function(target){
-            var targetPos = target.el.dom.getElementsByClassName('layoutName')[0].getBoundingClientRect();
-            var pPos = target.ownerCt.ownerCt.el.dom.getBoundingClientRect();
-            var centerPos = (targetPos.width / 2) + targetPos.x - pPos.left;
-            target.extender = Ext.create('Ext.Container', {
-                html: '<div class="expand"></div>',
-                style: 'background: rgba(1, 0, 0, 0);padding-top: 12px',
-                cls: 'foo', 
-                target: target,
-                floating: true,
-                renderTo : target.ownerCt.ownerCt.el,
-                listeners: {
-                    afterrender: function(tEl)
-                    {
-                        var x = centerPos - 100; //100 is the width from the expand css
-                        tEl.setPosition(x, 90);
-                    }
-                }
-            })
-            target.ownerCt.ownerCt.el.dom.getElementsByClassName('x-css-shadow')[0].style.boxShadow=null;
-        }
+        renderExtender : buildRenderExtender
     }, baseConfig)
 );
 
@@ -96,7 +97,8 @@ Ext.define('theaterlayout', Ext.apply({
 Ext.define('classroomlayout', Ext.apply({
         itemId: 'classroomlayout',
         html: '<img class="img-roomlayout" src="app/images/classroom.png">' +
-                '<div class="layoutName">Classroom</div>'
+                '<div class="layoutName">Classroom</div>',
+        renderExtender : buildRenderExtender
     }, baseConfig)
 );
 
