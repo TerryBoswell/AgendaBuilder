@@ -112,7 +112,7 @@ div.expand {
   cursor: pointer;
   border: 3px solid teal;
   border-radius: 10px;
-  z-index: 10000;
+  z-index: 1000;
 }
 div.expand:before {
   content: "";
@@ -127,5 +127,10 @@ div.expand:before {
   border-bottom: inherit;
   border-right: inherit;
   box-shadow: inherit;
-  z-index: 10000;
+  z-index: 1000;
+}
+
+div.x-css-shadow {
+    box-shadow: none !important;
+    z-index: 1 !important;
 }

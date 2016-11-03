@@ -136,6 +136,9 @@ Ext.define('MeetingEditor', {
                     return;
                 c.el.dom.classList.remove('roomLayoutSelect');
                 c.selected = false;
+                Ext.each(Ext.ComponentQuery.query('#extenderRadioGroup'), function(rg){
+                    rg.destroy();
+                })
                 if (c.extender)
                     c.extender.destroy();
             })
@@ -232,7 +235,17 @@ Ext.define('MeetingEditor', {
                     },
                     {
                         xtype   : 'button',
-                        text    : '<div class="btn">Save</div>'
+                        text    : '<div class="btn">Save</div>',
+                        scope   : this,
+                        handler : function(){
+                            var me = this;
+                            Ext.each(me.roomLayouts, function(rl){
+                                if (rl.selected)
+                                {
+                                    console.log(rl.getValue());
+                                }
+                            })
+                        }
                     }
                 ]
 
