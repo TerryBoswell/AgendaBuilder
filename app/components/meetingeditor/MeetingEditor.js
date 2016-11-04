@@ -251,25 +251,25 @@ Ext.define('MeetingEditor', {
                             },
                             {
                                 xtype: 'grid',
-                                flex: 1,
+                                itemId: 'copytogrid',
+                                style: 'border: 1px solid red;',
+                                width: 100,
+                                layout: 'fit',
+                                fullscreen: true,
                                 observer: this.observer,
-                                hideHeaders: true,
-                                store: new Ext.data.Store({
-                                    fields: [
-                                        {name: 'checked', type: 'string'},
-                                        {name: 'date',  type: 'string'},
-                                        {name: 'count',       type: 'int'}
-                                    ]
-                                }),
+                                hideHeaders: false,
+                                store: this.getStore(),
                                 columns: [
-                                    { text: 'Name', dataIndex: 'checked', width:  10},
-                                    { text: 'Email', dataIndex: 'date',  columnWidth: .6},
-                                    { text: 'Phone', dataIndex: 'count' , columnWidth: .2}
+                                    { dataIndex: 'checked', width:  50},
+                                    { dataIndex: 'date',  width: 180},
+                                    { dataIndex: 'roomBlocks' , width: 10}
                                 ],
                                 listeners: {
                                     scope: this,
                                     afterrender: function(){
-                                        console.dir(this.observer.getDates())
+                                        var grid = Ext.ComponentQuery.query('#copytogrid')[0];
+                                        grid.store.loadData(this.observer.getDates());
+                                        
                                     }
                                 }
                             }
@@ -320,6 +320,16 @@ Ext.define('MeetingEditor', {
 
             }
         ];
+    },
+    getStore: function(){
+        return Ext.create('Ext.data.Store', {
+            fields: [
+                        {name: 'checked', type: 'string'},
+                        {name: 'date',  formatter: 'date("D m/d")', type: 'date'},
+                        {name: 'roomBlocks',       type: 'int'}
+                    ]
+        });
+
     },
     listeners: {
         beforeshow: function(cmp){
