@@ -195,18 +195,87 @@ Ext.define('MeetingEditor', {
                         items   : this.buildRoomLayout('theaterlayout')
                     },
                     {
-                        style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
+                        cls     : 'thinBorder',
                         items   : this.buildRoomLayout('classroomlayout')
                     },
                     {
-                        style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
+                        cls     : 'thinBorder',
                         items   : this.buildRoomLayout('boardroomlayout')
                     }
                 ]
             },
             {
                 xtype   : 'container',
-                flex    : 1
+                flex    : 1,
+                layout  : {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
+                style   : 'padding: 20px;',
+                items : [
+                    {
+                        xtype: 'container',
+                        flex : 3,
+                        style: 'padding: 0px 10px',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        items: [
+                            {
+                                xtype: 'container',
+                                html : '<div style="font-size: large">Additional Comments</div>'
+                            },
+                            {
+                                xtype: 'textarea',
+                                flex: 1
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'container',
+                        cls: 'thinBorder'
+                    },
+                    {
+                        xtype: 'container',
+                        flex : 2,
+                        style: 'padding: 0px 10px',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        items: [
+                            {
+                                xtype: 'container',
+                                html : '<div style="font-size: large">Copy to Event</div>'
+                            },
+                            {
+                                xtype: 'grid',
+                                flex: 1,
+                                observer: this.observer,
+                                hideHeaders: true,
+                                store: new Ext.data.Store({
+                                    fields: [
+                                        {name: 'checked', type: 'string'},
+                                        {name: 'date',  type: 'string'},
+                                        {name: 'count',       type: 'int'}
+                                    ]
+                                }),
+                                columns: [
+                                    { text: 'Name', dataIndex: 'checked', width:  10},
+                                    { text: 'Email', dataIndex: 'date',  columnWidth: .6},
+                                    { text: 'Phone', dataIndex: 'count' , columnWidth: .2}
+                                ],
+                                listeners: {
+                                    scope: this,
+                                    afterrender: function(){
+                                        console.dir(this.observer.getDates())
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 xtype   : 'container',

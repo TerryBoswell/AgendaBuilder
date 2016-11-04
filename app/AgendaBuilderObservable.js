@@ -82,6 +82,9 @@ Ext.define('AgendaBuilderObservable', {
         });
         
     },
+    getDates: function(){
+        return this.dates;
+    },
     buildMeetingsForDate: function(instance, context){
         var me = context;
         Ext.each(instance.meetings, function(meeting){
