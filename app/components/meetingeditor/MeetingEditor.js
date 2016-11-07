@@ -162,6 +162,10 @@ Ext.define('MeetingEditor', {
     },
     buildCenterComponents: function(meeting){
         var items = [];
+        // items.push({
+        //     xtype: 'box',
+        //     flex: 1
+        // })
 
         items.push({
                         items   : this.buildRoomLayout('squarelayout')
