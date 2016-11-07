@@ -161,6 +161,35 @@ Ext.define('MeetingEditor', {
         return newCmp;
     },
     buildCenterComponents: function(meeting){
+        var items = [];
+
+        items.push({
+                        items   : this.buildRoomLayout('squarelayout')
+                    });
+        items.push({
+                        style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
+                        items   : this.buildRoomLayout('ushapelayout')
+                    });
+        items.push({
+                        style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
+                        items   : this.buildRoomLayout('roundlayout')
+                    });
+        items.push({
+                        style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
+                        items   : this.buildRoomLayout('cocktaillayout')
+                    });
+        items.push({
+                        style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
+                        items   : this.buildRoomLayout('theaterlayout')
+                    });
+        items.push({
+                        cls     : 'thinBorder',
+                        items   : this.buildRoomLayout('classroomlayout')
+                    });
+        items.push({
+                        cls     : 'thinBorder',
+                        items   : this.buildRoomLayout('boardroomlayout')
+                    });
         return [
             {
                 xtype   : 'container',
@@ -176,35 +205,7 @@ Ext.define('MeetingEditor', {
                     }
                 },
                 defaultType: 'container',
-                items   : [
-                    {
-                        items   : this.buildRoomLayout('squarelayout')
-                    },
-                    {
-                        style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
-                        items   : this.buildRoomLayout('ushapelayout')
-                    },
-                    {
-                        style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
-                        items   : this.buildRoomLayout('roundlayout')
-                    },
-                    {
-                        style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
-                        items   : this.buildRoomLayout('cocktaillayout')
-                    },
-                    {
-                        style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
-                        items   : this.buildRoomLayout('theaterlayout')
-                    },
-                    {
-                        cls     : 'thinBorder',
-                        items   : this.buildRoomLayout('classroomlayout')
-                    },
-                    {
-                        cls     : 'thinBorder',
-                        items   : this.buildRoomLayout('boardroomlayout')
-                    }
-                ]
+                items   : items
             },
             {
                 xtype   : 'container',
@@ -361,13 +362,16 @@ Ext.define('MeetingEditor', {
                         scope   : this,
                         handler : function(){
                             var me = this;
+                            var roomSetup = 0;
                             Ext.each(me.roomLayouts, function(rl){
                                 if (rl.selected)
                                 {
-                                    console.log(rl.getValue());
-                                    console.log(me.copyToDates);
+                                    roomSetup = rl.getValue();
+                                    
                                 }
-                            })
+                            });
+                            console.log(me.copyToDates);
+                            
                         }
                     }
                 ]
@@ -375,11 +379,30 @@ Ext.define('MeetingEditor', {
             }
         ];
     },
+    setRoomSetup: function(id){
+        var me = this;
+        // Ext.each(me.roomLayouts, function(rl){
+        //     if (rl.getValue() == id)
+        //     {
+        //        if (rl.clickHandler)
+        //             rl.clickHandler(rl, null);
+        //         if (rl.renderExtender)
+        //             rl.renderExtender(rl);
+                
+        //     }
+        // });
+    },
     listeners: {
         beforeshow: function(cmp){
             cmp.title = cmp.meeting.title;
             cmp.add(cmp.buildNorthContainer(cmp.meeting, cmp.observer));
             Ext.ComponentQuery.query('#centerctr')[0].add(cmp.buildCenterComponents(cmp.meeting));
+        },
+        afterrender: function(cmp){
+            
+            new Ext.util.DelayedTask(function(){
+                cmp.setRoomSetup(cmp.meeting.room_setup);
+            }).delay(1000);
             
         },
         beforehide: function(cmp){

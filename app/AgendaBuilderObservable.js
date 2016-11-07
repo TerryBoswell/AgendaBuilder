@@ -382,9 +382,9 @@ Ext.define('AgendaBuilderObservable', {
             posters: 0,
             id: null,
             title: text,
-            all_day: false,
+            all_day: MeetingTemplate.all_day,
             note: "",
-            room_setup: null,
+            room_setup: MeetingTemplate.default_room_setup_id,
             end_time: endHour,
             num_people: 0,
             type: MeetingTemplate.id,
@@ -566,7 +566,25 @@ Ext.define('AgendaBuilderObservable', {
     getMeetingItems: function(){
         this.doGet("/planners/rfp/meeting_items/", this.onGetMeetingItems);
     },
-    saveMeetingItem: function(){},
+    saveMeetingItem: function(id, type, startTime, endType, numberOfPeople){
+        var toSave = {
+                                type: type
+                            };
+                                    /*
+                                    type: 11 xx
+                                    room_night: 0
+                                    room_block: 33
+                                    start_time: 12:00 xx
+                                    end_time: 13:00 xx
+                                    all_day: false
+                                    rfp: 11055 xx
+                                    title: Lunch - Plated
+                                    id: 109296
+                                    room_setup: 3
+                                    num_people: 50
+                                    note:
+                                     */
+    },
     deleteMeetingItem: function(){},
     saveAlternateOption: function(){},
     getColForHour: function(hour){
