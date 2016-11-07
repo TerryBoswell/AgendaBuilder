@@ -138,3 +138,7 @@ div.x-css-shadow {
 .thinBorder {
     border-left: 1px solid rgba(0, 0, 0, .25);
 }
+
+.thinBorderAll{
+    border: 1px solid rgba(0, 0, 0, .25);
+}

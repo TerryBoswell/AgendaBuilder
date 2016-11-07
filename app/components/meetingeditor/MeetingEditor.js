@@ -10,7 +10,8 @@ Ext.define('MeetingEditor', {
     bodyStyle: 'border: none;',
     layout  : 'border',
     roomLayouts: [],
-    observer: null,
+    observer: null,        
+    copyToDates: [],
     items: [
         {
             xtype   : 'container',
@@ -35,7 +36,7 @@ Ext.define('MeetingEditor', {
             items   : [
                 {
                     xtype   : 'container',
-                    style   : 'background-color: white;',
+                    style   : 'background-color: white; padding-right: 10px;',
                     flex    : 1,
                     layout  : 'form',
                     items   : [
@@ -64,7 +65,8 @@ Ext.define('MeetingEditor', {
                 },
                 {
                     xtype   : 'container',
-                    style   : 'background-color: white; border-left: 1px solid rgba(0, 0, 0, .25);',                    
+                    style   : 'background-color: white;',
+                    cls     : 'thinBorder',                    
                     flex    : 1,
                     layout  : {
                         type    : 'vbox',
@@ -74,7 +76,7 @@ Ext.define('MeetingEditor', {
                         {
                             xtype: 'container',
                             height: 50,
-                            html: '<div style="text-align:center;font-size:x-large;">' + Ext.Date.format(meeting.date, 'l n/j') + '</div>'
+                            html: '<div style="text-align:center;font-size:x-large; font-weight: bold;">' + Ext.Date.format(meeting.date, 'l n/j') + '</div>'
                         },
                         {
                             xtype: 'container',
@@ -250,29 +252,80 @@ Ext.define('MeetingEditor', {
                                 html : '<div style="font-size: large">Copy to Event</div>'
                             },
                             {
-                                xtype: 'grid',
+                                xtype: 'container',
                                 itemId: 'copytogrid',
-                                style: 'border: 1px solid red;',
-                                width: 100,
-                                layout: 'fit',
+                                style: 'padding: 5px 0px;',
+                                cls: 'thinBorderAll',                                                
+                                flex: 1,
+                                layout: {
+                                    type: 'vbox',
+                                    align: 'stretch'
+                                },
                                 fullscreen: true,
                                 observer: this.observer,
-                                hideHeaders: false,
-                                store: this.getStore(),
-                                columns: [
-                                    { dataIndex: 'checked', width:  50},
-                                    { dataIndex: 'date',  width: 180},
-                                    { dataIndex: 'roomBlocks' , width: 10}
-                                ],
+                                parent: this,
                                 listeners: {
                                     scope: this,
-                                    afterrender: function(){
-                                        var grid = Ext.ComponentQuery.query('#copytogrid')[0];
-                                        grid.store.loadData(this.observer.getDates());
-                                        
+                                    afterrender: function(me){
+                                        var items = [];
+                                        Ext.each(me.observer.getDates(), function(d)
+                                        {
+                                            var dateStr = Ext.Date.format(d.date, 'D n/j');
+                                            var html = Ext.String.format('<div><span style="font-size:larger;">{0}</span><span style="float:right; font-size:larger;">{1}</span></div>', dateStr, d.roomBlocks);
+                                            var selectorXtype = Ext.Date.format(meeting.date, 'Y-m-d') == Ext.Date.format(d.date, 'Y-m-d') ? 'box' : 'checkbox';      
+                                            var cls = Ext.Date.format(meeting.date, 'Y-m-d') == Ext.Date.format(d.date, 'Y-m-d') ? '' : 'copyToCheck';   
+                                            var parent = me.parent;                                         
+                                            items.push(Ext.create('Ext.Container', {
+                                                height: 25,
+                                                style: 'margin: 0px 5px;',
+                                                layout: {
+                                                    type: 'hbox',
+                                                    align: 'stretch'
+                                                },
+                                                labelWidth: 0,                                                    
+                                                items: [
+                                                    {
+                                                        xtype: selectorXtype,
+                                                        width : 25,
+                                                        date: d.date,
+                                                        cls: cls,
+                                                        listeners: {
+                                                            scope: me,
+                                                            change: function(chkBox, v){
+                                                                if (v)
+                                                                {
+                                                                    parent.copyToDates.push(chkBox.date);
+                                                                }
+                                                                else
+                                                                {
+                                                                    var copyToDates = [];
+                                                                    Ext.each(parent.copyToDates, function(d){
+                                                                        if (d != chkBox.date)
+                                                                            copyToDates.push(d)
+                                                                    });
+                                                                    parent.copyToDates = copyToDates;
+                                                                }                                                                
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        xtype: 'displayfield',
+                                                        value: html,
+                                                        flex: 1
+                                                    }
+                                                    ]                                
+                                                })
+                                            );
+
+                                        }, me);
+                                        me.add(items);
                                     }
                                 }
-                            }
+                            },
+                            {
+                                xtype: 'box',
+                                height: 3
+                            }                            
                         ]
                     }
                 ]
@@ -312,6 +365,7 @@ Ext.define('MeetingEditor', {
                                 if (rl.selected)
                                 {
                                     console.log(rl.getValue());
+                                    console.log(me.copyToDates);
                                 }
                             })
                         }
@@ -320,16 +374,6 @@ Ext.define('MeetingEditor', {
 
             }
         ];
-    },
-    getStore: function(){
-        return Ext.create('Ext.data.Store', {
-            fields: [
-                        {name: 'checked', type: 'string'},
-                        {name: 'date',  formatter: 'date("D m/d")', type: 'date'},
-                        {name: 'roomBlocks',       type: 'int'}
-                    ]
-        });
-
     },
     listeners: {
         beforeshow: function(cmp){
@@ -344,6 +388,9 @@ Ext.define('MeetingEditor', {
                 c.destroy();
             });
         }
+    },
+    getCopyToDates: function(){
+        
     }
 
 })
