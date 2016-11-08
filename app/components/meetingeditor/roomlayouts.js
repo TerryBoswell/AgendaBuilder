@@ -10,7 +10,7 @@ var baseConfig = {
     extender: null,
     renderExtender: function(target){
             //No items have been specified to go into the extender
-            if (!target.extenderRadios)
+            if (!target.extenderRadios && !target.extenderInput)
                 return;
             var targetPos = target.el.dom.getElementsByClassName('layoutName')[0].getBoundingClientRect();
             var pPos = target.ownerCt.ownerCt.el.dom.getBoundingClientRect();
@@ -22,6 +22,7 @@ var baseConfig = {
                 floating: true,
                 renderTo : target.ownerCt.ownerCt.el,
                 extenderRadios: target.extenderRadios,
+                extenderInput: target.extenderInput,
                 listeners: {
                     afterrender: function(tEl)
                     {
@@ -29,17 +30,37 @@ var baseConfig = {
                         tEl.setPosition(x, 90);
                         var extenderId = '#' + target.itemId +'div';
                         var expandEl =  Ext.query(extenderId)[0];
-                        Ext.create('Ext.form.RadioGroup', {
-                            height: 70,
-                            width: 200,
-                            itemId: 'extenderRadioGroup',
-                            renderTo : expandEl,
-                            style: 'z-index: 99999;',
-                            columns: 2,
-                            vertical: true,
-                            padding: 10,
-                            items: tEl.extenderRadios
-                        })
+                        if (tEl.extenderRadios)
+                        {
+                            Ext.create('Ext.form.RadioGroup', {
+                                height: 80,
+                                width: 200,
+                                itemId: 'extenderRadioGroup',
+                                renderTo : expandEl,
+                                style: 'z-index: 99999;',
+                                columns: 2,
+                                vertical: true,
+                                padding: 10,
+                                items: tEl.extenderRadios
+                            })
+                        }
+                        else
+                        {
+                            Ext.create('Ext.Container', {
+                                height: 80,
+                                width: 200,
+                                itemId: 'extenderInput',
+                                renderTo : expandEl,
+                                layout: {
+                                    type : 'vbox',
+                                    align: 'stretch'
+                                },
+                                style: 'z-index: 99999;',
+                                items: tEl.extenderInput,
+                                style: 'padding: 0px 5px;'
+                            })
+
+                        }
                     }
                 }
             })
@@ -144,7 +165,20 @@ Ext.define('boothlayout', Ext.apply({
         itemId: 'boothlayout',
         html: '<img class="img-roomlayout" src="app/images/booths.png">' +
                 '<div class="layoutName">Booth</div>',
+        extenderInput : [{xtype: 'box', height: 1},
+                {xtype: 'displayfield', value: 'Please answer at least one:', height: 18},
+                {xtype: 'box', height: 1},
+                {xtype: 'numberfield', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, height: 20, listeners: {
+                    change: function(cmp, v){Ext.apply(cmp.additionalInfo, {square_feet: v});}
+                }},
+                {xtype: 'box', height: 1},
+                {xtype: 'numberfield', fieldLabel  : '# of booths', minValue    : 0, value       : 0, height: 20, listeners: {
+                    change: function(cmp, v){Ext.apply(cmp.additionalInfo, {booths: v});}
+                }},
+                {xtype: 'box', height: 5}
+                ],
         getValue: function(){return '9'}
+        
     }, baseConfig)
 );
 
@@ -153,6 +187,18 @@ Ext.define('posterlayout', Ext.apply({
         itemId: 'posterlayout',
         html: '<img class="img-roomlayout" src="app/images/posters.png">' +
                 '<div class="layoutName">Poster</div>',
+        extenderInput : [{xtype: 'box', height: 1},
+                {xtype: 'displayfield', value: 'Please answer at least one:', height: 18},
+                {xtype: 'box', height: 1},
+                {xtype: 'numberfield', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, height: 20, listeners: {
+                    change: function(cmp, v){Ext.apply(cmp.additionalInfo, {square_feet: v});}
+                }},
+                {xtype: 'box', height: 1},
+                {xtype: 'numberfield', fieldLabel  : '# of posters', minValue    : 0, value       : 0, height: 20, listeners: {
+                    change: function(cmp, v){Ext.apply(cmp.additionalInfo, {posters: v});}
+                }},
+                {xtype: 'box', height: 5}
+                ],
         getValue: function(){return '10'}
     }, baseConfig)
 );
@@ -161,7 +207,20 @@ Ext.define('tabletoplayout', Ext.apply({
         itemId: 'tabletoplayout',
         html: '<img class="img-roomlayout" src="app/images/tabletops.png">' +
                 '<div class="layoutName">Table Top</div>',
-        getValue: function(){return '14'}
+        extenderInput : [{xtype: 'box', height: 1},
+                {xtype: 'displayfield', value: 'Please answer at least one:', height: 18},
+                {xtype: 'box', height: 1},
+                {xtype: 'numberfield', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, height: 20, listeners: {
+                    change: function(cmp, v){Ext.apply(cmp.ownerCt.additionalInfo, {square_feet: v});}
+                }},
+                {xtype: 'box', height: 1},
+                {xtype: 'numberfield', fieldLabel  : '# of table tops', minValue    : 0, value       : 0, height: 20, listeners: {
+                    change: function(cmp, v){Ext.apply({tabletops: v}, cmp.ownerCt.additionalInfo);}
+                }},
+                {xtype: 'box', height: 5}
+                ],
+        getValue: function(){return '14'},
+        getAdditionalInfo: function(){return Ext.ComponentQuery.query('#extenderInput')[0].additionalInfo}
     }, baseConfig)
 );
 

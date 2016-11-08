@@ -90,7 +90,7 @@ Ext.define('MeetingTemplate',
 									Ext.each(Ext.query('.meeting-item-type'), function(e){
 										Ext.fly(e).el.unmask();
 									});
-									observer.showMeetingEditor(cmp, meeting, observer);
+									observer.showMeetingEditor(cmp, meeting, observer, meetingTemplate);
 									newCmp.destroy();
 								}
 					        }

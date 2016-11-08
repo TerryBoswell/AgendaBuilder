@@ -184,6 +184,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     addPreDays: function(count){
         var me = this;
+        me.savePrePostDays('pre', count);
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
         me.removeAllMeetings();
         var firstDate = me.dates[0].date;
@@ -194,7 +195,7 @@ Ext.define('AgendaBuilderObservable', {
                 date : Ext.Date.add(firstDate, Ext.Date.DAY, -i),
                 meetings: [],
                 roomBlocks: 0,
-                roomNight: 0
+                roomNight: firstDate.roomNight - i
             })
         }
         Ext.each(me.dates, function(d){
@@ -206,6 +207,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     addPostDays: function(count){
         var me = this;
+        me.savePrePostDays('post', count);
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
         me.removeAllMeetings();        
         var lastDate = me.dates[me.dates.length - 1].date;
@@ -219,7 +221,7 @@ Ext.define('AgendaBuilderObservable', {
                 date : Ext.Date.add(lastDate, Ext.Date.DAY, i),
                 meetings: [],
                 roomBlocks: 0,
-                roomNight: 0
+                roomNight: lastDate.roomNight + i
             })
         }
         me.agendaBuilderRows = [];
@@ -346,7 +348,11 @@ Ext.define('AgendaBuilderObservable', {
 
         var endColId = me.getColForHour(endHour);
         var endHourId = row.id + "-col-" + endColId;
-        var efly = Ext.fly(document.getElementById(endHourId))
+        var efly = Ext.fly(document.getElementById(endHourId));
+        if (!efly)
+        {
+            return;
+        }
         var width = xy[0] - efly.getXY()[0];
         var datesCtr = Ext.ComponentQuery.query('#datesCtr')[0];
         var datesCtrXY = datesCtr.getXY();
@@ -429,13 +435,14 @@ Ext.define('AgendaBuilderObservable', {
         }
         return null;
     },
-    showMeetingEditor: function(mtgCmp, meeting, observer){
+    showMeetingEditor: function(mtgCmp, meeting, observer, meetingTemplate){
         var me = this;
         var datesCtr = Ext.ComponentQuery.query('#MainContainer')[0];
         Ext.create('MeetingEditor', {
             meeting: meeting,
             alignTarget: datesCtr,
-            observer: observer
+            observer: observer,
+            meetingTemplate, meetingTemplate
         }).show();
 
     },
@@ -525,9 +532,14 @@ Ext.define('AgendaBuilderObservable', {
         });
         scope.fireEvent('getmeetingitems', convertedData);
     },
-    onSaveMeetingItem: function(obj){},
+    onSaveMeetingItem: function(obj){
+        debugger;
+    },
     onDeleteMeetingItem: function(obj){},
     onSaveAlternateOptions: function(obj){},
+    onSavePrePostDays: function(obj){
+        debugger;
+    },
     /*******************Ajax calls */ 
     getUrl: function(callUrl){
         if (!this.ajaxUrlBase)
@@ -537,6 +549,15 @@ Ext.define('AgendaBuilderObservable', {
         if (!callUrl)
             throw("call url must be passed")
         return this.ajaxUrlBase.concat(callUrl, this.rfpNumber, "/json/");
+    },   
+    getPostUrl: function(callUrl){
+        if (!this.ajaxUrlBase)
+            throw("ajax Url Base must be set");
+        if (!this.rfpNumber)
+            throw("rpf number must be set");
+        if (!callUrl)
+            throw("call url must be passed")
+        return this.ajaxUrlBase.concat(callUrl);
     },   
     doGet: function(url, callback){      
         var me = this;   
@@ -555,7 +576,22 @@ Ext.define('AgendaBuilderObservable', {
         });
     },
     doPost: function(url, callback, data){
+        var me = this;   
+        Ext.Ajax.request({
+            url: this.getPostUrl(url),
+            method: 'POST',
+            scope: me,
+            jsonData: data,
+            headers: { 'Content-Type': 'application/json' },
+            success: function(response, opts) {
+                var obj = Ext.decode(response.responseText);
+                callback(obj, opts.scope);
+            },
 
+            failure: function(response, opts) {
+                console.log('server-side failure with status code ' + response.status);
+            }
+        });
     },
     getRoomSetups: function(){
         this.doGet("/planners/rfp/meeting_room_setups/", this.onGetRoomSetups);
@@ -566,27 +602,18 @@ Ext.define('AgendaBuilderObservable', {
     getMeetingItems: function(){
         this.doGet("/planners/rfp/meeting_items/", this.onGetMeetingItems);
     },
-    saveMeetingItem: function(id, type, startTime, endType, numberOfPeople){
-        var toSave = {
-                                type: type
-                            };
-                                    /*
-                                    type: 11 xx
-                                    room_night: 0
-                                    room_block: 33
-                                    start_time: 12:00 xx
-                                    end_time: 13:00 xx
-                                    all_day: false
-                                    rfp: 11055 xx
-                                    title: Lunch - Plated
-                                    id: 109296
-                                    room_setup: 3
-                                    num_people: 50
-                                    note:
-                                     */
+    saveMeetingItem: function(meeting){
+        var me = this;
+        var url = Ext.String.format('/planners/rfp/meeting_item_save/{0}/json/', me.rfpNumber);
+        me.doPost(url, this.onSaveMeetingItem, meeting);
     },
     deleteMeetingItem: function(){},
     saveAlternateOption: function(){},
+    savePrePostDays: function(type, count){
+        var me = this;
+        var url = Ext.String.format('/planners/{0}/add_pre_post_days/', me.rfpNumber);
+        me.doPost(url, this.onSavePrePostDays, {type: type, count: count});
+    },
     getColForHour: function(hour){
         if (hour == '06:00:00')
             return 3;
@@ -659,6 +686,8 @@ Ext.define('AgendaBuilderObservable', {
         else if (hour == '23:00:00')
             return 37;
         else if (hour == '23:30:00')
+            return 38;
+        else 
             return 38;            
     }
     

@@ -160,45 +160,62 @@ Ext.define('MeetingEditor', {
         me.roomLayouts.push(newCmp);
         return newCmp;
     },
-    buildCenterComponents: function(meeting){
+    buildCenterComponents: function(meeting, meetingTemplate){
         var items = [];
-        // items.push({
-        //     xtype: 'box',
-        //     flex: 1
-        // })
-
-        items.push({
-                        items   : this.buildRoomLayout('squarelayout')
-                    });
-        items.push({
-                        style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
-                        items   : this.buildRoomLayout('ushapelayout')
-                    });
-        items.push({
-                        style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
-                        items   : this.buildRoomLayout('roundlayout')
-                    });
-        items.push({
-                        style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
-                        items   : this.buildRoomLayout('cocktaillayout')
-                    });
-        items.push({
-                        style   : 'border-left: 1px solid rgba(0, 0, 0, .25);',
-                        items   : this.buildRoomLayout('theaterlayout')
-                    });
-        items.push({
-                        cls     : 'thinBorder',
-                        items   : this.buildRoomLayout('classroomlayout')
-                    });
-        items.push({
-                        cls     : 'thinBorder',
-                        items   : this.buildRoomLayout('boardroomlayout')
-                    });
+        
+        if (meetingTemplate.is_meal || 
+            meetingTemplate.id == 1 || //Meeting
+            meetingTemplate.id == 2 || // Breakout
+            meetingTemplate.id == 3 ) //General
+        {
+            items.push({
+                            items   : this.buildRoomLayout('squarelayout')
+                        });
+            items.push({
+                            cls     : 'thinBorder',
+                            items   : this.buildRoomLayout('ushapelayout')
+                        });
+            items.push({
+                            cls     : 'thinBorder',
+                            items   : this.buildRoomLayout('roundlayout')
+                        });
+            items.push({
+                            cls     : 'thinBorder',
+                            items   : this.buildRoomLayout('cocktaillayout')
+                        });
+            items.push({
+                            cls     : 'thinBorder',
+                            items   : this.buildRoomLayout('theaterlayout')
+                        });
+            items.push({
+                            cls     : 'thinBorder',
+                            items   : this.buildRoomLayout('classroomlayout')
+                        });
+            items.push({
+                            cls     : 'thinBorder',
+                            items   : this.buildRoomLayout('boardroomlayout')
+                        });
+        }
+        else if (meetingTemplate.id == 4) //exibits
+        {
+            items.push({
+                            items   : this.buildRoomLayout('boothlayout')
+                        });
+            items.push({
+                            cls     : 'thinBorder',
+                            items   : this.buildRoomLayout('posterlayout')
+                        });
+            items.push({
+                            cls     : 'thinBorder',
+                            items   : this.buildRoomLayout('tabletoplayout')
+                        });
+        }
+        
         return [
             {
                 xtype   : 'container',
-                style   : 'border-top: 1px solid rgba(0, 0, 0, .25); border-bottom: 1px solid rgba(0, 0, 0, .25);  padding: 5px;',
-                height  : 175,
+                style   : items.length == 0 ? '' : 'border-top: 1px solid rgba(0, 0, 0, .25); border-bottom: 1px solid rgba(0, 0, 0, .25);  padding: 5px;',
+                height  : items.length == 0 ? 0 : 185,
                 layout  : {
                     type    : 'hbox'
                 },
@@ -371,11 +388,11 @@ Ext.define('MeetingEditor', {
                                 if (rl.selected)
                                 {
                                     roomSetup = rl.getValue();
-                                    
+                                    if (rl.getAdditionalInfo)
+                                        console.dir(rl.getAdditionalInfo());
                                 }
                             });
-                            console.log(me.copyToDates);
-                            
+                            //me.observer.saveMeetingItem(me.meeting);
                         }
                     }
                 ]
@@ -400,7 +417,7 @@ Ext.define('MeetingEditor', {
         beforeshow: function(cmp){
             cmp.title = cmp.meeting.title;
             cmp.add(cmp.buildNorthContainer(cmp.meeting, cmp.observer));
-            Ext.ComponentQuery.query('#centerctr')[0].add(cmp.buildCenterComponents(cmp.meeting));
+            Ext.ComponentQuery.query('#centerctr')[0].add(cmp.buildCenterComponents(cmp.meeting, cmp.meetingTemplate));
         },
         afterrender: function(cmp){
             
