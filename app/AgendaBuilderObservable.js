@@ -504,6 +504,18 @@ Ext.define('AgendaBuilderObservable', {
         var min = time.substring(3,5);
         return Ext.String.format("{0}:{1} {2}", hr, min, slice);
     },
+    convertTimeTo24Hrs: function(time){
+        time = time.toUpperCase()
+        var hours = Number(time.match(/^(\d+)/)[1]);
+        var minutes = Number(time.match(/:(\d+)/)[1]);
+        if(time.indexOf('PM') != -1 && hours<12) hours = hours+12;
+        if(time.indexOf('AM') != -1 && hours==12) hours = hours-12;
+        var sHours = hours.toString();
+        var sMinutes = minutes.toString();
+        if(hours<10) sHours = "0" + sHours;
+        if(minutes<10) sMinutes = "0" + sMinutes;
+        return sHours + ":" + sMinutes;
+    },
     /*******************Ajax callbacks**************/
     onGetRoomSetups: function(obj, scope){
         scope.room_setups = obj;

@@ -168,16 +168,17 @@ Ext.define('boothlayout', Ext.apply({
         extenderInput : [{xtype: 'box', height: 1},
                 {xtype: 'displayfield', value: 'Please answer at least one:', height: 18},
                 {xtype: 'box', height: 1},
-                {xtype: 'numberfield', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, height: 20, listeners: {
-                    change: function(cmp, v){Ext.apply(cmp.additionalInfo, {square_feet: v});}
-                }},
+                {xtype: 'numberfield', itemId: 'boothsqft', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, height: 20},
                 {xtype: 'box', height: 1},
-                {xtype: 'numberfield', fieldLabel  : '# of booths', minValue    : 0, value       : 0, height: 20, listeners: {
-                    change: function(cmp, v){Ext.apply(cmp.additionalInfo, {booths: v});}
-                }},
+                {xtype: 'numberfield', itemId: 'boothcount', fieldLabel  : '# of booths', minValue    : 0, value       : 0, height: 20},
                 {xtype: 'box', height: 5}
                 ],
-        getValue: function(){return '9'}
+        getValue: function(){return '9'},
+        getAdditionalInfo: function(){
+            var ct = Ext.ComponentQuery.query('#boothcount')[0].getValue();
+            var sqft = Ext.ComponentQuery.query('#boothsqft')[0].getValue();
+            return {square_feet : sqft, booths: ct};
+        }
         
     }, baseConfig)
 );
@@ -190,16 +191,17 @@ Ext.define('posterlayout', Ext.apply({
         extenderInput : [{xtype: 'box', height: 1},
                 {xtype: 'displayfield', value: 'Please answer at least one:', height: 18},
                 {xtype: 'box', height: 1},
-                {xtype: 'numberfield', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, height: 20, listeners: {
-                    change: function(cmp, v){Ext.apply(cmp.additionalInfo, {square_feet: v});}
-                }},
+                {xtype: 'numberfield', itemId: 'postersqft', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, height: 20},
                 {xtype: 'box', height: 1},
-                {xtype: 'numberfield', fieldLabel  : '# of posters', minValue    : 0, value       : 0, height: 20, listeners: {
-                    change: function(cmp, v){Ext.apply(cmp.additionalInfo, {posters: v});}
-                }},
+                {xtype: 'numberfield', itemId: 'postercount', fieldLabel  : '# of posters', minValue    : 0, value       : 0, height: 20},
                 {xtype: 'box', height: 5}
                 ],
-        getValue: function(){return '10'}
+        getValue: function(){return '10'},
+        getAdditionalInfo: function(){
+            var ct = Ext.ComponentQuery.query('#postercount')[0].getValue();
+            var sqft = Ext.ComponentQuery.query('#postersqft')[0].getValue();
+            return {square_feet : sqft, posters: ct};
+        }
     }, baseConfig)
 );
 
@@ -210,17 +212,17 @@ Ext.define('tabletoplayout', Ext.apply({
         extenderInput : [{xtype: 'box', height: 1},
                 {xtype: 'displayfield', value: 'Please answer at least one:', height: 18},
                 {xtype: 'box', height: 1},
-                {xtype: 'numberfield', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, height: 20, listeners: {
-                    change: function(cmp, v){Ext.apply(cmp.ownerCt.additionalInfo, {square_feet: v});}
-                }},
+                {xtype: 'numberfield', itemId: 'tabletopsqft', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, height: 20},
                 {xtype: 'box', height: 1},
-                {xtype: 'numberfield', fieldLabel  : '# of table tops', minValue    : 0, value       : 0, height: 20, listeners: {
-                    change: function(cmp, v){Ext.apply({tabletops: v}, cmp.ownerCt.additionalInfo);}
-                }},
+                {xtype: 'numberfield', itemId: 'tabletopcount', fieldLabel  : '# of table tops', minValue    : 0, value       : 0, height: 20},
                 {xtype: 'box', height: 5}
                 ],
         getValue: function(){return '14'},
-        getAdditionalInfo: function(){return Ext.ComponentQuery.query('#extenderInput')[0].additionalInfo}
+        getAdditionalInfo: function(){
+            var ct = Ext.ComponentQuery.query('#tabletopcount')[0].getValue();
+            var sqft = Ext.ComponentQuery.query('#tabletopsqft')[0].getValue();
+            return {square_feet : sqft, tabletops: ct};
+        }
     }, baseConfig)
 );
 

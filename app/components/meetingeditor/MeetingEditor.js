@@ -53,13 +53,6 @@ Ext.define('MeetingEditor', {
                             minValue    : 0,
                             itemId      : 'peopleInMeeting1',
                             value       : 0
-                        },
-                        {
-                            xtype       : 'numberfield',
-                            fieldLabel  : '# People in Meeting 2',
-                            minValue    : 0,
-                            itemId      : 'peopleInMeeting2',
-                            value       : 0
                         }
                     ]
                 },
@@ -96,14 +89,35 @@ Ext.define('MeetingEditor', {
                                     inputCls: 'timeInput',
                                     itemId  : 'start_time',
                                     value   : observer.convertTimeTo12Hrs(meeting.start_time),
+                                    validTime: true,
                                     listeners: {
                                         change: function(cmp, newValue, oldValue, e)
                                         {
-                                            var regex = /^([0]\d|[1][0-2]):([0-5]\d)\s?(?:AM|PM)$/i;
+                                            var regex = /(01|02|03|04|05|06|07|08|09|10|11|12):?(00|30)\s?(?:AM|PM)/;
                                             if (!regex.test(newValue))
+                                            {
                                                 cmp.el.down('.timeInput').el.dom.classList.add('timeInvalid')
+                                                cmp.validTime = false;
+                                            }
                                             else
+                                            {
                                                 cmp.el.down('.timeInput').el.dom.classList.remove('timeInvalid')
+                                                cmp.validTime = true;
+                                            }
+                                        },
+                                        blur: function(cmp){
+                                            var newValue = cmp.getValue();
+                                             var regex = /(01|02|03|04|05|06|07|08|09|10|11|12):?(00|30)\s?(?:AM|PM)/;
+                                            if (!regex.test(newValue))
+                                            {
+                                                cmp.el.down('.timeInput').el.dom.classList.add('timeInvalid')
+                                                cmp.validTime = false;
+                                            }
+                                            else
+                                            {
+                                                cmp.el.down('.timeInput').el.dom.classList.remove('timeInvalid')
+                                                cmp.validTime = true;
+                                            }
                                         }
                                     }
                                 },
@@ -116,7 +130,38 @@ Ext.define('MeetingEditor', {
                                     width   : 120,
                                     inputCls: 'timeInput',
                                     itemId  : 'end_time',
-                                    value   : observer.convertTimeTo12Hrs(meeting.end_time)
+                                    validTime: true,
+                                    value   : observer.convertTimeTo12Hrs(meeting.end_time),
+                                    listeners: {
+                                        change: function(cmp, newValue, oldValue, e)
+                                        {
+                                            var regex = /(01|02|03|04|05|06|07|08|09|10|11|12):?(00|30)\s?(?:AM|PM)/;
+                                            if (!regex.test(newValue))
+                                            {
+                                                cmp.el.down('.timeInput').el.dom.classList.add('timeInvalid')
+                                                cmp.validTime = false;
+                                            }
+                                            else
+                                            {
+                                                cmp.el.down('.timeInput').el.dom.classList.remove('timeInvalid')
+                                                cmp.validTime = true;
+                                            }
+                                        },
+                                        blur: function(cmp){
+                                            var newValue = cmp.getValue();
+                                            var regex = /(01|02|03|04|05|06|07|08|09|10|11|12):?(00|30)\s?(?:AM|PM)/;
+                                            if (!regex.test(newValue))
+                                            {
+                                                cmp.el.down('.timeInput').el.dom.classList.add('timeInvalid')
+                                                cmp.validTime = false;
+                                            }
+                                            else
+                                            {
+                                                cmp.el.down('.timeInput').el.dom.classList.remove('timeInvalid')
+                                                cmp.validTime = true;
+                                            }
+                                        }
+                                    }
                                 },
                                 {
                                     xtype   : 'container',
@@ -252,7 +297,9 @@ Ext.define('MeetingEditor', {
                             },
                             {
                                 xtype: 'textarea',
-                                flex: 1
+                                flex: 1,
+                                itemId: 'note',
+                                value : meeting.note
                             }
                         ]
                     },
@@ -383,15 +430,27 @@ Ext.define('MeetingEditor', {
                         scope   : this,
                         handler : function(){
                             var me = this;
-                            var roomSetup = 0;
+                            me.meeting.room_setup = '11'//Default to none. We'll set the selected one below
+                            var endTime = me.getVal('end_time');
+                            me.meeting.end_time = me.observer.convertTimeTo24Hrs(endTime);
+                            me.meeting.note = me.getVal('note');
+                            me.meeting.num_people = me.getVal('peopleInMeeting1');
+                            var startTime = me.getVal('start_time');
+                            me.meeting.start_time = me.observer.convertTimeTo24Hrs(startTime);
+                            me.meeting.title = me.getVal('meetingTitle');
                             Ext.each(me.roomLayouts, function(rl){
+                                
                                 if (rl.selected)
                                 {
-                                    roomSetup = rl.getValue();
+                                    me.meeting.room_setup = rl.getValue();                                    
                                     if (rl.getAdditionalInfo)
-                                        console.dir(rl.getAdditionalInfo());
+                                    {
+                                        var additionalInfo = rl.getAdditionalInfo();
+                                        Ext.apply(me.meeting, additionalInfo);
+                                    }
                                 }
                             });
+                            console.dir(me.meeting);
                             //me.observer.saveMeetingItem(me.meeting);
                         }
                     }
@@ -399,6 +458,9 @@ Ext.define('MeetingEditor', {
 
             }
         ];
+    },    
+    getVal: function(itemId){
+        return Ext.ComponentQuery.query('#' + itemId)[0].getValue();
     },
     setRoomSetup: function(id){
         var me = this;
