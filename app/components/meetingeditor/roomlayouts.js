@@ -85,10 +85,6 @@ var baseConfig = {
                     cmp.renderExtender(cmp);
             })
             
-        },
-        beforehide: function(){           
-        },
-        beforeremove: function(){           
         }
     }
 };

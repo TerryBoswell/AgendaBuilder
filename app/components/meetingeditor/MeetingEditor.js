@@ -496,6 +496,20 @@ Ext.define('MeetingEditor', {
         beforehide: function(cmp){
             Ext.each(cmp.roomLayouts, function(c){
                 c.clickHandler = null;
+                if (c.extender)
+                {
+                    if (c.extender.extenderRadios)
+                        Ext.each(c.extender.extenderRadios, function(r){
+                            if (r.destroy)
+                                r.destroy();
+                        });
+                    if (c.extender.extenderInput)
+                        Ext.each(c.extender.extenderInput, function(r){
+                            if (r.destroy)
+                                r.destroy();
+                        });
+                    c.extender.destroy();
+                }
                 c.destroy();
             });
         }
