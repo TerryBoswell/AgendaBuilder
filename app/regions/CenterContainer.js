@@ -87,6 +87,17 @@ Ext.define('CenterContainer', {
 			]
 		}
 		
-    ]
+    ],
+	listeners: {
+		scope: this,
+		delay: 2000,
+		afterrender: function(){
+			Ext.each(Ext.query('.x-css-shadow'), function(el){
+				var child = Ext.fly(el);
+				var parent = child.parent();
+				parent.removeChild(child);
+			});
+		}
+	}
 
 })

@@ -353,9 +353,43 @@ Ext.define('AgendaBuilderObservable', {
         {
             return;
         }
+        
         var width = xy[0] - efly.getXY()[0];
         var datesCtr = Ext.ComponentQuery.query('#datesCtr')[0];
         var datesCtrXY = datesCtr.getXY();
+        
+        var createTip = function(target, renderTo, meeting) {
+            var position = target.el.dom.getBoundingClientRect();
+            var centerX = position.left + position.width / 2;
+            var centerY = position.top + position.height / 2;
+            return target.extender = Ext.create('Ext.Component', {
+                html: '<div class="expand"></div>',
+                style: 'background: rgba(1, 0, 0, 0);padding-top: 12px',
+                target: target,
+                floating: true,
+                renderTo: renderTo.el,
+                hidden: true,
+                layout: {
+                  type : 'vbox',
+                  align: 'stretch'
+                },
+                items: [
+                  {
+                    xtype: 'container',
+                    height: 10,
+                    style: 'border: 1px solid'
+                  }
+                ],
+                listeners: {
+                    afterrender: function(tEl) {
+                        var x = centerX - (tEl.getWidth() / 2) - datesCtrXY[0];
+                        var y = centerY - datesCtrXY[1];
+                        tEl.setPosition(x, y);
+                    }
+                }
+            })   
+        }
+        
         var cmp = Ext.create('Ext.Component', {
             html: text,
             floating: true,
@@ -371,15 +405,20 @@ Ext.define('AgendaBuilderObservable', {
             },
             x: xy[0] - datesCtrXY[0],
             y: xy[1] - datesCtrXY[1] + 3,
-            renderTo: datesCtr.el//Ext.getBody()
+            renderTo: datesCtr.el,
+            listeners: {
+                delay: 1000,
+                afterrender: function(cmp) {
+                    cmp.mon(cmp.el, 'click', function(){
+                        cmp.extender.show();
+                    })
+                }
+            }
+
         });
 
-        new Ext.tip.ToolTip({
-            target: cmp.el,
-            html: 'Meeting ' + text,
-            modal: true,
-            mouseOffset: [60,0]
-        });
+        createTip(cmp, datesCtr);
+        
         return {
             booths: 0,
             start_time: startHour,

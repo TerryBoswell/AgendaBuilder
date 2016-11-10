@@ -130,7 +130,7 @@ div.expand:before {
   z-index: 1000;
 }
 
-div.x-css-shadow {
+.x-css-shadow {
     box-shadow: none !important;
     z-index: 1 !important;
 }
