@@ -400,7 +400,7 @@ Ext.define('AgendaBuilderObservable', {
                                 {
                                     xtype: 'container',
                                     height: 25,
-
+                                    style: 'background-color: blue;'
                                 }
                             ]
                         })

@@ -35,6 +35,9 @@ Ext.define('MeetingTemplate',
 					var overrides = {
 			        	 // Called the instance the element is dragged.
 					        b4StartDrag : function() {
+								Ext.each(observer.meetingCallouts, function(callout){
+									callout.hide();
+								})
 					            // Cache the drag element
 					            if (!newCmp.el) {
 					                newCmp.el = Ext.get(this.getEl());
@@ -80,7 +83,7 @@ Ext.define('MeetingTemplate',
 									var d = new Date(match.dataset.date + ' ' + match.dataset.hour);
 									var end = Ext.Date.add(d, Ext.Date.MINUTE, meetingTemplate.default_duration);
 									var color = "#" + meetingTemplate.color;
-									var meeting = observer.createMeeting(new Date(match.dataset.date), match.dataset.hour, Ext.Date.format(end, 'H:i:s'), 
+									var meeting = observer.createMeeting(0, new Date(match.dataset.date), match.dataset.hour, Ext.Date.format(end, 'H:i:s'), 
 										meetingTemplate.title, 'white', 
 										color, 1, observer, meetingTemplate);
 									
