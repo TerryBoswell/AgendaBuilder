@@ -331,7 +331,7 @@ Ext.define('AgendaBuilderObservable', {
         }
         return cols;
     },
-    createMeeting: function(id, date, startHour, endHour, text, color, fontColor, rowIdx, context, MeetingTemplate){
+    createMeeting: function(id, date, startHour, endHour, text, fontColor, color, rowIdx, context, MeetingTemplate){
         if (context)
             var me = context;
         else
@@ -359,19 +359,22 @@ Ext.define('AgendaBuilderObservable', {
         var datesCtr = Ext.ComponentQuery.query('#datesCtr')[0];
         var datesCtrXY = datesCtr.getXY();
         
-        var createTip = function(target, renderTo, meetingId, observer) {
+        var createTip = function(target, renderTo, meetingId, observer, color, fontColor, title) {
             var position = target.el.dom.getBoundingClientRect();
             var centerX = position.left + position.width / 2;
             var centerY = position.top + position.height / 2;
             return target.extender = Ext.create('Ext.Component', {
                 html: '<div class="meetingTip"></div>',
-                style: 'background: rgba(1, 0, 0, 0);padding-top: 12px',
+                style: 'background: rgba(1, 0, 0, 0);padding-top: 12px;',
                 target: target,
                 floating: true,
                 renderTo: renderTo.el,
                 hidden: true,
                 observer: observer,
                 meetingId: meetingId,
+                titleColor: color,
+                titleFontColor: fontColor,
+                titleText : title,
                 layout: {
                   type : 'vbox',
                   align: 'stretch'
@@ -390,17 +393,66 @@ Ext.define('AgendaBuilderObservable', {
                         tEl.setPosition(x, y);
                         tEl.container = Ext.create('Ext.Container', {
                             renderTo: tEl.el.down('.meetingTip').el,
-                            height: 100,
+                            style: 'padding: 1px 1px;',
+                            height: 125,
                             width: 230,
                             layout: {
-                                type: 'vbox',
-                                align: 'stretch'
+                                type: 'vbox'
+                            },
+                            defaults: {
+                                width: 222
                             },
                             items: [
                                 {
                                     xtype: 'container',
+                                    html: Ext.String.format('<div style="font-size:larger; margin-left:auto;margin-right:auto;text-align:center;">{0}</div>', tEl.titleText),
                                     height: 25,
-                                    style: 'background-color: blue;'
+                                    style: {
+                                        color: tEl.titleFontColor,
+                                        backgroundColor: tEl.titleColor
+                                    },
+                                    cls: 'callout-title'
+                                },
+                                {
+                                    xtype: 'container',
+                                    flex: 1, 
+                                    cls: 'thinBorderBottom'
+                                },
+                                {
+                                    xtype: 'container',
+                                    height: 40,
+                                    layout: {
+                                        type: 'hbox'
+                                    },
+                                    defaultType: 'container',
+                                    defaults: {
+                                        height: 30,
+                                        style: 'text-align: center; font-size: larger; padding-bottom: 5px;'
+                                    },
+                                    padding: 5,
+                                    items: [
+                                        {
+                                            flex: 1
+                                        },
+                                        {
+                                            html: 'Copy',
+                                            
+                                            width: 70
+                                        },
+                                        {
+                                            html: 'Edit',
+                                            cls: 'thinBorder',
+                                            width: 70
+                                        },
+                                        {
+                                            html: 'Delete',
+                                            cls: 'thinBorder',
+                                            width: 70
+                                        },
+                                        {
+                                            flex: 1
+                                        }
+                                    ]
                                 }
                             ]
                         })
@@ -414,7 +466,6 @@ Ext.define('AgendaBuilderObservable', {
                 }
             })   
         }
-        
         var cmp = Ext.create('Ext.Component', {
             html: text,
             floating: true,
@@ -425,8 +476,8 @@ Ext.define('AgendaBuilderObservable', {
             style: {
                 paddingTop: '3px',
                 paddingLeft: '3px',
-                color: color,
-                backgroundColor: fontColor,
+                color: fontColor,
+                backgroundColor: color,
                 borderRadius: '3px'
             },
             x: xy[0] - datesCtrXY[0],
@@ -443,7 +494,7 @@ Ext.define('AgendaBuilderObservable', {
 
         });
 
-        this.meetingCallouts.push(createTip(cmp, datesCtr, id, this));
+        this.meetingCallouts.push(createTip(cmp, datesCtr, id, this, color, fontColor, text));
         
         return {
             booths: 0,

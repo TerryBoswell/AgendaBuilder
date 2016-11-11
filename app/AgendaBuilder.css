@@ -139,19 +139,24 @@ div.expand:before {
     border-left: 1px solid rgba(0, 0, 0, .25);
 }
 
+.thinBorderBottom {
+    border-bottom: 1px solid rgba(0, 0, 0, .25);
+}
+
+
 .thinBorderAll{
     border: 1px solid rgba(0, 0, 0, .25);
 }
 
 div.meetingTip {
-  height: 100px;
+  height: 125px;
   width: 230px;
-  background: #DCDCDC;
+  background: white;
   position: relative;
   cursor: pointer;
   border: 3px solid grey;
   border-radius: 10px;
-  z-index: 1000;
+  z-index: 999;
 }
 div.meetingTip:before {
   content: "";
@@ -161,15 +166,16 @@ div.meetingTip:before {
   height: 20px;
   width: 20px;
   box-sizing:border-box;
+  background: white;
   transform: rotate(225deg) translate(90%);
   border-bottom: inherit;
   border-right: inherit;
   box-shadow: inherit;
-  z-index: 1000;
-  background-image: linear-gradient(-45deg, rgb(220,220,220,0) 50%, rgb(220,220,220) 50%);
-background-image: -o-linear-gradient(-45deg, rgb(220,220,220,0) 50%, rgb(220,220,220) 50%);
-background-image: -moz-linear-gradient(-45deg, rgb(220,220,220,0) 50%, rgb(220,220,220) 50%);
-background-image: -webkit-linear-gradient(-45deg, rgb(220,220,220,0) 50%, rgb(220,220,220) 50%);
-background-image: -ms-linear-gradient(-45deg, rgb(220,220,220,0) 50%, rgb(220,220,220) 50%);
+  z-index: 999;
+}
 
+.callout-title{
+    padding: 1px;
+    z-index: 1000; 
+    border-radius: 6px;
 }
