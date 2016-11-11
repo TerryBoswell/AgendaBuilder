@@ -12,6 +12,7 @@ Ext.define('AgendaBuilderObservable', {
     room_setups: null,
     dates: null,
     totalRowCount: 0,
+    meetingCallouts: [],
     getHourForCol: function(col){
         var colBase = 3;
         if (col < colBase)
@@ -92,7 +93,7 @@ Ext.define('AgendaBuilderObservable', {
                 var end = meeting.end_time.replace('1900/01/01 ', '');
                 var color = "#" + meeting.meeting_item_type.color;
                 
-                me.createMeeting(instance.date, start, end, meeting.title, 'white', 
+                me.createMeeting(instance.id, instance.date, start, end, meeting.title, 'white', 
                     color, me.calculateRowIndex(meeting, instance), me, meeting.meeting_item_type);
             });
     },
@@ -330,7 +331,7 @@ Ext.define('AgendaBuilderObservable', {
         }
         return cols;
     },
-    createMeeting: function(date, startHour, endHour, text, color, fontColor, rowIdx, context, MeetingTemplate){
+    createMeeting: function(id, date, startHour, endHour, text, color, fontColor, rowIdx, context, MeetingTemplate){
         if (context)
             var me = context;
         else
@@ -358,17 +359,19 @@ Ext.define('AgendaBuilderObservable', {
         var datesCtr = Ext.ComponentQuery.query('#datesCtr')[0];
         var datesCtrXY = datesCtr.getXY();
         
-        var createTip = function(target, renderTo, meeting) {
+        var createTip = function(target, renderTo, meetingId, observer) {
             var position = target.el.dom.getBoundingClientRect();
             var centerX = position.left + position.width / 2;
             var centerY = position.top + position.height / 2;
             return target.extender = Ext.create('Ext.Component', {
-                html: '<div class="expand"></div>',
+                html: '<div class="meetingTip"></div>',
                 style: 'background: rgba(1, 0, 0, 0);padding-top: 12px',
                 target: target,
                 floating: true,
                 renderTo: renderTo.el,
                 hidden: true,
+                observer: observer,
+                meetingId: meetingId,
                 layout: {
                   type : 'vbox',
                   align: 'stretch'
@@ -385,6 +388,12 @@ Ext.define('AgendaBuilderObservable', {
                         var x = centerX - (tEl.getWidth() / 2) - datesCtrXY[0];
                         var y = centerY - datesCtrXY[1];
                         tEl.setPosition(x, y);
+                    },
+                    beforeshow: function(cmp){
+                        Ext.each(cmp.observer.meetingCallouts, function(callout){
+                            callout.hide();
+                        })
+                        
                     }
                 }
             })   
@@ -396,6 +405,7 @@ Ext.define('AgendaBuilderObservable', {
             height : height - 6,
             width: width,
             cls: 'mtg-instance',
+            meetingId: id,
             style: {
                 paddingTop: '3px',
                 paddingLeft: '3px',
@@ -417,7 +427,7 @@ Ext.define('AgendaBuilderObservable', {
 
         });
 
-        createTip(cmp, datesCtr);
+        this.meetingCallouts.push(createTip(cmp, datesCtr, id, this));
         
         return {
             booths: 0,
