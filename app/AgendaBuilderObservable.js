@@ -388,6 +388,22 @@ Ext.define('AgendaBuilderObservable', {
                         var x = centerX - (tEl.getWidth() / 2) - datesCtrXY[0];
                         var y = centerY - datesCtrXY[1];
                         tEl.setPosition(x, y);
+                        tEl.container = Ext.create('Ext.Container', {
+                            renderTo: tEl.el.down('.meetingTip').el,
+                            height: 100,
+                            width: 230,
+                            layout: {
+                                type: 'vbox',
+                                align: 'stretch'
+                            },
+                            items: [
+                                {
+                                    xtype: 'container',
+                                    height: 25,
+
+                                }
+                            ]
+                        })
                     },
                     beforeshow: function(cmp){
                         Ext.each(cmp.observer.meetingCallouts, function(callout){
