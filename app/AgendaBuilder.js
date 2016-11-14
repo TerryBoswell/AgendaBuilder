@@ -101,6 +101,7 @@ Ext.define('AgendaBuilder.MainContainer', {
                 Ext.Date.dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
                 observer.setScrollingHandlers();
                 observer.setRfpNumber(cmp.component.rfpNumber);
+                observer.initAjaxController('https://etouches987.zentilaqa.com', observer);
                 observer.getRoomSetups();
                 observer.on({
                     scope: this,

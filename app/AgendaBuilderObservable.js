@@ -7,12 +7,19 @@ Ext.define('AgendaBuilderObservable', {
     // calling Ext.apply(this, config); instead of this.initConfig(config);
     $applyConfigs: true,
     rfpNumber: null,
-    ajaxUrlBase: 'https://etouches987.zentilaqa.com',
     meeting_item_types: null,
     room_setups: null,
     dates: null,
     totalRowCount: 0,
     meetingCallouts: [],
+    ajaxController: null,
+    initAjaxController: function(url, scope){
+        var me = scope;
+        me.ajaxController = Ext.create('AjaxController', {
+            rfpNumber: me.rfpNumber,
+            ajaxUrlBase: url
+        })
+    },
     getHourForCol: function(col){
         var colBase = 3;
         if (col < colBase)
@@ -92,8 +99,7 @@ Ext.define('AgendaBuilderObservable', {
                 var start = meeting.start_time.replace('1900/01/01 ', '');
                 var end = meeting.end_time.replace('1900/01/01 ', '');
                 var color = "#" + meeting.meeting_item_type.color;
-                
-                me.createMeeting(instance.id, instance.date, start, end, meeting.title, 'white', 
+                me.createMeeting(meeting.id, instance.date, start, end, meeting.title, 'white', 
                     color, me.calculateRowIndex(meeting, instance), me, meeting.meeting_item_type);
             });
     },
@@ -161,7 +167,6 @@ Ext.define('AgendaBuilderObservable', {
             return itemA.rowIndex - itemB.rowIndex;
         })
 
-        //console.dir(rowOrderedData);
         var recordOverlaps = 0;
         var maxRows = 0;
         //now we will bump any records with record overlaps
@@ -458,6 +463,9 @@ Ext.define('AgendaBuilderObservable', {
                         })
                     },
                     beforeshow: function(cmp){
+                        // Ext.each(cmp.zIndexManager.zIndexStack.items, function(i){
+                        //     console.dir(i);
+                        // })
                         Ext.each(cmp.observer.meetingCallouts, function(callout){
                             callout.hide();
                         })
@@ -512,6 +520,26 @@ Ext.define('AgendaBuilderObservable', {
             type: MeetingTemplate.id,
             date: date
         };
+    },
+    removeMeeting: function(id){
+        //Remove the meeting from the grid
+        Ext.each(Ext.query('.mtg-instance'), function(cmp){
+            var origCmp = Ext.getCmp(cmp.id);
+            if (origCmp.meetingId == id)
+                origCmp.destroy();
+        })
+        //destroy the callout
+
+        //Make the ajax call to remove the meeting
+        if (id != 0)
+            console.info("add ajax to delete meeting")
+    },
+    updateMeetingId: function(id, newId){
+        Ext.each(Ext.query('.mtg-instance'), function(cmp){
+            var origCmp = Ext.getCmp(cmp.id);
+            if (origCmp.meetingId == id)
+                origCmp.meetingId = newId;
+        })
     },
     getRow: function(date){
         var row = null;
@@ -672,87 +700,33 @@ Ext.define('AgendaBuilderObservable', {
         });
         scope.fireEvent('getmeetingitems', convertedData);
     },
-    onSaveMeetingItem: function(obj){
-        debugger;
+    onSaveMeetingItem: function(postedData, response, scope){
+        scope.updateMeetingId(postedData.id == null ? 0 : postedData.id, response.id);
+        postedData.id = response.id;
+        scope.fireEvent('meetingSaved', postedData);
     },
-    onDeleteMeetingItem: function(obj){},
-    onSaveAlternateOptions: function(obj){},
-    onSavePrePostDays: function(obj){
-        debugger;
+    onDeleteMeetingItem: function(obj, scope){},
+    onSaveAlternateOptions: function(obj, scope){},
+    onSavePrePostDays: function(obj, scope){
+        scope.fireEvent('prePostDaysSaved', obj);
     },
     /*******************Ajax calls */ 
-    getUrl: function(callUrl){
-        if (!this.ajaxUrlBase)
-            throw("ajax Url Base must be set");
-        if (!this.rfpNumber)
-            throw("rpf number must be set");
-        if (!callUrl)
-            throw("call url must be passed")
-        return this.ajaxUrlBase.concat(callUrl, this.rfpNumber, "/json/");
-    },   
-    getPostUrl: function(callUrl){
-        if (!this.ajaxUrlBase)
-            throw("ajax Url Base must be set");
-        if (!this.rfpNumber)
-            throw("rpf number must be set");
-        if (!callUrl)
-            throw("call url must be passed")
-        return this.ajaxUrlBase.concat(callUrl);
-    },   
-    doGet: function(url, callback){      
-        var me = this;   
-        Ext.Ajax.request({
-            url: this.getUrl(url),
-            method: 'GET',
-            scope: me,
-            success: function(response, opts) {
-                var obj = Ext.decode(response.responseText);
-                callback(obj, opts.scope);
-            },
-
-            failure: function(response, opts) {
-                console.log('server-side failure with status code ' + response.status);
-            }
-        });
-    },
-    doPost: function(url, callback, data){
-        var me = this;   
-        Ext.Ajax.request({
-            url: this.getPostUrl(url),
-            method: 'POST',
-            scope: me,
-            jsonData: data,
-            headers: { 'Content-Type': 'application/json' },
-            success: function(response, opts) {
-                var obj = Ext.decode(response.responseText);
-                callback(obj, opts.scope);
-            },
-
-            failure: function(response, opts) {
-                console.log('server-side failure with status code ' + response.status);
-            }
-        });
-    },
     getRoomSetups: function(){
-        this.doGet("/planners/rfp/meeting_room_setups/", this.onGetRoomSetups);
+        this.ajaxController.getRoomSetups(this.onGetRoomSetups, this);
     },
     getMeetingItemTypes: function(){
-        this.doGet("/planners/rfp/meeting_item_types/", this.onGetMeetingItemTypes);
+        this.ajaxController.getMeetingItemTypes(this.onGetMeetingItemTypes, this);
     },
     getMeetingItems: function(){
-        this.doGet("/planners/rfp/meeting_items/", this.onGetMeetingItems);
+        this.ajaxController.getMeetingItems(this.onGetMeetingItems, this);
     },
     saveMeetingItem: function(meeting){
-        var me = this;
-        var url = Ext.String.format('/planners/rfp/meeting_item_save/{0}/json/', me.rfpNumber);
-        me.doPost(url, this.onSaveMeetingItem, meeting);
+        this.ajaxController.saveMeetingItem(meeting, this.onSaveMeetingItem, this);
     },
     deleteMeetingItem: function(){},
     saveAlternateOption: function(){},
     savePrePostDays: function(type, count){
-        var me = this;
-        var url = Ext.String.format('/planners/{0}/add_pre_post_days/', me.rfpNumber);
-        me.doPost(url, this.onSavePrePostDays, {type: type, count: count});
+        thisa.ajaxController.savePrePostDays(type, count, this.onSavePrePostDays, this);
     },
     getColForHour: function(hour){
         if (hour == '06:00:00')

@@ -109,7 +109,7 @@ Ext.define('MeetingEditor', {
                                         blur: function(cmp){
                                             var newValue = cmp.getValue();
                                              var regex = /(01|1|02|2|03|3|04|4|05|5|06|6|07|7|08|8|09|9|10|11|12):?(00|30)\s?(?:AM|PM)/;
-                                             console.log(this.observer.getHourFor24Hrs(newValue));
+                                             
                                             if (!regex.test(newValue) || this.observer.getHourFor24Hrs(newValue) < 6 || this.observer.getHourFor24Hrs(newValue) > 24)
                                             {
                                                 cmp.el.down('.timeInput').el.dom.classList.add('timeInvalid')
@@ -415,7 +415,16 @@ Ext.define('MeetingEditor', {
                 items   : [
                     {
                         xtype   : 'button',
-                        text    : '<div class="btn">Cancel</div>'
+                        text    : '<div class="btn">Cancel</div>',
+                        scope   : this,
+                        handler : function(){
+                            var me = this;
+                            var id = me.meeting.id != null ? me.meeting.id : 0;
+                            if (id == 0) //for unsaved meetings, we remove them
+                                me.observer.removeMeeting(id);
+                            me.hide();
+                            me.destroy();
+                        }
                     },
                     {
                         xtype   : 'box',
@@ -423,7 +432,15 @@ Ext.define('MeetingEditor', {
                     },
                     {
                         xtype   : 'button',
-                        text    : '<div class="btn">Delete</div>'
+                        text    : '<div class="btn">Delete</div>',
+                        scope   : this,
+                        handler : function(){
+                            var me = this;
+                            var id = me.meeting.id != null ? me.meeting.id : 0;
+                            me.observer.removeMeeting(id);
+                            me.hide();
+                            me.destroy();
+                        }
                     },
                     {
                         xtype   : 'box',
@@ -455,7 +472,6 @@ Ext.define('MeetingEditor', {
                                     }
                                 }
                             });
-                            console.dir(me.meeting);
                             me.observer.saveMeetingItem(me.meeting);
                         }
                     }
@@ -491,6 +507,14 @@ Ext.define('MeetingEditor', {
             new Ext.util.DelayedTask(function(){
                 cmp.setRoomSetup(cmp.meeting.room_setup);
             }).delay(1000);
+
+            cmp.observer.on({
+                scope: cmp,
+                meetingSaved: function(){
+                    cmp.hide();
+                    cmp.destroy();                    
+                }
+            })
             
         },
         beforehide: function(cmp){
@@ -519,16 +543,3 @@ Ext.define('MeetingEditor', {
     }
 
 })
-
-/*
-
-Ext.each(document.querySelectorAll('[id^="ext-element"]'), function(el){
-  console.log(el)
-  
-});
-
-Ext.each(Ext.query('[id^="ext-element"]'), function(el){
-   console.dir(Ext.fly(el.dom))
-  
-});
- */
