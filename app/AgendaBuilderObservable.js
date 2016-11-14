@@ -463,9 +463,11 @@ Ext.define('AgendaBuilderObservable', {
                         })
                     },
                     beforeshow: function(cmp){
-                        // Ext.each(cmp.zIndexManager.zIndexStack.items, function(i){
-                        //     console.dir(i);
-                        // })
+                        //This prevents the component from having a null shadow
+                        Ext.each(Ext.query('.mtg-instance'), function(cmp){
+                            var origCmp = Ext.getCmp(cmp.id);
+                            origCmp.el.shadow = null;
+                        })
                         Ext.each(cmp.observer.meetingCallouts, function(callout){
                             callout.hide();
                         })
