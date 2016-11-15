@@ -87,8 +87,7 @@ Ext.define('AgendaBuilderObservable', {
         Ext.each(dates, function(instance){
             me.buildSingleDate(instance, datesCtr);
             me.buildMeetingsForDate(instance, me);
-        });
-        
+        });        
     },
     getDates: function(){
         return this.dates;
@@ -145,9 +144,10 @@ Ext.define('AgendaBuilderObservable', {
         })
 
         Ext.each(dataOrderedData, function(d){
+            d.oldRowIndex = d.rowIndex;
             d.rowIndex = colorOrderDictionary[d.meeting_item_type.color];
+            //console.log(d.title + " " + d.rowIndex);            
         })
-        
         //This function will be used to detect record overlaps
         var overLapsSamePreviousType = function(idx, data)
         {
@@ -241,11 +241,13 @@ Ext.define('AgendaBuilderObservable', {
                 rows : [],
                 date: instance.date,
                 meetings: [],
+                rowCount: null,
+                rowIndex: me.agendaBuilderRows.length                
             };
             var data = instance.date.toLocaleDateString();
             //This methods assigns the row index to the meetings and returns the number
             //of rows we need
-            var rowCount = me.assignRowIndexes(instance);
+            agendaBuilderRow.rowCount = me.assignRowIndexes(instance);
             var topRow = Ext.create('AgendaRow', 
                 {
                     height: 50,
@@ -278,7 +280,7 @@ Ext.define('AgendaBuilderObservable', {
             agendaBuilderRow.rows.push({id: topRow.id});
             agendaBuilderRow.rows.push({id: bottomRow.id});
             this.agendaBuilderRows.push(agendaBuilderRow);
-            for(j = 2; j < rowCount; j++)
+            for(j = 2; j < agendaBuilderRow.rowCount; j++)
             {
                 me.addAdditionalRow(instance.date, me, agendaBuilderRow);
             }
@@ -295,7 +297,7 @@ Ext.define('AgendaBuilderObservable', {
             Ext.fly(el).destroy()
         })
     },
-    addAdditionalRow: function(date, context, agendaBuilderRow, buildMeetings){
+    addAdditionalRow: function(date, context, agendaBuilderRow, insertRowAt){
         if (context)
             var me = context;
         else
@@ -319,13 +321,13 @@ Ext.define('AgendaBuilderObservable', {
                         {html: '-Hide', cls: '', style : 'color: #43b8bc;text-align: center;height: 42px;', Index: 1}
                         ]
                 });
-        //datesCtr.insert(agendaBuilderRow.rows.length, row);
-        datesCtr.add(row);
+        if (insertRowAt == null || insertRowAt == undefined)
+            datesCtr.add(row);
+        else
+            datesCtr.insert(insertRowAt, row);
+
         agendaBuilderRow.rows.push({id: row.id})
-        //me.removeAllMeetings();
-        //Ext.each(me.dates, function(instance){
-        //    me.buildMeetingsForDate(instance, me);
-        //})
+        
         
     },
     buildHourColumns: function(cnt){
@@ -360,7 +362,8 @@ Ext.define('AgendaBuilderObservable', {
             return;
         }
         
-        var width = xy[0] - efly.getXY()[0];
+        var width = Math.abs(xy[0] - efly.getXY()[0]);
+        
         var datesCtr = Ext.ComponentQuery.query('#datesCtr')[0];
         var datesCtrXY = datesCtr.getXY();
         
@@ -371,6 +374,7 @@ Ext.define('AgendaBuilderObservable', {
             return target.extender = Ext.create('Ext.Component', {
                 html: '<div class="meetingTip"></div>',
                 style: 'background: rgba(1, 0, 0, 0);padding-top: 12px;',
+                cls: 'mtg-tip-ctr',
                 target: target,
                 floating: true,
                 renderTo: renderTo.el,
@@ -471,7 +475,15 @@ Ext.define('AgendaBuilderObservable', {
                         Ext.each(cmp.observer.meetingCallouts, function(callout){
                             callout.hide();
                         })
-                        
+                                                
+                    },
+                    show: function(cmp){
+                        if (cmp.pendingShift)
+                        {
+                            var tipY = cmp.getY();
+                            cmp.setY(cmp.pendingShift + tipY);
+                            delete(cmp.pendingShift);
+                        }
                     }
                 }
             })   
@@ -523,8 +535,66 @@ Ext.define('AgendaBuilderObservable', {
             date: date
         };
     },
+    findMeetingComponent: function(meetingId){
+        var match = null;
+        Ext.each(Ext.query('.mtg-instance'), function(cmp){
+            var origCmp = Ext.getCmp(cmp.id);
+            if (origCmp.meetingId == meetingId)
+                match = origCmp;
+        })
+        return match;
+    },
+    findMeetingTip: function(meetingId){
+        var match = null;
+        Ext.each(Ext.query('.mtg-tip-ctr'), function(cmp){
+            var origCmp = Ext.getCmp(cmp.id);
+            if (origCmp.meetingId == meetingId)
+                match = origCmp;
+        })
+        if (!match)
+            console.warn("Tip not found " + meetingId);
+        return match;
+    },
+    moveMeetingDownXRows: function(meetingId, rowCount, scope){
+        var me = scope;
+        var mtg = me.findMeetingComponent(meetingId);
+        var shift = rowCount * 50;        
+        
+        if (mtg == null)
+        {
+            console.warn("Mtg not found : " + meetingId);
+            return;
+        }
+        var y = mtg.getY();
+        mtg.setY(y + shift);
+
+        var tip = me.findMeetingTip(meetingId);
+        if (tip == null)
+        {
+            console.warn("Tip not found : " + meetingId);
+            return;
+        }
+        var existingShift = tip.pendingShift ? tip.pendingShift : 0;
+        tip.pendingShift = existingShift + ((rowCount) * 50);
+    },
+    moveMeetingUpXRows: function(meetingId, rowCount, scope){
+        var me = scope;
+        var mtg = me.findMeetingComponent(meetingId);
+        if (mtg == null)
+            return;
+        var y = mtg.getY();
+        var shift = rowCount * 50;
+        mtg.setY(y - shift);
+
+        var tip = me.findMeetingTip(meetingId);
+        if (tip == null)
+            return;
+        var tipShift = (rowCount + 1) * 50;
+        var tipY = tip.getY();
+        tip.setY(tipY - tipShift);
+    },
     removeMeeting: function(id){
-        //Remove the meeting from the grid
+        //Remove the meeting from the grid        
         Ext.each(Ext.query('.mtg-instance'), function(cmp){
             var origCmp = Ext.getCmp(cmp.id);
             if (origCmp.meetingId == id)
@@ -536,12 +606,16 @@ Ext.define('AgendaBuilderObservable', {
         if (id != 0)
             console.info("add ajax to delete meeting")
     },
-    updateMeetingId: function(id, newId){
-        Ext.each(Ext.query('.mtg-instance'), function(cmp){
-            var origCmp = Ext.getCmp(cmp.id);
-            if (origCmp.meetingId == id)
-                origCmp.meetingId = newId;
-        })
+    updateMeetingId: function(meetingId, newId, scope){
+        var me = scope;
+        var mtg = me.findMeetingComponent(meetingId);
+        if (mtg == null)
+            return;
+        mtg.meetingId = newId;
+        var tip = me.findMeetingTip(meetingId);
+        if (tip == null)
+            return;
+        tip.meetingId = newId;
     },
     getRow: function(date){
         var row = null;
@@ -703,7 +777,7 @@ Ext.define('AgendaBuilderObservable', {
         scope.fireEvent('getmeetingitems', convertedData);
     },
     onSaveMeetingItem: function(postedData, response, scope){
-        scope.updateMeetingId(postedData.id == null ? 0 : postedData.id, response.id);
+        scope.updateMeetingId(postedData.id == null ? 0 : postedData.id, response.id, scope);
         postedData.id = response.id;
         var me = scope;
         var newRows = [];
@@ -725,6 +799,10 @@ Ext.define('AgendaBuilderObservable', {
             room_setup_type : scope.getRoomSetup(postedData.room_setup)
         };
         var count = null;
+        var agendaBuilderRow = me.getRow(postedData.date);
+        if (agendaBuilderRow == null)
+            throw "Row Not found";
+        var newRowCount = agendaBuilderRow.rowCount;
         Ext.each(scope.dates, function(instance){
             if (postedData.date.getDate() == instance.date.getDate() && postedData.date.getMonth() == instance.date.getMonth())
             {
@@ -738,15 +816,35 @@ Ext.define('AgendaBuilderObservable', {
                 })
                 if (!match)
                     instance.meetings.push(savedMeeting);
-                //count = me.assignRowIndexes(instance);
+                newRowCount = me.assignRowIndexes(instance);
             }
             newRows.push(instance);
         });
         scope.fireEvent('meetingSaved', newRows);
-        // var agendaBuilderRow = me.getRow(postedData.date);
-        // console.dir(agendaBuilderRow.rowCount);
-        // console.dir(count);
-        location.reload();
+        var rowInsertedAt = null; //tracks which row has the first insert
+        var startShift = false; //tracks that a shift has started. There will only ever be on shift at a time in this method and it is down only
+        var lastMtg = null; //keep track of the last meeting for the first shift;
+        Ext.each(scope.dates, function(d){
+            var row = me.getRow(d.date);
+            Ext.each(d.meetings, function(mtg){
+
+                var oldidx = (mtg.oldRowIndex ? mtg.oldRowIndex : mtg.rowIndex) + row.rowIndex;
+                var newidx = mtg.rowIndex + row.rowIndex;
+                if (rowInsertedAt == null && oldidx != newidx && mtg.id != postedData.id) //We need the first occurance where the row changed position
+                {
+                    rowInsertedAt = oldidx;
+                    me.addAdditionalRow(d.date, me, row, rowInsertedAt);
+                    startShift = true;
+                    if (lastMtg != null) //We are shifting down the last meeting since it will be the start of the shift
+                    {
+                        me.moveMeetingDownXRows(lastMtg.id, 1, me);                    
+                    }
+                }
+                if (startShift)
+                    me.moveMeetingDownXRows(mtg.id, 1, me);
+                lastMtg = mtg;
+            })
+        });       
     },
     onDeleteMeetingItem: function(obj, scope){},
     onSaveAlternateOptions: function(obj, scope){},
