@@ -705,7 +705,48 @@ Ext.define('AgendaBuilderObservable', {
     onSaveMeetingItem: function(postedData, response, scope){
         scope.updateMeetingId(postedData.id == null ? 0 : postedData.id, response.id);
         postedData.id = response.id;
-        scope.fireEvent('meetingSaved', postedData);
+        var me = scope;
+        var newRows = [];
+        var savedMeeting = {
+            all_day : postedData.all_day,
+            booths  : postedData.booths,
+            end_time: '1900/01/01 ' + postedData.end_time,
+            id      : response.id,
+            note    : postedData.note,
+            num_people: postedData.num_people,
+            posters : postedData.posters,
+            room_setup: postedData.room_setup,
+            square_feet: postedData.square_feet,
+            start_time: '1900/01/01 ' + postedData.start_time,
+            tabletops: postedData.tabletops,
+            title   : postedData.title,
+            type    : postedData.type,
+            meeting_item_type : scope.getMeetingType(postedData.type),
+            room_setup_type : scope.getRoomSetup(postedData.room_setup)
+        };
+        var count = null;
+        Ext.each(scope.dates, function(instance){
+            if (postedData.date.getDate() == instance.date.getDate() && postedData.date.getMonth() == instance.date.getMonth())
+            {
+                var match = false;
+                Ext.each(instance.meetings, function(meeting){
+                    if (meeting.id == savedMeeting.id)
+                    {
+                        match = true;
+                        Ext.apply(meeting, savedMeeting)
+                    }
+                })
+                if (!match)
+                    instance.meetings.push(savedMeeting);
+                //count = me.assignRowIndexes(instance);
+            }
+            newRows.push(instance);
+        });
+        scope.fireEvent('meetingSaved', newRows);
+        // var agendaBuilderRow = me.getRow(postedData.date);
+        // console.dir(agendaBuilderRow.rowCount);
+        // console.dir(count);
+        location.reload();
     },
     onDeleteMeetingItem: function(obj, scope){},
     onSaveAlternateOptions: function(obj, scope){},
