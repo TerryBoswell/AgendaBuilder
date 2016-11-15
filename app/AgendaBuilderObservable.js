@@ -444,19 +444,52 @@ Ext.define('AgendaBuilderObservable', {
                                             flex: 1
                                         },
                                         {
-                                            html: 'Copy',
-                                            
-                                            width: 70
+                                            html: 'Copy',                                            
+                                            width: 70,
+                                            observer: observer,
+                                            meetingId: meetingId,
+                                            listeners: {
+                                                delay: 1000,
+                                                scope: this,
+                                                afterrender: function(targetCmp) {
+                                                    targetCmp.mon(targetCmp.el, 'click', function(){
+                                                        var mtg = targetCmp.observer.getMeeting(targetCmp.meetingId, targetCmp.observer);
+                                                        targetCmp.showMeetingEditor(mtg, targetCmp.observer, mtg.meeting_item_type);
+                                                    })
+                                                }
+                                            }
                                         },
                                         {
                                             html: 'Edit',
                                             cls: 'thinBorder',
-                                            width: 70
+                                            width: 70,
+                                            observer: observer,
+                                            meetingId: meetingId,
+                                            listeners: {
+                                                delay: 1000,
+                                                scope: this,
+                                                afterrender: function(targetCmp) {
+                                                    targetCmp.mon(targetCmp.el, 'click', function(){
+                                                        console.log(targetCmp.meetingId);
+                                                    })
+                                                }
+                                            }
                                         },
                                         {
                                             html: 'Delete',
                                             cls: 'thinBorder',
-                                            width: 70
+                                            width: 70,
+                                            observer: observer,
+                                            meetingId: meetingId,
+                                            listeners: {
+                                                delay: 1000,
+                                                scope: this,
+                                                afterrender: function(targetCmp) {
+                                                    targetCmp.mon(targetCmp.el, 'click', function(){
+                                                        console.log(targetCmp.meetingId);
+                                                    })
+                                                }
+                                            }
                                         },
                                         {
                                             flex: 1
@@ -534,6 +567,16 @@ Ext.define('AgendaBuilderObservable', {
             type: MeetingTemplate.id,
             date: date
         };
+    },
+    getMeeting: function(meetingId, scope){
+        var mtg = null;
+        Ext.each(scope.dates, function(instance){
+            Ext.each(instance.meetings, function(meeting){
+                if (meeting.id == meetingId)
+                    mtg = meeting;
+            })                
+        });
+        return mtg;
     },
     findMeetingComponent: function(meetingId){
         var match = null;
@@ -655,7 +698,7 @@ Ext.define('AgendaBuilderObservable', {
         }
         return null;
     },
-    showMeetingEditor: function(mtgCmp, meeting, observer, meetingTemplate){
+    showMeetingEditor: function(meeting, observer, meetingTemplate){
         var me = this;
         var datesCtr = Ext.ComponentQuery.query('#MainContainer')[0];
         Ext.create('MeetingEditor', {
