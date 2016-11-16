@@ -96,7 +96,8 @@ Ext.define('squarelayout', Ext.apply({
         html: 
             '<img class="img-roomlayout" src="app/images/boardroom.png">' +
             '<div class="layoutName img-banquet">Square</img></div>',
-        getValue: function(){return '13'}
+        getValue: function(){return '13'},
+        values: function(){return ['13']}
     }, baseConfig)
 );
 
@@ -104,7 +105,8 @@ Ext.define('ushapelayout', Ext.apply({
         itemId: 'ushapelayout',
         html: '<img class="img-roomlayout" src="app/images/u-shape.png" >' +
               '<div class="layoutName">U Shape</div>',
-        getValue: function(){return '1'}
+        getValue: function(){return '1'},
+        values: function(){return ['1']}
     }, baseConfig)
 );
 
@@ -117,7 +119,8 @@ Ext.define('roundlayout', Ext.apply({
             { boxLabel: 'Rounds of 10', name: 'rb', inputValue: '3'},
             { boxLabel: 'Crescent Round', width: 150, name: 'rb', inputValue: '12'}
             ],
-        getValue: function(){return Ext.ComponentQuery.query('#extenderRadioGroup')[0].getValue().rb}
+        getValue: function(){return Ext.ComponentQuery.query('#extenderRadioGroup')[0].getValue().rb},
+        values: function(){return ['2','3','12']}
     }, baseConfig)
 );
 
@@ -125,7 +128,8 @@ Ext.define('cocktaillayout', Ext.apply({
         itemId: 'cocktaillayout',
         html: '<img class="img-roomlayout" src="app/images/cocktail.png">' +
                 '<div class="layoutName">Cocktail</div>',
-        getValue: function(){return '5'}
+        getValue: function(){return '5'},
+        values: function(){return ['5']}
     }, baseConfig)
 );
 
@@ -133,7 +137,8 @@ Ext.define('theaterlayout', Ext.apply({
         itemId: 'theaterlayout',
         html: '<img class="img-roomlayout" src="app/images/theater.png">' +
                 '<div class="layoutName">Theater</div>',
-        getValue: function(){return '4'}
+        getValue: function(){return '4'},
+        values: function(){return ['4']}
     }, baseConfig)
 );
 
@@ -145,7 +150,8 @@ Ext.define('classroomlayout', Ext.apply({
             { boxLabel: '2 per 6ft', name: 'rb', inputValue: '6' , checked: true},
             { boxLabel: '3 per 6ft', name: 'rb', inputValue: '7'}
             ],
-        getValue: function(){return Ext.ComponentQuery.query('#extenderRadioGroup')[0].getValue().rb}
+        getValue: function(){return Ext.ComponentQuery.query('#extenderRadioGroup')[0].getValue().rb},
+        values: function(){return ['6','7']}
     }, baseConfig)
 );
 
@@ -153,7 +159,8 @@ Ext.define('boardroomlayout', Ext.apply({
         itemId: 'boardroomlayout',
         html: '<img class="img-roomlayout" src="app/images/boardroom.png">' +
                 '<div class="layoutName">Boardroom</div>',
-        getValue: function(){return '8'}
+        getValue: function(){return '8'},
+        values: function(){return ['8']}
     }, baseConfig)
 );
 
@@ -170,6 +177,7 @@ Ext.define('boothlayout', Ext.apply({
                 {xtype: 'box', height: 5}
                 ],
         getValue: function(){return '9'},
+        values: function(){return ['9']},
         getAdditionalInfo: function(){
             var ct = Ext.ComponentQuery.query('#boothcount')[0].getValue();
             var sqft = Ext.ComponentQuery.query('#boothsqft')[0].getValue();
@@ -193,6 +201,7 @@ Ext.define('posterlayout', Ext.apply({
                 {xtype: 'box', height: 5}
                 ],
         getValue: function(){return '10'},
+        values: function(){return ['10']},
         getAdditionalInfo: function(){
             var ct = Ext.ComponentQuery.query('#postercount')[0].getValue();
             var sqft = Ext.ComponentQuery.query('#postersqft')[0].getValue();
@@ -214,6 +223,7 @@ Ext.define('tabletoplayout', Ext.apply({
                 {xtype: 'box', height: 5}
                 ],
         getValue: function(){return '14'},
+        values: function(){return ['14']},
         getAdditionalInfo: function(){
             var ct = Ext.ComponentQuery.query('#tabletopcount')[0].getValue();
             var sqft = Ext.ComponentQuery.query('#tabletopsqft')[0].getValue();
@@ -225,6 +235,7 @@ Ext.define('tabletoplayout', Ext.apply({
 Ext.define('nonelayout', Ext.apply({
         itemId: 'nonelayout',
         html: '<div class="layoutName">None</div>',
+        values: function(){return ['11']},
         getValue: function(){return '11'}
     }, baseConfig)
 );

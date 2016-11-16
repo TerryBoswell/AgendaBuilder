@@ -485,16 +485,21 @@ Ext.define('MeetingEditor', {
     },
     setRoomSetup: function(id){
         var me = this;
-        // Ext.each(me.roomLayouts, function(rl){
-        //     if (rl.getValue() == id)
-        //     {
-        //        if (rl.clickHandler)
-        //             rl.clickHandler(rl, null);
-        //         if (rl.renderExtender)
-        //             rl.renderExtender(rl);
+        Ext.each(me.roomLayouts, function(rl){
+            var match = false;
+            Ext.each(rl.values(), function(v){
+                if (v == id)
+                    match = true;
+            })
+            if (match)
+            {
+               if (rl.clickHandler)
+                    rl.clickHandler(rl, null);
+                if (rl.renderExtender)
+                    rl.renderExtender(rl);
                 
-        //     }
-        // });
+            }
+        });
     },
     listeners: {
         beforeshow: function(cmp){
@@ -506,7 +511,7 @@ Ext.define('MeetingEditor', {
             
             new Ext.util.DelayedTask(function(){
                 cmp.setRoomSetup(cmp.meeting.room_setup);
-            }).delay(1000);
+            }).delay(100);
 
             cmp.observer.on({
                 scope: cmp,

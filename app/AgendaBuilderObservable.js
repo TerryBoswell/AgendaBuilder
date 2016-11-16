@@ -454,7 +454,12 @@ Ext.define('AgendaBuilderObservable', {
                                                 afterrender: function(targetCmp) {
                                                     targetCmp.mon(targetCmp.el, 'click', function(){
                                                         var mtg = targetCmp.observer.getMeeting(targetCmp.meetingId, targetCmp.observer);
-                                                        targetCmp.showMeetingEditor(mtg, targetCmp.observer, mtg.meeting_item_type);
+                                                        mtg.date = targetCmp.observer.getDate(targetCmp.meetingId, targetCmp.observer);
+                                                        delete(mtg.id);
+                                                        Ext.each(targetCmp.observer.meetingCallouts, function(callout){
+                                                            callout.hide();
+                                                        })
+                                                        targetCmp.observer.showMeetingEditor(mtg, targetCmp.observer, mtg.meeting_item_type);
                                                     })
                                                 }
                                             }
@@ -470,7 +475,12 @@ Ext.define('AgendaBuilderObservable', {
                                                 scope: this,
                                                 afterrender: function(targetCmp) {
                                                     targetCmp.mon(targetCmp.el, 'click', function(){
-                                                        console.log(targetCmp.meetingId);
+                                                        var mtg = targetCmp.observer.getMeeting(targetCmp.meetingId, targetCmp.observer);
+                                                        mtg.date = targetCmp.observer.getDate(targetCmp.meetingId, targetCmp.observer);
+                                                        Ext.each(targetCmp.observer.meetingCallouts, function(callout){
+                                                            callout.hide();
+                                                        })
+                                                        targetCmp.observer.showMeetingEditor(mtg, targetCmp.observer, mtg.meeting_item_type);
                                                     })
                                                 }
                                             }
@@ -486,7 +496,10 @@ Ext.define('AgendaBuilderObservable', {
                                                 scope: this,
                                                 afterrender: function(targetCmp) {
                                                     targetCmp.mon(targetCmp.el, 'click', function(){
-                                                        console.log(targetCmp.meetingId);
+                                                        Ext.each(targetCmp.observer.meetingCallouts, function(callout){
+                                                            callout.hide();
+                                                        })
+                                                        targetCmp.observer.deleteMeetingItem(targetCmp.meetingId);
                                                     })
                                                 }
                                             }
@@ -578,6 +591,29 @@ Ext.define('AgendaBuilderObservable', {
         });
         return mtg;
     },
+    deleteMeeting: function(meetingId, scope){
+        
+        this.removeMeeting(meetingId);
+        Ext.each(scope.dates, function(instance){
+            var mtgs = [];
+            Ext.each(instance.meetings, function(meeting){
+                if (meeting.id != meetingId)
+                    mtgs.push(meeting);
+            })            
+            instance.meetings = mtgs;    
+        });
+        
+    },
+    getDate: function(meetingId, scope){
+        var date = null;
+        Ext.each(scope.dates, function(instance){
+            Ext.each(instance.meetings, function(meeting){
+                if (meeting.id == meetingId)
+                    date = instance.date;
+            })                
+        });
+        return date;
+    },
     findMeetingComponent: function(meetingId){
         var match = null;
         Ext.each(Ext.query('.mtg-instance'), function(cmp){
@@ -645,9 +681,7 @@ Ext.define('AgendaBuilderObservable', {
         })
         //destroy the callout
 
-        //Make the ajax call to remove the meeting
-        if (id != 0)
-            console.info("add ajax to delete meeting")
+        
     },
     updateMeetingId: function(meetingId, newId, scope){
         var me = scope;
@@ -757,6 +791,7 @@ Ext.define('AgendaBuilderObservable', {
         });                
     },
     convertTimeTo12Hrs: function(time){
+        time = time.replace('1900/01/01 ', '');
         var hr = time.substring(0,2) * 1;
         var slice = "AM"
         if (hr > 12)
@@ -889,7 +924,10 @@ Ext.define('AgendaBuilderObservable', {
             })
         });       
     },
-    onDeleteMeetingItem: function(obj, scope){},
+    onDeleteMeetingItem: function(id, scope){
+        scope.deleteMeeting(id, scope);
+        scope.fireEvent('meetingItemDeleted', id);
+    },
     onSaveAlternateOptions: function(obj, scope){},
     onSavePrePostDays: function(obj, scope){
         scope.fireEvent('prePostDaysSaved', obj);
@@ -907,7 +945,9 @@ Ext.define('AgendaBuilderObservable', {
     saveMeetingItem: function(meeting){
         this.ajaxController.saveMeetingItem(meeting, this.onSaveMeetingItem, this);
     },
-    deleteMeetingItem: function(){},
+    deleteMeetingItem: function(id){
+        this.ajaxController.deleteMeetingItem(id, this.onDeleteMeetingItem, this);
+    },
     saveAlternateOption: function(){},
     savePrePostDays: function(type, count){
         thisa.ajaxController.savePrePostDays(type, count, this.onSavePrePostDays, this);

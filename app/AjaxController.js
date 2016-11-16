@@ -76,7 +76,14 @@ Ext.define('AjaxController', {
         var url = Ext.String.format('/planners/rfp/meeting_item_save/{0}/json/', me.rfpNumber, scope);
         me.doPost(url, callback, meeting, scope);
     },
-    deleteMeetingItem: function(){},
+    deleteMeetingItem: function(id, callback, scope){
+        var me = this;
+        var url = Ext.String.format('/planners/rfp/meeting_item_delete/{0}}/json/', me.rfpNumber, scope);
+        new Ext.util.DelayedTask(function(){
+            var fakeResponse = {id: id, success: true};
+            callback(id, scope);
+        }, me).delay(100);   
+    },
     saveAlternateOption: function(){},
     savePrePostDays: function(type, count, callback, scope){
         var me = this;
