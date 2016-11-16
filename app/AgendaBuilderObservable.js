@@ -371,6 +371,7 @@ Ext.define('AgendaBuilderObservable', {
             var position = target.el.dom.getBoundingClientRect();
             var centerX = position.left + position.width / 2;
             var centerY = position.top + position.height / 2;
+            var mtg = observer.getMeeting(meetingId, observer);
             return target.extender = Ext.create('Ext.Component', {
                 html: '<div class="meetingTip"></div>',
                 style: 'background: rgba(1, 0, 0, 0);padding-top: 12px;',
@@ -425,7 +426,10 @@ Ext.define('AgendaBuilderObservable', {
                                 {
                                     xtype: 'container',
                                     flex: 1, 
-                                    cls: 'thinBorderBottom'
+                                    style: 'padding: 10px;',
+                                    cls: 'thinBorderBottom',
+                                    html : '<div style="text-align:center;">' + observer.getDisplayHours(mtg.start) + " - " + observer.getDisplayHours(mtg.end)  + "<div>" + 
+                                            '<div style="text-align:center;">' + mtg.room_setup_type.title + " | " + mtg.num_people +"pp</div>"
                                 },
                                 {
                                     xtype: 'container',
@@ -524,6 +528,7 @@ Ext.define('AgendaBuilderObservable', {
                                                 
                     },
                     show: function(cmp){
+                        cmp.tipCenter = cmp.getX() - (cmp.getWidth() / 2);
                         if (cmp.pendingShift)
                         {
                             var tipY = cmp.getY();
@@ -534,8 +539,13 @@ Ext.define('AgendaBuilderObservable', {
                 }
             })   
         }
+        var mtg = observer.getMeeting(id, observer);
+        var mtgHtml = '<div class="truncate">' + 
+                        '<span>' + text  + "<span><div>" + 
+                        '<span>' + mtg.room_setup_type.title + " | " + mtg.num_people +"pp</span>"
+                       '</div>';
         var cmp = Ext.create('Ext.Component', {
-            html: text,
+            html: mtgHtml,
             floating: true,
             height : height - 6,
             width: width,
@@ -814,6 +824,19 @@ Ext.define('AgendaBuilderObservable', {
         if(minutes<10) sMinutes = "0" + sMinutes;
         return sHours + ":" + sMinutes;
     },
+    getDisplayHours : function(time){
+                var hours = time.getUTCHours();
+                var minutes = time.getMinutes();
+                var amPm = "AM"
+                if (hours >= 12)
+                {
+                    amPm = "PM";                    
+                }
+                if (hours >= 13)
+                    hours-=12;
+                var minStr = minutes.toString().length < 2 ? "0" + minutes.toString() : minutes.toString();
+                return Ext.String.format("{0}:{1} {2}", hours, minStr, amPm)
+    },
     getHourFor24Hrs: function(time){
         time = time.toUpperCase()
         var hours = Number(time.match(/^(\d+)/)[1]);
@@ -855,32 +878,49 @@ Ext.define('AgendaBuilderObservable', {
         scope.fireEvent('getmeetingitems', convertedData);
     },
     onSaveMeetingItem: function(postedData, response, scope){
-        scope.updateMeetingId(postedData.id == null ? 0 : postedData.id, response.id, scope);
-        postedData.id = response.id;
         var me = scope;
-        var newRows = [];
-        var savedMeeting = {
-            all_day : postedData.all_day,
-            booths  : postedData.booths,
-            end_time: '1900/01/01 ' + postedData.end_time,
-            id      : response.id,
-            note    : postedData.note,
-            num_people: postedData.num_people,
-            posters : postedData.posters,
-            room_setup: postedData.room_setup,
-            square_feet: postedData.square_feet,
-            start_time: '1900/01/01 ' + postedData.start_time,
-            tabletops: postedData.tabletops,
-            title   : postedData.title,
-            type    : postedData.type,
-            meeting_item_type : scope.getMeetingType(postedData.type),
-            room_setup_type : scope.getRoomSetup(postedData.room_setup)
-        };
-        var count = null;
+        
         var agendaBuilderRow = me.getRow(postedData.date);
         if (agendaBuilderRow == null)
             throw "Row Not found";
-        var newRowCount = agendaBuilderRow.rowCount;
+        var newRows = [];
+        var savedMeeting = {};
+        //Create a new meeting since it has not id
+        if (!postedData.id)
+        {
+            scope.updateMeetingId(postedData.id == null ? 0 : postedData.id, response.id, scope);
+            postedData.id = response.id;        
+            savedMeeting = {
+                all_day : postedData.all_day,
+                booths  : postedData.booths,
+                end_time: '1900/01/01 ' + postedData.end_time,
+                id      : response.id,
+                note    : postedData.note,
+                num_people: postedData.num_people,
+                posters : postedData.posters,
+                room_setup: postedData.room_setup,
+                square_feet: postedData.square_feet,
+                start_time: '1900/01/01 ' + postedData.start_time,
+                tabletops: postedData.tabletops,
+                title   : postedData.title,
+                type    : postedData.type,
+                meeting_item_type : scope.getMeetingType(postedData.type),
+                room_setup_type : scope.getRoomSetup(postedData.room_setup)
+            };
+            var count = null;
+            var newRowCount = agendaBuilderRow.rowCount;            
+        }
+        else //update the existing meeting
+        {
+            if (postedData.end_time.indexOf('1900/01/01 ') == -1)
+                postedData.end_time = '1900/01/01 ' + postedData.end_time;
+            if (postedData.start_time.indexOf('1900/01/01 ') == -1)
+                postedData.start_time = '1900/01/01 ' + postedData.start_time;
+            savedMeeting = me.getMeeting(postedData.id, scope);  
+            Ext.apply(savedMeeting, postedData);              
+        }
+
+        //update the meeting data with the saved info or create  a new entry
         Ext.each(scope.dates, function(instance){
             if (postedData.date.getDate() == instance.date.getDate() && postedData.date.getMonth() == instance.date.getMonth())
             {
@@ -898,6 +938,51 @@ Ext.define('AgendaBuilderObservable', {
             }
             newRows.push(instance);
         });
+        var fmtTime = function(time)
+        {
+            var hour = time.replace("1900/01/01 ", "");
+            if (hour.length < 6)
+                hour = hour + ':00'
+            return hour;
+        }
+        
+        //Check to see if the time changed and width of the component
+        //we need to find the coordinates for the timeframes
+        var rowIdx = savedMeeting.rowIndex;
+        if (rowIdx == undefined || rowIdx == null)
+            rowIdx = 0;
+        var row = agendaBuilderRow.rows[rowIdx];
+        var startHour = fmtTime(savedMeeting.start_time);
+        var endHour = fmtTime(savedMeeting.end_time);
+        var startColId = me.getColForHour(startHour);
+        var startHourId = row.id + "-col-" + startColId;
+        var sfly = Ext.fly(document.getElementById(startHourId));
+        var xy = sfly.getXY();
+        var endColId = me.getColForHour(endHour);
+        var endHourId = row.id + "-col-" + endColId;
+        var efly = Ext.fly(document.getElementById(endHourId));
+        if (efly)
+        {
+            var width = Math.abs(xy[0] - efly.getXY()[0]);    
+            var mtgCmp = me.findMeetingComponent(savedMeeting.id);
+            //meeting lenght changed
+            if (width != mtgCmp.getWidth())
+                mtgCmp.setWidth(width)
+            //meeting start or end changed
+            var mtgX = mtgCmp.getXY()[0];
+            if (xy[0] != mtgX)
+            {
+                mtgCmp.setX(xy[0]);
+                var tipCmp = me.findMeetingTip(savedMeeting.id);
+
+                var mtgCenter = xy[0] - (width / 2);
+                var difference = mtgCenter - tipCmp.tipCenter; 
+                tipCmp.setX(tipCmp.getX() - difference);
+            }
+        }
+        
+        
+
         scope.fireEvent('meetingSaved', newRows);
         var rowInsertedAt = null; //tracks which row has the first insert
         var startShift = false; //tracks that a shift has started. There will only ever be on shift at a time in this method and it is down only

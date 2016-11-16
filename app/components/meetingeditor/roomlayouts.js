@@ -12,6 +12,8 @@ var baseConfig = {
             //No items have been specified to go into the extender
             if (!target.extenderRadios && !target.extenderInput)
                 return;
+            if (!target.el || !target.el.dom)
+                return;
             var targetPos = target.el.dom.getElementsByClassName('layoutName')[0].getBoundingClientRect();
             var pPos = target.ownerCt.ownerCt.el.dom.getBoundingClientRect();
             var centerPos = (targetPos.width / 2) + targetPos.x - pPos.left;

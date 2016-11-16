@@ -179,3 +179,10 @@ div.meetingTip:before {
     z-index: 1000; 
     border-radius: 6px;
 }
+
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: hidden;
+}
