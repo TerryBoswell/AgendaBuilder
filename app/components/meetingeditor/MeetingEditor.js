@@ -472,7 +472,11 @@ Ext.define('MeetingEditor', {
                                     }
                                 }
                             });
+                            if (!me.validate(me.meeting))
+                                return;
                             me.observer.saveMeetingItem(me.meeting);
+                            if (me.copyToDates.length)
+                                me.saveCopyToDates();
                         }
                     }
                 ]
@@ -480,6 +484,52 @@ Ext.define('MeetingEditor', {
             }
         ];
     },    
+    validate: function(mtg){
+        var isValid = true;
+        var msg = "";
+        if (!mtg.room_setup)
+        {
+            msg = "Please select a rooom setup";
+            isValid = false;
+        }
+        if (!mtg.end_time)
+        {
+            msg = "Please select an end time";
+            isValid = false;
+        }
+        if (!mtg.start_time)
+        {
+            msg = "Please select a start time";
+            isValid = false;
+        }
+        if (!mtg.num_people)
+        {
+            msg = "Please select the number of people greater than 0";
+            isValid = false;
+        }
+        if (!mtg.title)
+        {
+            msg = "Please provide a valid title";
+            isValid = false;
+        }
+        if (mtg.start_time >= mtg.end_time)
+        {
+            msg = "Please select a valid time range";
+            isValid = false;
+        }
+        if (!isValid)
+            Ext.toast({
+                html: msg,
+                width: '100%',
+                align: 't',
+                border: false,
+                bodyBorder: false,
+                frame: false,
+                bodyCls: 'warn-toast',
+                cls: 'warn-toast-outer'
+            });
+        return isValid;
+    },
     getVal: function(itemId){
         return Ext.ComponentQuery.query('#' + itemId)[0].getValue();
     },
@@ -506,6 +556,7 @@ Ext.define('MeetingEditor', {
             cmp.title = cmp.meeting.title;
             cmp.add(cmp.buildNorthContainer(cmp.meeting, cmp.observer));
             Ext.ComponentQuery.query('#centerctr')[0].add(cmp.buildCenterComponents(cmp.meeting, cmp.meetingTemplate));
+            
         },
         afterrender: function(cmp){
             
@@ -520,7 +571,10 @@ Ext.define('MeetingEditor', {
                     cmp.destroy();                    
                 }
             })
+            Ext.query('.x-window-header')[0].style.backgroundColor = '#' + cmp.meeting.meeting_item_type.color;
+            Ext.query('.x-title-text')[0].style.color = 'white';
             
+            //x-title-text
         },
         beforehide: function(cmp){
             Ext.each(cmp.roomLayouts, function(c){
@@ -543,8 +597,8 @@ Ext.define('MeetingEditor', {
             });
         }
     },
-    getCopyToDates: function(){
-        
+    saveCopyToDates: function(){
+        alert('to be implemented');
     }
 
 })

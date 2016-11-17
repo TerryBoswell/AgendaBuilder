@@ -561,12 +561,24 @@ Ext.define('AgendaBuilderObservable', {
             x: xy[0] - datesCtrXY[0],
             y: xy[1] - datesCtrXY[1] + 3,
             renderTo: datesCtr.el,
+            resizable:{
+                handles: 'e w',
+                widthIncrement: Ext.fly(Ext.query('.evenRowBackGroundA')[0]).getWidth(),
+                transparent: true,
+                pinned: true
+            },
             listeners: {
                 delay: 1000,
                 afterrender: function(cmp) {
                     cmp.mon(cmp.el, 'click', function(){
                         cmp.extender.show();
                     })
+                },
+                resize: function(cmp, width, height, oldwidth, oldheight, opts)
+                {
+                    if (!width || !oldwidth)
+                        return;
+                    console.log(width - oldwidth);
                 }
             }
 
