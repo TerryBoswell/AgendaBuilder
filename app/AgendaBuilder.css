@@ -198,3 +198,15 @@ div.meetingTip:before {
     background-color: red; 
     border-color: red !important;
 }
+
+.x-resizable-pinned-mtg
+{
+  background-image: none !important;
+  background-color: rgba(186, 185, 185, 0) !important;
+}
+
+.x-resizable-pinned-mtg:hover
+{
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  background-image: none !important;
+}

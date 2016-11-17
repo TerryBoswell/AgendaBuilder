@@ -551,6 +551,7 @@ Ext.define('AgendaBuilderObservable', {
             width: width,
             cls: 'mtg-instance',
             meetingId: id,
+            observer: observer,
             style: {
                 paddingTop: '3px',
                 paddingLeft: '3px',
@@ -564,21 +565,54 @@ Ext.define('AgendaBuilderObservable', {
             resizable:{
                 handles: 'e w',
                 widthIncrement: Ext.fly(Ext.query('.evenRowBackGroundA')[0]).getWidth(),
-                transparent: true,
-                pinned: true
+                //transparent: true,
+                pinned: true,
+                dynamic: true
             },
             listeners: {
-                delay: 1000,
+                delay: 100,
                 afterrender: function(cmp) {
                     cmp.mon(cmp.el, 'click', function(){
                         cmp.extender.show();
+                    })
+                    Ext.each(Ext.query('.x-resizable-handle'), function(q){
+                        var fly = new Ext.fly(q);
+                        if (!fly)
+                            return;
+                        fly.el.dom.classList.add('x-resizable-pinned-mtg');
+                    });
+                    
+                    cmp.mon(cmp.el, 'mouseup', function(){
+                        var match = null;
+                        var x = cmp.getX() + 1;
+                        var y = cmp.getY();
+                        Ext.each(document.elementsFromPoint(x, y), function(el){
+                        if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
+                            match = el;
+                        })
+                        var start = (match.dataset.hour)
+
+                        x+=cmp.getWidth();
+                        Ext.each(document.elementsFromPoint(x, y), function(el){
+                        if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
+                            match = el;
+                        })
+                        var end = (match.dataset.hour);
+                        var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
+                        if (mtg.start_time.replace('1900/01/01 ', '') == start &&
+                            mtg.end_time.replace('1900/01/01 ', '') == end)
+                            return;
+                        console.log(start);
+                        console.log(end);
                     })
                 },
                 resize: function(cmp, width, height, oldwidth, oldheight, opts)
                 {
                     if (!width || !oldwidth)
                         return;
-                    console.log(width - oldwidth);
+                    Ext.each(cmp.observer.meetingCallouts, function(callout){
+                        callout.hide();
+                    })
                 }
             }
 
