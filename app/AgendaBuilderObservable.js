@@ -343,6 +343,26 @@ Ext.define('AgendaBuilderObservable', {
             var me = context;
         else
             var me = this;
+
+        var m = {
+            booths: 0,
+            start_time: startHour,
+            tabletops: 0,
+            square_feet: 0,
+            posters: 0,
+            id: null,
+            title: text,
+            all_day: MeetingTemplate.all_day,
+            note: "",
+            room_setup: MeetingTemplate.default_room_setup_id,
+            room_setup_type : me.getRoomSetup(MeetingTemplate.default_room_setup_id),
+            end_time: endHour,
+            num_people: 0,
+            meeting_item_type: me.getMeetingType(MeetingTemplate.id),
+            type: MeetingTemplate.id,
+            date: date
+        };
+  
         var agendaBuilderRow = me.getRow(date);
         //temp to get the first row
         if (rowIdx == undefined || rowIdx == null)
@@ -372,6 +392,8 @@ Ext.define('AgendaBuilderObservable', {
             var centerX = position.left + position.width / 2;
             var centerY = position.top + position.height / 2;
             var mtg = observer.getMeeting(meetingId, observer);
+            if (!mtg)
+                mtg = m;
             return target.extender = Ext.create('Ext.Component', {
                 html: '<div class="meetingTip"></div>',
                 style: 'background: rgba(1, 0, 0, 0);padding-top: 12px;',
@@ -415,7 +437,7 @@ Ext.define('AgendaBuilderObservable', {
                             items: [
                                 {
                                     xtype: 'container',
-                                    html: Ext.String.format('<div style="font-size:larger; margin-left:auto;margin-right:auto;text-align:center;">{0}</div>', tEl.titleText),
+                                    html: Ext.String.format('<div class="title-text" style="font-size:larger; margin-left:auto;margin-right:auto;text-align:center;">{0}</div>', tEl.titleText),
                                     height: 25,
                                     style: {
                                         color: tEl.titleFontColor,
@@ -451,6 +473,7 @@ Ext.define('AgendaBuilderObservable', {
                                             html: 'Copy',                                            
                                             width: 70,
                                             observer: observer,
+                                            cls: 'tipshortcut',
                                             meetingId: meetingId,
                                             listeners: {
                                                 delay: 1000,
@@ -470,7 +493,7 @@ Ext.define('AgendaBuilderObservable', {
                                         },
                                         {
                                             html: 'Edit',
-                                            cls: 'thinBorder',
+                                            cls: 'thinBorder tipshortcut',
                                             width: 70,
                                             observer: observer,
                                             meetingId: meetingId,
@@ -491,7 +514,7 @@ Ext.define('AgendaBuilderObservable', {
                                         },
                                         {
                                             html: 'Delete',
-                                            cls: 'thinBorder',
+                                            cls: 'thinBorder tipshortcut',
                                             width: 70,
                                             observer: observer,
                                             meetingId: meetingId,
@@ -540,6 +563,8 @@ Ext.define('AgendaBuilderObservable', {
             })   
         }
         var mtg = observer.getMeeting(id, observer);
+        if (!mtg)
+            mtg = m;
         var mtgHtml = '<div class="truncate">' + 
                         '<span>' + text  + "<span><div>" + 
                         '<span>' + mtg.room_setup_type.title + " | " + mtg.num_people +"pp</span>"
@@ -602,8 +627,9 @@ Ext.define('AgendaBuilderObservable', {
                         if (mtg.start_time.replace('1900/01/01 ', '') == start &&
                             mtg.end_time.replace('1900/01/01 ', '') == end)
                             return;
-                        console.log(start);
-                        console.log(end);
+                        mtg.start_time = start;
+                        mtg.end_time = end;
+                        cmp.observer.saveMeetingItem(mtg);
                     })
                 },
                 resize: function(cmp, width, height, oldwidth, oldheight, opts)
@@ -620,22 +646,7 @@ Ext.define('AgendaBuilderObservable', {
 
         this.meetingCallouts.push(createTip(cmp, datesCtr, id, this, color, fontColor, text));
         
-        return {
-            booths: 0,
-            start_time: startHour,
-            tabletops: 0,
-            square_feet: 0,
-            posters: 0,
-            id: null,
-            title: text,
-            all_day: MeetingTemplate.all_day,
-            note: "",
-            room_setup: MeetingTemplate.default_room_setup_id,
-            end_time: endHour,
-            num_people: 0,
-            type: MeetingTemplate.id,
-            date: date
-        };
+        return m;
     },
     getMeeting: function(meetingId, scope){
         var mtg = null;
@@ -749,6 +760,21 @@ Ext.define('AgendaBuilderObservable', {
         if (tip == null)
             return;
         tip.meetingId = newId;
+        //tipshortcut
+        Ext.each(Ext.query('.tipshortcut'), function(e){
+            var c = Ext.getCmp(e.id);
+            if (meetingId == c.meetingId)
+                c.meetingId = newId; 
+        })
+    },
+    updateMeetingText: function(meetingId, title, scope){
+        var me = scope;
+        var tip = me.findMeetingTip(meetingId);
+        if (tip == null)
+            return;
+        
+        tip.el.down('.callout-title').down('.title-text').el.dom.innerHTML = title;
+
     },
     getRow: function(date){
         var row = null;
@@ -871,6 +897,8 @@ Ext.define('AgendaBuilderObservable', {
         return sHours + ":" + sMinutes;
     },
     getDisplayHours : function(time){
+            if (!time)
+                return '';
                 var hours = time.getUTCHours();
                 var minutes = time.getMinutes();
                 var amPm = "AM"
@@ -1054,6 +1082,7 @@ Ext.define('AgendaBuilderObservable', {
                 lastMtg = mtg;
             })
         });       
+        me.updateMeetingText(postedData.id, postedData.title, me);
     },
     onDeleteMeetingItem: function(id, scope){
         scope.deleteMeeting(id, scope);
