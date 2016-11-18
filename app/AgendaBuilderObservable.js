@@ -271,7 +271,7 @@ Ext.define('AgendaBuilderObservable', {
                     observer: this,
                     columns: [
                         {cls: '', Index: 0},
-                        {html: '-Hide', cls: '', style : 'color: #43b8bc;text-align: center;height: 42px;', Index: 1}
+                        {html: '', cls: '', style : 'color: #43b8bc;text-align: center;height: 42px;', Index: 1}//{html: '-Hide', cls: '', style : 'color: #43b8bc;text-align: center;height: 42px;', Index: 1}
                         ]
                 });
             parentCtr.add(bottomRow);
@@ -318,7 +318,7 @@ Ext.define('AgendaBuilderObservable', {
                     observer: this,
                     columns: [
                         {cls: '', Index: 0},
-                        {html: '-Hide', cls: '', style : 'color: #43b8bc;text-align: center;height: 42px;', Index: 1}
+                        {html: '', cls: '', style : 'color: #43b8bc;text-align: center;height: 42px;', Index: 1} //{html: '-Hide', cls: '', style : 'color: #43b8bc;text-align: center;height: 42px;', Index: 1}
                         ]
                 });
         if (insertRowAt == null || insertRowAt == undefined)
