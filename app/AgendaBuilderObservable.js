@@ -450,8 +450,8 @@ Ext.define('AgendaBuilderObservable', {
                                     flex: 1, 
                                     style: 'padding: 10px;',
                                     cls: 'thinBorderBottom',
-                                    html : '<div style="text-align:center;">' + observer.getDisplayHours(mtg.start) + " - " + observer.getDisplayHours(mtg.end)  + "<div>" + 
-                                            '<div style="text-align:center;">' + mtg.room_setup_type.title + " | " + mtg.num_people +"pp</div>"
+                                    html : '<div class="callout-time" style="text-align:center;">' + observer.getDisplayHours(mtg.start) + " - " + observer.getDisplayHours(mtg.end)  + "<div>" + 
+                                            '<div class="callout-room" style="text-align:center;">' + mtg.room_setup_type.title + " | " + mtg.num_people +"pp</div>"
                                 },
                                 {
                                     xtype: 'container',
@@ -486,7 +486,7 @@ Ext.define('AgendaBuilderObservable', {
                                                         Ext.each(targetCmp.observer.meetingCallouts, function(callout){
                                                             callout.hide();
                                                         })
-                                                        targetCmp.observer.showMeetingEditor(mtg, targetCmp.observer, mtg.meeting_item_type);
+                                                        targetCmp.observer.showMeetingEditor(mtg, targetCmp.observer, mtg.meeting_item_type, mtg.date);
                                                     })
                                                 }
                                             }
@@ -507,7 +507,7 @@ Ext.define('AgendaBuilderObservable', {
                                                         Ext.each(targetCmp.observer.meetingCallouts, function(callout){
                                                             callout.hide();
                                                         })
-                                                        targetCmp.observer.showMeetingEditor(mtg, targetCmp.observer, mtg.meeting_item_type);
+                                                        targetCmp.observer.showMeetingEditor(mtg, targetCmp.observer, mtg.meeting_item_type, mtg.date);
                                                     })
                                                 }
                                             }
@@ -767,13 +767,25 @@ Ext.define('AgendaBuilderObservable', {
                 c.meetingId = newId; 
         })
     },
-    updateMeetingText: function(meetingId, title, scope){
+    updateMeetingText: function(meetingId, title, start, end, room_setup_type, num_people, scope){
         var me = scope;
         var tip = me.findMeetingTip(meetingId);
         if (tip == null)
             return;
         
         tip.el.down('.callout-title').down('.title-text').el.dom.innerHTML = title;
+        var html = '<div class="callout-time" style="text-align:center;">' + me.getDisplayHours(start) + " - " + me.getDisplayHours(end)  + "<div>" + 
+                                            '<div class="callout-room" style="text-align:center;">' + room_setup_type.title + " | " + num_people +"pp</div>";
+        Ext.fly(tip.el.down('.thinBorderBottom')).update(html);
+
+        var mtg = me.findMeetingComponent(meetingId, me);
+        if (mtg == null)
+            return;
+        var mtgHtml = '<div class="truncate">' + 
+                        '<span>' + title  + "<span><div>" + 
+                        '<span>' + room_setup_type.title + " | " + num_people +"pp</span>"
+                       '</div>';
+        mtg.update(mtgHtml);
 
     },
     getRow: function(date){
@@ -814,14 +826,15 @@ Ext.define('AgendaBuilderObservable', {
         }
         return null;
     },
-    showMeetingEditor: function(meeting, observer, meetingTemplate){
+    showMeetingEditor: function(meeting, observer, meetingTemplate, date){
         var me = this;
         var datesCtr = Ext.ComponentQuery.query('#MainContainer')[0];
         Ext.create('MeetingEditor', {
             meeting: meeting,
             alignTarget: datesCtr,
             observer: observer,
-            meetingTemplate, meetingTemplate
+            meetingTemplate, meetingTemplate,
+            date: date
         }).show();
 
     },
@@ -967,6 +980,7 @@ Ext.define('AgendaBuilderObservable', {
             savedMeeting = {
                 all_day : postedData.all_day,
                 booths  : postedData.booths,
+                date    : postedData.date,
                 end_time: '1900/01/01 ' + postedData.end_time,
                 id      : response.id,
                 note    : postedData.note,
@@ -1025,6 +1039,8 @@ Ext.define('AgendaBuilderObservable', {
         var rowIdx = savedMeeting.rowIndex;
         if (rowIdx == undefined || rowIdx == null)
             rowIdx = 0;
+        if (rowIdx > agendaBuilderRow.rows.length - 1)
+            rowIdx = agendaBuilderRow.rows.length - 1;
         var row = agendaBuilderRow.rows[rowIdx];
         var startHour = fmtTime(savedMeeting.start_time);
         var endHour = fmtTime(savedMeeting.end_time);
@@ -1082,7 +1098,7 @@ Ext.define('AgendaBuilderObservable', {
                 lastMtg = mtg;
             })
         });       
-        me.updateMeetingText(postedData.id, postedData.title, me);
+        me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
     },
     onDeleteMeetingItem: function(id, scope){
         scope.deleteMeeting(id, scope);
@@ -1187,6 +1203,63 @@ Ext.define('AgendaBuilderObservable', {
             return 38;
         else 
             return 38;            
+    },
+    executeOverrides: function(){
+        /**************Overrides */
+        Ext.override(Ext.dom.Element, {
+        setStyle: function(prop, value) {
+            if (!this || !this.dom) // BAD EXTJS... You didn't null check for destroyed elements that haven't purged from the dom
+            return;
+                    var me = this,
+                        dom = me.dom,
+                        hooks = me.styleHooks,
+                        style = dom.style,
+                        name = prop,
+                        hook;
+                    // we don't promote the 2-arg form to object-form to avoid the overhead...
+                    if (typeof name === 'string') {
+                        hook = hooks[name];
+                        if (!hook) {
+                            hooks[name] = hook = {
+                                name: Element.normalize(name)
+                            };
+                        }
+                        value = (value == null) ? '' : value;
+                        // map null && undefined to ''
+                        if (hook.set) {
+                            hook.set(dom, value, me);
+                        } else {
+                            style[hook.name] = value;
+                        }
+                        if (hook.afterSet) {
+                            hook.afterSet(dom, value, me);
+                        }
+                    } else {
+                        for (name in prop) {
+                            if (prop.hasOwnProperty(name)) {
+                                hook = hooks[name];
+                                if (!hook) {
+                                    hooks[name] = hook = {
+                                        name: Element.normalize(name)
+                                    };
+                                }
+                                value = prop[name];
+                                value = (value == null) ? '' : value;
+                                // map null && undefined to ''
+                                if (hook.set) {
+                                    hook.set(dom, value, me);
+                                } else {
+                                    style[hook.name] = value;
+                                }
+                                if (hook.afterSet) {
+                                    hook.afterSet(dom, value, me);
+                                }
+                            }
+                        }
+                    }
+                    return me;
+            }
+        });
     }
     
 });

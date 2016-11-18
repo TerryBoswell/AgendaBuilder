@@ -98,6 +98,7 @@ Ext.define('AgendaBuilder.MainContainer', {
         painted: {
             element: 'el', //bind to the underlying el property on the panel
             fn: function(cmp){
+                observer.executeOverrides();
                 Ext.Date.dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
                 observer.setScrollingHandlers();
                 observer.setRfpNumber(cmp.component.rfpNumber);
@@ -115,7 +116,7 @@ Ext.define('AgendaBuilder.MainContainer', {
                         observer.getMeetingItems();
                     }
                 })
-                window.agendaBuilder.observer = observer;
+                window.agendaBuilder.observer = observer;                
             }
         }
     },
@@ -126,3 +127,5 @@ Ext.define('AgendaBuilder.MainContainer', {
         this.observer.addPostDays(count);
     }
 })
+
+

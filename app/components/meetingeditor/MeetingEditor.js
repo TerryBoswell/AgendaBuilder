@@ -6,9 +6,11 @@ Ext.define('MeetingEditor', {
     width: 700,
     modal: true,
     meeting: {},
+    date: null,
     style   : 'background-color: white; padding: 10px;',
     bodyStyle: 'border: none;',
     layout  : 'border',
+    closable: false,
     roomLayouts: [],
     observer: null,        
     copyToDates: [],
@@ -474,6 +476,8 @@ Ext.define('MeetingEditor', {
                             });
                             if (!me.validate(me.meeting))
                                 return;
+                            if (!me.meeting.date)
+                                me.meeting.date = me.date;
                             me.observer.saveMeetingItem(me.meeting);
                             if (me.copyToDates.length)
                                 me.saveCopyToDates();
