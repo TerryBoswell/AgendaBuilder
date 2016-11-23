@@ -658,6 +658,28 @@ Ext.define('AgendaBuilderObservable', {
         });
         return mtg;
     },
+    getOverlappingSimilarMeetings: function(source, scope){
+        var mtgs = [];
+        var date = new Date(source.date)
+        var dateStr = Ext.Date.format(date, "m/d/Y");
+        var start = new Date(dateStr + " " + source.start_time + ' GMT+0000');
+        var end = new Date(dateStr + " " + source.end_time + ' GMT+0000');
+        Ext.each(scope.dates, function(instance){
+            if (instance.date.getDate() == source.date.getDate() && instance.date.getMonth() == source.date.getMonth())
+            {
+                Ext.each(instance.meetings, function(meeting){
+                    var overLaps = end <= meeting.end && start >= meeting.start;
+                    if (meeting.meeting_item_type.color == source.meeting_item_type.color)
+                        console.dir(meeting);
+                    if (meeting.id != source.id && meeting.meeting_item_type.color == source.meeting_item_type.color && overLaps)
+                    {
+                        mtgs.push(meeting);
+                    }
+                })             
+            }
+        });
+        return mtgs;
+    },
     deleteMeeting: function(meetingId, scope){
         
         this.removeMeeting(meetingId);
@@ -1238,7 +1260,7 @@ Ext.define('AgendaBuilderObservable', {
                         for (name in prop) {
                             if (prop.hasOwnProperty(name)) {
                                 hook = hooks[name];
-                                if (!hook) {
+                                if (!hook && Element && Element.normalize) {
                                     hooks[name] = hook = {
                                         name: Element.normalize(name)
                                     };
@@ -1251,7 +1273,7 @@ Ext.define('AgendaBuilderObservable', {
                                 } else {
                                     style[hook.name] = value;
                                 }
-                                if (hook.afterSet) {
+                                if (    hook.afterSet) {
                                     hook.afterSet(dom, value, me);
                                 }
                             }
@@ -1260,6 +1282,36 @@ Ext.define('AgendaBuilderObservable', {
                     return me;
             }
         });
+
+        Ext.override(Ext.util.Positionable, {
+            translateXY: function(x, y) {
+                if (!this.el)
+                    return;
+                var me = this,
+                    el = me.el,
+                    styles = el.getStyle(me._positionTopLeft),
+                    relative = styles.position === 'relative',
+                    left = parseFloat(styles.left),
+                    top = parseFloat(styles.top),
+                    xy = me.getXY();
+                if (Ext.isArray(x)) {
+                    y = x[1];
+                    x = x[0];
+                }
+                if (isNaN(left)) {
+                    left = relative ? 0 : el.dom.offsetLeft;
+                }
+                if (isNaN(top)) {
+                    top = relative ? 0 : el.dom.offsetTop;
+                }
+                left = (typeof x === 'number') ? x - xy[0] + left : undefined;
+                top = (typeof y === 'number') ? y - xy[1] + top : undefined;
+                return {
+                    x: left,
+                    y: top
+                };
+            }
+        })
     }
     
 });

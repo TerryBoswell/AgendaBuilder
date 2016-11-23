@@ -39,6 +39,7 @@ Ext.define('MeetingEditor', {
                 {
                     xtype   : 'container',
                     style   : 'background-color: white; padding-right: 10px;',
+                    itemId  : 'fldctr',
                     flex    : 1,
                     layout  : 'form',
                     items   : [
@@ -54,7 +55,9 @@ Ext.define('MeetingEditor', {
                             fieldLabel  : '# People in Meeting 1',
                             minValue    : 0,
                             itemId      : 'peopleInMeeting1',
-                            value       : 0
+                            value       : 0,
+                            cls         : 'numpeoplefield',
+                            meetingId   : meeting.id
                         }
                     ]
                 },
@@ -481,6 +484,12 @@ Ext.define('MeetingEditor', {
                             me.observer.saveMeetingItem(me.meeting);
                             if (me.copyToDates.length)
                                 me.saveCopyToDates();
+                            Ext.each(Ext.query('.numpeoplefield'), function(el){
+                                var nMtgCmp = Ext.getCmp(Ext.fly(el).id);
+                                if (nMtgCmp.meetingId != me.meetingId && nMtgCmp.origValue != nMtgCmp.getValue())
+                                    console.log(nMtgCmp.meetingId + " meeting id with " + nMtgCmp.origValue + " To " + nMtgCmp.getValue())
+                            })
+                            
                         }
                     }
                 ]
@@ -555,6 +564,26 @@ Ext.define('MeetingEditor', {
             }
         });
     },
+    addOverLappingRoomNumPeople: function(overLappingMeetings, scope){
+        if (!overLappingMeetings || !overLappingMeetings.length)
+            return;
+        var fldctr = Ext.ComponentQuery.query('#fldctr')[0];
+        var i = 1;
+        Ext.each(overLappingMeetings, function(mtg){
+                i++;
+                fldctr.add(Ext.create('Ext.form.field.Number',{
+                        fieldLabel  : Ext.String.format('# People in Meeting {0}', i),
+                        minValue    : 0,
+                        cls         : 'numpeoplefield',
+                        itemId      : Ext.String.format('peopleInMeeting{0}', i),
+                        value       : mtg.num_people,
+                        meetingId   : mtg.id,
+                        origValue   : mtg.num_people
+                    })
+                );
+
+        })
+    },
     listeners: {
         beforeshow: function(cmp){
             cmp.title = cmp.meeting.title;
@@ -566,6 +595,8 @@ Ext.define('MeetingEditor', {
             
             new Ext.util.DelayedTask(function(){
                 cmp.setRoomSetup(cmp.meeting.room_setup);
+                var overLappingMeetings = cmp.observer.getOverlappingSimilarMeetings(cmp.meeting, cmp.observer);
+                cmp.addOverLappingRoomNumPeople(overLappingMeetings, cmp);
             }).delay(100);
 
             cmp.observer.on({
