@@ -665,12 +665,10 @@ Ext.define('AgendaBuilderObservable', {
         var start = new Date(dateStr + " " + source.start_time + ' GMT+0000');
         var end = new Date(dateStr + " " + source.end_time + ' GMT+0000');
         Ext.each(scope.dates, function(instance){
-            if (instance.date.getDate() == source.date.getDate() && instance.date.getMonth() == source.date.getMonth())
+            if (instance.date && source.date && instance.date.getDate() == source.date.getDate() && instance.date.getMonth() == source.date.getMonth())
             {
                 Ext.each(instance.meetings, function(meeting){
                     var overLaps = end <= meeting.end && start >= meeting.start;
-                    if (meeting.meeting_item_type.color == source.meeting_item_type.color)
-                        console.dir(meeting);
                     if (meeting.id != source.id && meeting.meeting_item_type.color == source.meeting_item_type.color && overLaps)
                     {
                         mtgs.push(meeting);
@@ -1231,7 +1229,13 @@ Ext.define('AgendaBuilderObservable', {
         Ext.override(Ext.dom.Element, {
         setStyle: function(prop, value) {
             if (!this || !this.dom) // BAD EXTJS... You didn't null check for destroyed elements that haven't purged from the dom
-            return;
+            {
+                if (this.destoyed)
+                {
+                    var p = this.parent;                    
+                }
+                return;
+            }
                     var me = this,
                         dom = me.dom,
                         hooks = me.styleHooks,
@@ -1268,13 +1272,16 @@ Ext.define('AgendaBuilderObservable', {
                                 value = prop[name];
                                 value = (value == null) ? '' : value;
                                 // map null && undefined to ''
-                                if (hook.set) {
-                                    hook.set(dom, value, me);
-                                } else {
-                                    style[hook.name] = value;
-                                }
-                                if (    hook.afterSet) {
-                                    hook.afterSet(dom, value, me);
+                                if (hook)
+                                {
+                                    if (hook.set) {
+                                        hook.set(dom, value, me);
+                                    } else {
+                                        style[hook.name] = value;
+                                    }
+                                    if (hook.afterSet) {
+                                        hook.afterSet(dom, value, me);
+                                    }
                                 }
                             }
                         }
@@ -1312,6 +1319,17 @@ Ext.define('AgendaBuilderObservable', {
                 };
             }
         })
+
+        Ext.override(Ext.dom.Shadow, {
+            beforeShow: function() {
+                if (!this || !this.dom) // BAD EXTJS... You didn't null check for destroyed elements that haven't purged from the dom
+                {
+                    return;
+                }
+                this.callSuper();
+            }
+        })
+        
     }
     
 });

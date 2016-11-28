@@ -486,6 +486,7 @@ Ext.define('MeetingEditor', {
                                 me.saveCopyToDates();
                             Ext.each(Ext.query('.numpeoplefield'), function(el){
                                 var nMtgCmp = Ext.getCmp(Ext.fly(el).id);
+                                console.log("Current Meeting Id" + me.meetingId + " new " + nMtgCmp.meetingId + " meeting id with " + nMtgCmp.origValue + " To " + nMtgCmp.getValue())
                                 if (nMtgCmp.meetingId != me.meetingId && nMtgCmp.origValue != nMtgCmp.getValue())
                                     console.log(nMtgCmp.meetingId + " meeting id with " + nMtgCmp.origValue + " To " + nMtgCmp.getValue())
                             })

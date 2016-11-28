@@ -71,7 +71,7 @@ Ext.define('CenterContainer', {
 		{
 			xtype	: 'container',
 			height	: 400,
-			style   : 'overflow-y: scroll;',
+			style   : 'overflow-y: scroll; overflow-x: hidden;',
 			items	: [
 					{
 						xtype	: 'container',
