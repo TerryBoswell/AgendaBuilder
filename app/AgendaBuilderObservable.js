@@ -324,8 +324,10 @@ Ext.define('AgendaBuilderObservable', {
         if (insertRowAt == null || insertRowAt == undefined)
             datesCtr.add(row);
         else
+        {
             datesCtr.insert(insertRowAt, row);
-
+            console.log(insertRowAt);
+        }
         agendaBuilderRow.rows.push({id: row.id})
         
         
@@ -1097,15 +1099,31 @@ Ext.define('AgendaBuilderObservable', {
         var rowInsertedAt = null; //tracks which row has the first insert
         var startShift = false; //tracks that a shift has started. There will only ever be on shift at a time in this method and it is down only
         var lastMtg = null; //keep track of the last meeting for the first shift;
+
+        var getTotalRowsInAboveDates = function(rowIndex, dates)
+        { 
+             var rowCount = 0;  
+             for(i = 0; i < rowIndex; i++)
+             {  
+                 var maxRow = 0;                 
+                 Ext.each(dates[i].meetings, function(lmtg){
+                     if (lmtg.rowIndex > maxRow)
+                        maxRow = lmtg.rowIndex
+                 });
+                 rowCount += maxRow;
+             }
+             return rowCount;
+        }
+
         Ext.each(scope.dates, function(d){
             var row = me.getRow(d.date);
             Ext.each(d.meetings, function(mtg){
-
+                var rowsAbove = getTotalRowsInAboveDates(row.rowIndex, scope.dates);
                 var oldidx = (mtg.oldRowIndex ? mtg.oldRowIndex : mtg.rowIndex) + row.rowIndex;
                 var newidx = mtg.rowIndex + row.rowIndex;
                 if (rowInsertedAt == null && oldidx != newidx && mtg.id != postedData.id) //We need the first occurance where the row changed position
                 {
-                    rowInsertedAt = oldidx;
+                    rowInsertedAt = mtg.rowIndex + rowsAbove;//oldidx;
                     me.addAdditionalRow(d.date, me, row, rowInsertedAt);
                     startShift = true;
                     if (lastMtg != null) //We are shifting down the last meeting since it will be the start of the shift
@@ -1152,10 +1170,14 @@ Ext.define('AgendaBuilderObservable', {
         var dates = copyToDates;
         this.on('meetingSaveComplete', function(){
             var d = dates.pop();
+            if (!d)
+                return;
             var instance = null;
             Ext.each(me.dates, function(i){
-                if (i.date == d)
-                    instance = i;
+                if (i.date && d && i.date.getDate() == d.getDate() && i.date.getMonth() == d.getMonth())
+                {
+                    instance = i;                    
+                }
             });
             var newMtg = {
                 all_day : meeting.all_day,
@@ -1184,7 +1206,7 @@ Ext.define('AgendaBuilderObservable', {
             me.createMeeting(newMtg.id, d, start, end, meeting.title, 'white', 
                     color, idx, me, meeting.meeting_item_type);
 
-            scope.saveMeetingItem(newMtg);
+            scope.saveMeetingItem(newMtg);           
         }, scope)
     },
     updateMeetingItemPeople: function(meetingId, numPeople, scope){
