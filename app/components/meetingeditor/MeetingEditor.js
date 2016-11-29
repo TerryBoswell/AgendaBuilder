@@ -55,7 +55,7 @@ Ext.define('MeetingEditor', {
                             fieldLabel  : '# People in Meeting 1',
                             minValue    : 0,
                             itemId      : 'peopleInMeeting1',
-                            value       : 0,
+                            value       : meeting.num_people,
                             cls         : 'numpeoplefield',
                             meetingId   : meeting.id
                         }
@@ -481,14 +481,13 @@ Ext.define('MeetingEditor', {
                                 return;
                             if (!me.meeting.date)
                                 me.meeting.date = me.date;
-                            me.observer.saveMeetingItem(me.meeting);
                             if (me.copyToDates.length)
-                                me.saveCopyToDates();
+                                me.observer.queueAdditionalDatesToSave(me.copyToDates, me.meeting, me.observer);
+                            me.observer.saveMeetingItem(me.meeting);
                             Ext.each(Ext.query('.numpeoplefield'), function(el){
                                 var nMtgCmp = Ext.getCmp(Ext.fly(el).id);
-                                console.log("Current Meeting Id" + me.meetingId + " new " + nMtgCmp.meetingId + " meeting id with " + nMtgCmp.origValue + " To " + nMtgCmp.getValue())
                                 if (nMtgCmp.meetingId != me.meetingId && nMtgCmp.origValue != nMtgCmp.getValue())
-                                    console.log(nMtgCmp.meetingId + " meeting id with " + nMtgCmp.origValue + " To " + nMtgCmp.getValue())
+                                    me.observer.updateMeetingItemPeople(nMtgCmp.meetingId, nMtgCmp.getValue(), me.observer);
                             })
                             
                         }
@@ -632,9 +631,6 @@ Ext.define('MeetingEditor', {
                 c.destroy();
             });
         }
-    },
-    saveCopyToDates: function(){
-        alert('to be implemented');
     }
 
 })

@@ -43,6 +43,8 @@ Ext.define('AjaxController', {
         var me = scope;
         new Ext.util.DelayedTask(function(){
             var fakeResponse = {id: Ext.Number.randomInt(99999,999999), success: true};
+            if (data.id)
+                fakeResponse.id = data.id;
             callback(data, fakeResponse, me);
         }, me).delay(100);   
         // Ext.Ajax.request({

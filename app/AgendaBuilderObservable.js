@@ -662,8 +662,8 @@ Ext.define('AgendaBuilderObservable', {
         var mtgs = [];
         var date = new Date(source.date)
         var dateStr = Ext.Date.format(date, "m/d/Y");
-        var start = new Date(dateStr + " " + source.start_time + ' GMT+0000');
-        var end = new Date(dateStr + " " + source.end_time + ' GMT+0000');
+        var start = new Date(dateStr + " " + source.start_time.replace('1900/01/01 ', '') + ' GMT+0000');
+        var end = new Date(dateStr + " " + source.end_time.replace('1900/01/01 ', '') + ' GMT+0000');
         Ext.each(scope.dates, function(instance){
             if (instance.date && source.date && instance.date.getDate() == source.date.getDate() && instance.date.getMonth() == source.date.getMonth())
             {
@@ -1119,6 +1119,11 @@ Ext.define('AgendaBuilderObservable', {
             })
         });       
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
+        scope.fireEvent('meetingSaveComplete', newRows);
+    },
+    onUpdateMeetingItemPeople: function(postedData, response, scope){
+        var me = scope;
+        me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
     },
     onDeleteMeetingItem: function(id, scope){
         scope.deleteMeeting(id, scope);
@@ -1140,6 +1145,55 @@ Ext.define('AgendaBuilderObservable', {
     },
     saveMeetingItem: function(meeting){
         this.ajaxController.saveMeetingItem(meeting, this.onSaveMeetingItem, this);
+    },
+    queueAdditionalDatesToSave: function(copyToDates, meeting, scope)
+    {
+        var me = scope;
+        var dates = copyToDates;
+        this.on('meetingSaveComplete', function(){
+            var d = dates.pop();
+            var instance = null;
+            Ext.each(me.dates, function(i){
+                if (i.date == d)
+                    instance = i;
+            });
+            var newMtg = {
+                all_day : meeting.all_day,
+                booths  : meeting.booths,
+                date    : d,
+                end_time: meeting.end_time,
+                meeting_item_type: meeting.meeting_item_type,
+                note    : meeting.note,
+                num_people: meeting.num_people,
+                posters : meeting.posters,
+                room_setup: meeting.room_setup,
+                room_setup_type: meeting.room_setup_type,
+                square_feet: meeting.square_feet,
+                start_time: meeting.start_time,
+                tabletops: meeting.tabletops,
+                title   : meeting.title,
+                type    : meeting.type,
+                id      : 0
+            };
+            instance.meetings.push(newMtg);
+            me.assignRowIndexes(instance);
+            var start = meeting.start_time.replace('1900/01/01 ', '');
+            var end = meeting.end_time.replace('1900/01/01 ', '');
+            var color = "#" + meeting.meeting_item_type.color;
+            var idx = me.calculateRowIndex(newMtg, instance);
+            me.createMeeting(newMtg.id, d, start, end, meeting.title, 'white', 
+                    color, idx, me, meeting.meeting_item_type);
+
+            scope.saveMeetingItem(newMtg);
+        }, scope)
+    },
+    updateMeetingItemPeople: function(meetingId, numPeople, scope){
+        var me = scope;
+        var mtg = me.getMeeting(meetingId, me);
+        if (!mtg)
+            throw("Meeting not found");
+        mtg.num_people = numPeople;
+        this.ajaxController.saveMeetingItem(mtg, this.onUpdateMeetingItemPeople, this);
     },
     deleteMeetingItem: function(id){
         this.ajaxController.deleteMeetingItem(id, this.onDeleteMeetingItem, this);
