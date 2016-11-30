@@ -178,8 +178,10 @@ Ext.define('AgendaBuilderObservable', {
             }
             instance.meetings[i].rowIndex += recordOverlaps;
             maxRows = instance.meetings[i].rowIndex;
+            //console.log(instance.meetings[i].title + " " + instance.meetings[i].rowIndex);
         }
         /*********************************/
+
         return maxRows;
     },
     calculateRowIndex(meeting, instance){
@@ -326,7 +328,6 @@ Ext.define('AgendaBuilderObservable', {
         else
         {
             datesCtr.insert(insertRowAt, row);
-            console.log(insertRowAt);
         }
         agendaBuilderRow.rows.push({id: row.id})
         
@@ -986,6 +987,15 @@ Ext.define('AgendaBuilderObservable', {
         });
         scope.fireEvent('getmeetingitems', convertedData);
     },
+    getMaxRowsForDate: function(meetings){
+            var maxRow = 0;                 
+                 Ext.each(meetings, function(lmtg){
+                     //console.log(lmtg.date + lmtg.title + lmtg.rowIndex);
+                     if (lmtg.rowIndex > maxRow)
+                        maxRow = lmtg.rowIndex
+                 });
+            return maxRow;
+    },
     onSaveMeetingItem: function(postedData, response, scope){
         var me = scope;
         
@@ -1100,16 +1110,12 @@ Ext.define('AgendaBuilderObservable', {
         var startShift = false; //tracks that a shift has started. There will only ever be on shift at a time in this method and it is down only
         var lastMtg = null; //keep track of the last meeting for the first shift;
 
-        var getTotalRowsInAboveDates = function(rowIndex, dates)
+        var getTotalRowsInAboveDates = function(rowIndex, dates, observer)
         { 
              var rowCount = 0;  
              for(i = 0; i < rowIndex; i++)
              {  
-                 var maxRow = 0;                 
-                 Ext.each(dates[i].meetings, function(lmtg){
-                     if (lmtg.rowIndex > maxRow)
-                        maxRow = lmtg.rowIndex
-                 });
+                 var maxRow = observer.getMaxRowsForDate(dates[i].meetings);
                  rowCount += maxRow;
              }
              return rowCount;
@@ -1118,13 +1124,16 @@ Ext.define('AgendaBuilderObservable', {
         Ext.each(scope.dates, function(d){
             var row = me.getRow(d.date);
             Ext.each(d.meetings, function(mtg){
-                var rowsAbove = getTotalRowsInAboveDates(row.rowIndex, scope.dates);
+                var rowsAbove = getTotalRowsInAboveDates(row.rowIndex, scope.dates, scope);
                 var oldidx = (mtg.oldRowIndex ? mtg.oldRowIndex : mtg.rowIndex) + row.rowIndex;
                 var newidx = mtg.rowIndex + row.rowIndex;
                 if (rowInsertedAt == null && oldidx != newidx && mtg.id != postedData.id) //We need the first occurance where the row changed position
                 {
                     rowInsertedAt = mtg.rowIndex + rowsAbove;//oldidx;
-                    me.addAdditionalRow(d.date, me, row, rowInsertedAt);
+                    if (scope.getMaxRowsForDate(d.meetings) != row.rows.length)
+                    {
+                        me.addAdditionalRow(d.date, me, row, rowInsertedAt);
+                    }    
                     startShift = true;
                     if (lastMtg != null) //We are shifting down the last meeting since it will be the start of the shift
                     {
@@ -1363,13 +1372,13 @@ Ext.define('AgendaBuilderObservable', {
                         }
                     }
                     return me;
-            }
-        });
-
-        Ext.override(Ext.util.Positionable, {
+            },
             translateXY: function(x, y) {
-                if (!this.el)
-                    return;
+                if (!this.el || this.destroyed)
+                    return{
+                        x:0,
+                        y:0
+                    };
                 var me = this,
                     el = me.el,
                     styles = el.getStyle(me._positionTopLeft),
@@ -1393,9 +1402,47 @@ Ext.define('AgendaBuilderObservable', {
                     x: left,
                     y: top
                 };
+            },
+            setXY: function(xy) {
+                if (!this.dom || this.destroyed)
+                    return me;
+                var me = this,
+                    pts = me.translatePoints(xy),
+                    style = me.dom.style,
+                    pos;
+                me.position();
+                // right position may have been previously set by rtlSetLocalXY 
+                // so clear it here just in case.
+                style.right = 'auto';
+                for (pos in pts) {
+                    if (!isNaN(pts[pos])) {
+                        style[pos] = pts[pos] + 'px';
+                    }
+                }
+                if (me.shadow || me.shim) {
+                    me.syncUnderlays();
+                }
+                return me;
+            }
+        });
+
+        Ext.override(Ext.Container, {
+            translateXY: function(x, y) {
+                if (!this.el)
+                    return;
+                this.callSuper(x, y);
             }
         })
 
+        Ext.override(Ext.Component, {
+            translateXY: function(x, y) {
+                if (!this.el)
+                    return;
+                this.callSuper(x, y);
+            }
+        })
+
+        
         Ext.override(Ext.dom.Shadow, {
             beforeShow: function() {
                 if (!this || !this.dom) // BAD EXTJS... You didn't null check for destroyed elements that haven't purged from the dom

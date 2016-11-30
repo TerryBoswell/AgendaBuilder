@@ -45,6 +45,7 @@ Ext.define('AjaxController', {
             var fakeResponse = {id: Ext.Number.randomInt(99999,999999), success: true};
             if (data.id)
                 fakeResponse.id = data.id;
+            console.info('A mocked post has occurred', data, fakeResponse);
             callback(data, fakeResponse, me);
         }, me).delay(100);   
         // Ext.Ajax.request({
