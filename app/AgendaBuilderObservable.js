@@ -98,8 +98,9 @@ Ext.define('AgendaBuilderObservable', {
                 var start = meeting.start_time.replace('1900/01/01 ', '');
                 var end = meeting.end_time.replace('1900/01/01 ', '');
                 var color = "#" + meeting.meeting_item_type.color;
+                var rowIdx = me.calculateRowIndex(meeting, instance);
                 me.createMeeting(meeting.id, instance.date, start, end, meeting.title, 'white', 
-                    color, me.calculateRowIndex(meeting, instance), me, meeting.meeting_item_type);
+                    color, rowIdx, me, meeting.meeting_item_type);
             });
     },
     assignRowIndexes: function(instance){
@@ -178,7 +179,9 @@ Ext.define('AgendaBuilderObservable', {
             }
             instance.meetings[i].rowIndex += recordOverlaps;
             maxRows = instance.meetings[i].rowIndex;
-            //console.log(instance.meetings[i].title + " " + instance.meetings[i].rowIndex);
+            //if (date.getDate() == 21)
+            //    console.log(instance.meetings[i].title + " " + instance.meetings[i].rowIndex);
+            
         }
         /*********************************/
 
@@ -363,9 +366,9 @@ Ext.define('AgendaBuilderObservable', {
             num_people: 0,
             meeting_item_type: me.getMeetingType(MeetingTemplate.id),
             type: MeetingTemplate.id,
-            date: date
+            date: date,
+            rowIndex: rowIdx
         };
-  
         var agendaBuilderRow = me.getRow(date);
         //temp to get the first row
         if (rowIdx == undefined || rowIdx == null)
@@ -1127,6 +1130,8 @@ Ext.define('AgendaBuilderObservable', {
                 var rowsAbove = getTotalRowsInAboveDates(row.rowIndex, scope.dates, scope);
                 var oldidx = (mtg.oldRowIndex ? mtg.oldRowIndex : mtg.rowIndex) + row.rowIndex;
                 var newidx = mtg.rowIndex + row.rowIndex;
+                if (d.date.getDate() == 21)
+                    console.log(mtg.title + " " + mtg.rowIndex + " " + mtg.oldRowIndex);
                 if (rowInsertedAt == null && oldidx != newidx && mtg.id != postedData.id) //We need the first occurance where the row changed position
                 {
                     rowInsertedAt = mtg.rowIndex + rowsAbove;//oldidx;
@@ -1173,6 +1178,18 @@ Ext.define('AgendaBuilderObservable', {
     saveMeetingItem: function(meeting){
         this.ajaxController.saveMeetingItem(meeting, this.onSaveMeetingItem, this);
     },
+    getInstance: function(d, scope)
+    {
+        var me = scope;
+        var instance = null;
+        Ext.each(me.dates, function(i){
+            if (i.date && d && i.date.getDate() == d.getDate() && i.date.getMonth() == d.getMonth())
+            {
+                instance = i;                    
+            }
+        });
+        return instance;
+    },
     queueAdditionalDatesToSave: function(copyToDates, meeting, scope)
     {
         var me = scope;
@@ -1181,13 +1198,7 @@ Ext.define('AgendaBuilderObservable', {
             var d = dates.pop();
             if (!d)
                 return;
-            var instance = null;
-            Ext.each(me.dates, function(i){
-                if (i.date && d && i.date.getDate() == d.getDate() && i.date.getMonth() == d.getMonth())
-                {
-                    instance = i;                    
-                }
-            });
+            var instance = me.getInstance(d, me);
             var newMtg = {
                 all_day : meeting.all_day,
                 booths  : meeting.booths,
