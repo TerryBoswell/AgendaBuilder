@@ -1130,8 +1130,7 @@ Ext.define('AgendaBuilderObservable', {
                 var rowsAbove = getTotalRowsInAboveDates(row.rowIndex, scope.dates, scope);
                 var oldidx = (mtg.oldRowIndex ? mtg.oldRowIndex : mtg.rowIndex) + row.rowIndex;
                 var newidx = mtg.rowIndex + row.rowIndex;
-                if (d.date.getDate() == 21)
-                    console.log(mtg.title + " " + mtg.rowIndex + " " + mtg.oldRowIndex);
+                var shiftAmount = 1;
                 if (rowInsertedAt == null && oldidx != newidx && mtg.id != postedData.id) //We need the first occurance where the row changed position
                 {
                     rowInsertedAt = mtg.rowIndex + rowsAbove;//oldidx;
@@ -1144,9 +1143,11 @@ Ext.define('AgendaBuilderObservable', {
                     {
                         me.moveMeetingDownXRows(lastMtg.id, 1, me);                    
                     }
+                    if (mtg.oldRowIndex == undefined && mtg.rowIndex > 1)
+                        shiftAmount = mtg.rowIndex - 1;
                 }
                 if (startShift)
-                    me.moveMeetingDownXRows(mtg.id, 1, me);
+                    me.moveMeetingDownXRows(mtg.id, shiftAmount, me);
                 lastMtg = mtg;
             })
         });       
