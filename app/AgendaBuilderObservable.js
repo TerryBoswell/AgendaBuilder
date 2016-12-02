@@ -184,7 +184,6 @@ Ext.define('AgendaBuilderObservable', {
             
         }
         /*********************************/
-
         return maxRows;
     },
     calculateRowIndex(meeting, instance){
@@ -1028,7 +1027,8 @@ Ext.define('AgendaBuilderObservable', {
                 title   : postedData.title,
                 type    : postedData.type,
                 meeting_item_type : scope.getMeetingType(postedData.type),
-                room_setup_type : scope.getRoomSetup(postedData.room_setup)
+                room_setup_type : scope.getRoomSetup(postedData.room_setup),
+                oldRowIndex: 1 //We always start at row 1
             };
             var count = null;
             var newRowCount = agendaBuilderRow.rowCount;            
@@ -1106,8 +1106,6 @@ Ext.define('AgendaBuilderObservable', {
             }
         }
         
-        
-
         scope.fireEvent('meetingSaved', newRows);
         var rowInsertedAt = null; //tracks which row has the first insert
         var startShift = false; //tracks that a shift has started. There will only ever be on shift at a time in this method and it is down only
@@ -1128,11 +1126,12 @@ Ext.define('AgendaBuilderObservable', {
             var row = me.getRow(d.date);
             Ext.each(d.meetings, function(mtg){
                 var rowsAbove = getTotalRowsInAboveDates(row.rowIndex, scope.dates, scope);
-                var oldidx = (mtg.oldRowIndex ? mtg.oldRowIndex : mtg.rowIndex) + row.rowIndex;
+                var oldidx = (mtg.oldRowIndex ? mtg.oldRowIndex : 1) + row.rowIndex;
                 var newidx = mtg.rowIndex + row.rowIndex;
-                var shiftAmount = 1;
+                
                 if (rowInsertedAt == null && oldidx != newidx && mtg.id != postedData.id) //We need the first occurance where the row changed position
                 {
+                    console.log(rowsAbove);
                     rowInsertedAt = mtg.rowIndex + rowsAbove;//oldidx;
                     if (scope.getMaxRowsForDate(d.meetings) != row.rows.length)
                     {
@@ -1141,13 +1140,27 @@ Ext.define('AgendaBuilderObservable', {
                     startShift = true;
                     if (lastMtg != null) //We are shifting down the last meeting since it will be the start of the shift
                     {
-                        me.moveMeetingDownXRows(lastMtg.id, 1, me);                    
+                        var shiftAmount = lastMtg.rowIndex  - 2; //We need 2 because we always start at row 1 with a base of 0
+                        if (shiftAmount > 0)
+                            me.moveMeetingDownXRows(lastMtg.id, shiftAmount, me);                    
                     }
-                    if (mtg.oldRowIndex == undefined && mtg.rowIndex > 1)
-                        shiftAmount = mtg.rowIndex - 1;
+                }
+                else if (oldidx == 1 && mtg.id == postedData.id && (mtg.rowIndex - 2) > 1) //This is a bigger shift down, not the first row to second
+                {
+                    console.log(rowsAbove);
+                    rowInsertedAt = mtg.rowIndex + rowsAbove - 1;//oldidx;
+                    if (scope.getMaxRowsForDate(d.meetings) != row.rows.length)
+                    {
+                        me.addAdditionalRow(d.date, me, row, rowInsertedAt);
+                    }
+                    startShift = true;
+                    var shiftAmount = mtg.rowIndex  - 3;
+                    me.moveMeetingDownXRows(mtg.id, shiftAmount, me);
                 }
                 if (startShift)
-                    me.moveMeetingDownXRows(mtg.id, shiftAmount, me);
+                {
+                    me.moveMeetingDownXRows(mtg.id, 1, me);
+                }
                 lastMtg = mtg;
             })
         });       
@@ -1435,6 +1448,26 @@ Ext.define('AgendaBuilderObservable', {
                     me.syncUnderlays();
                 }
                 return me;
+            },
+            syncUnderlays: function() {
+                var me = this,
+                    shadow = me.shadow,
+                    shim = me.shim,
+                    dom = me.dom,
+                    xy, x, y, w, h;
+                if (me.isVisible()) {
+                    xy = me.getXY();
+                    x = xy[0];
+                    y = xy[1];
+                    w = dom.offsetWidth;
+                    h = dom.offsetHeight;
+                    if (shadow && !shadow.hidden && !shadow.destroyed) {
+                        shadow.realign(x, y, w, h);
+                    }
+                    if (shim && !shim.hidden && !shadow.destroyed) {
+                        shim.realign(x, y, w, h);
+                    }
+                }
             }
         });
 

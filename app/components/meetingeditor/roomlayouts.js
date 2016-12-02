@@ -121,7 +121,12 @@ Ext.define('roundlayout', Ext.apply({
             { boxLabel: 'Rounds of 10', name: 'rb', inputValue: '3'},
             { boxLabel: 'Crescent Round', width: 150, name: 'rb', inputValue: '12'}
             ],
-        getValue: function(){return Ext.ComponentQuery.query('#extenderRadioGroup')[0].getValue().rb},
+        getValue: function(){
+            var cmp = Ext.ComponentQuery.query('#extenderRadioGroup')[0];
+            if (!cmp)
+                return null;
+            return cmp.getValue().rb
+        },
         values: function(){return ['2','3','12']}
     }, baseConfig)
 );
