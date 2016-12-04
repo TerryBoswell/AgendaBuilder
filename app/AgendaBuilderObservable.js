@@ -1462,6 +1462,7 @@ Ext.define('AgendaBuilderObservable', {
                     w = dom.offsetWidth;
                     h = dom.offsetHeight;
                     if (shadow && !shadow.hidden && !shadow.destroyed) {
+                    if (shadow && !shadow.hidden && !shadow.destroyed && shadow.el && !shadow.el.destroyed) {
                         shadow.realign(x, y, w, h);
                     }
                     if (shim && !shim.hidden && !shadow.destroyed) {
