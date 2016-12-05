@@ -12,6 +12,7 @@ Ext.define('AgendaBuilder.MainContainer', {
     height: 600,
     title:'Month Browser',
     itemId: 'MainContainer',
+    cls : 'abMain',
     layout: 'border',
     rfpNumber: null,
     items: [
