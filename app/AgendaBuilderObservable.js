@@ -1149,7 +1149,7 @@ Ext.define('AgendaBuilderObservable', {
             var row = me.getRow(d.date);
             Ext.each(d.meetings, function(mtg){
                 var rowsAbove = getTotalRowsInAboveDates(row.rowIndex, scope.dates, scope);
-                var oldidx = (mtg.oldRowIndex ? mtg.oldRowIndex : 1) + row.rowIndex;
+                var oldidx = (mtg.oldRowIndex ? mtg.oldRowIndex : 0) + row.rowIndex;
                 var newidx = mtg.rowIndex + row.rowIndex;
                 
                 if (rowInsertedAt == null && oldidx != newidx && mtg.id != postedData.id) //We need the first occurance where the row changed position
@@ -1163,21 +1163,21 @@ Ext.define('AgendaBuilderObservable', {
                     startShift = true;
                     if (lastMtg != null) //We are shifting down the last meeting since it will be the start of the shift
                     {
-                        var shiftAmount = lastMtg.rowIndex  - 2; //We need 2 because we always start at row 1 with a base of 0
+                        var shiftAmount = lastMtg.rowIndex  - 1; //We need 2 because we always start at row 1 with a base of 0
                         if (shiftAmount > 0)
                             me.moveMeetingDownXRows(lastMtg.id, shiftAmount, me);                    
                     }
                 }
-                else if (oldidx == 1 && mtg.id == postedData.id && (mtg.rowIndex - 2) > 1) //This is a bigger shift down, not the first row to second
+                else if (oldidx == 1 && mtg.id == postedData.id && (mtg.rowIndex - 1) > 1) //This is a bigger shift down, not the first row to second
                 {
                     console.log(rowsAbove);
-                    rowInsertedAt = mtg.rowIndex + rowsAbove - 1;//oldidx;
+                    rowInsertedAt = mtg.rowIndex + rowsAbove;//oldidx;
                     if (scope.getMaxRowsForDate(d.meetings) != row.rows.length)
                     {
                         me.addAdditionalRow(d.date, me, row, rowInsertedAt);
                     }
                     startShift = true;
-                    var shiftAmount = mtg.rowIndex  - 3;
+                    var shiftAmount = mtg.rowIndex  - 2;
                     me.moveMeetingDownXRows(mtg.id, shiftAmount, me);
                 }
                 if (startShift)
