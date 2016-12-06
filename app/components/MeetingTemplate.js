@@ -100,7 +100,7 @@ Ext.define('MeetingTemplate',
 									var color = "#" + meetingTemplate.color;
 									var meeting = observer.createMeeting(0, new Date(match.dataset.date), match.dataset.hour, Ext.Date.format(end, 'H:i:s'), 
 										meetingTemplate.title, 'white', 
-										color, 0, observer, meetingTemplate);
+										color, 1, observer, meetingTemplate);
 									Ext.ComponentQuery.query('#MainContainer')[0].el.unmask();
 									Ext.ComponentQuery.query('#northCtrMeal')[0].el.unmask();
 									Ext.ComponentQuery.query('#northCtrMtg')[0].el.unmask();		
