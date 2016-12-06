@@ -613,19 +613,39 @@ Ext.define('AgendaBuilderObservable', {
                     });
                     
                     cmp.mon(cmp.el, 'mouseup', function(mEvent){
-                        var eventX = mEvent.parentEvent.browserEvent.clientX;
-                        var eventY = mEvent.parentEvent.browserEvent.clientY;
+                        var browserEvent = null;
+                        if (mEvent && mEvent.parentEvent && mEvent.parentEvent.browserEvent)
+                        {
+                            browserEvent = mEvent.parentEvent.browserEvent;
+                        }
+                        else if (mEvent && mEvent.browserEvent)
+                        {
+                            browserEvent = mEvent.browserEvent;
+                        }
+                        if (browserEvent == null)
+                        {
+                            throw("Cannoth find browserEvent");									
+                        }
+                        var eventX = browserEvent.clientX;
+                        var eventY = browserEvent.clientY;
                         var match = null;
-                        var x = eventX + 1;
-                        var y = eventY;
-                        Ext.each(document.elementsFromPoint(x, y), function(el){
+                        //var x = eventX + 1;
+                        //var y = eventY;
+                        var rect = cmp.el.dom.getBoundingClientRect();
+                        var y = (rect.top + rect.bottom) / 2; //We'll get the center
+
+                        //Now let's  find the starting timeslot
+                        var startingPoint = rect.left + 1; //shifted one pixel to make sure we are on the starting block                       
+                        Ext.each(document.elementsFromPoint(startingPoint, y), function(el){
                         if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
                             match = el;
                         })
+                        if (match == null)
+                            throw('error finding match in date');
                         var start = (match.dataset.hour)
-
-                        x+=cmp.getWidth();
-                        Ext.each(document.elementsFromPoint(x, y), function(el){
+                        //x+=cmp.getWidth();
+                        var endingPoint = rect.right;// - 1; //shifted one pixel to make sure we are on the ending point
+                        Ext.each(document.elementsFromPoint(endingPoint, y), function(el){
                         if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
                             match = el;
                         })
@@ -636,6 +656,7 @@ Ext.define('AgendaBuilderObservable', {
                             return;
                         mtg.start_time = start;
                         mtg.end_time = end;
+                        mtg.date = new Date(match.dataset.date);
                         cmp.observer.saveMeetingItem(mtg);
                     })
                 },
@@ -1500,6 +1521,57 @@ Ext.define('AgendaBuilderObservable', {
             }
         })
         
+
+        Ext.override(Ext.dom.Underlay, {
+            show: function() {
+                    var me = this,
+                        target = me.target,
+                        zIndex = me.zIndex,
+                        el = me.el,
+                        insertionTarget = me.getInsertionTarget().dom,
+                        dom;
+                    if (!el) {
+                        el = me.el = me.getPool().checkOut();
+                    }
+                    if (el.destroyed)
+                        return;                    
+                    me.beforeShow();
+                    if (zIndex == null) {
+                        // For best results, we need the underlay to be as close as possible to its
+                        // target element in the z-index stacking order without overlaying the target
+                        // element.  Since the UnderlayPool inserted the underlay as high as possible
+                        // in the dom tree when we checked the underlay out of the pool, we can assume
+                        // that it comes before the target element in the dom tree, and therefore can
+                        // give it the exact same index as the target element.
+                        zIndex = (parseInt(target.getStyle("z-index"), 10));
+                    }
+                    if (zIndex) {
+                        el.setStyle("z-index", zIndex);
+                    }
+                    // Overlay elements are shared, so fix position to match current owner
+                    el.setStyle('position', me.fixed ? 'fixed' : '');
+                    dom = el.dom;
+                    if (dom && dom.nextSibling && dom.nextSibling !== insertionTarget) {
+                        // inserting the underlay as the previous sibling of the target ensures that
+                        // it will show behind the target, as long as its z-index is less than or equal
+                        // to the z-index of the target element.
+                        target.dom.parentNode.insertBefore(dom, insertionTarget);
+                    }
+                    el.show();
+                    me.realign();
+                    me.hidden = false;
+                },
+            hide: function() {
+                var me = this,
+                    el = me.el;
+                if (el && !el.destroyed) {
+                    el.hide();
+                    me.getPool().checkIn(el);
+                    me.el = null;
+                    me.hidden = true;
+                }
+            }
+        })
     }
     
 });

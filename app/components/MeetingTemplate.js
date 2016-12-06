@@ -53,8 +53,21 @@ Ext.define('MeetingTemplate',
 					        // Called when the drag operation completes
 					        endDrag : function(dropTarget) {
 					        	var match = null;
-								var x = dropTarget.parentEvent.browserEvent.clientX;
-								var y = dropTarget.parentEvent.browserEvent.clientY;
+								var browserEvent = null;
+								if (dropTarget && dropTarget.parentEvent && dropTarget.parentEvent.browserEvent)
+								{
+									browserEvent = dropTarget.parentEvent.browserEvent;
+								}
+								else if (dropTarget && dropTarget.browserEvent)
+								{
+									browserEvent = dropTarget.browserEvent;
+								}
+								if (browserEvent == null)
+								{
+									throw("Cannoth find browserEvent");									
+								}
+								var x = browserEvent.clientX;
+								var y = browserEvent.clientY;
 								//console.dir(document.elementsFromPoint(newCmp.getX(), y));								
 					        	Ext.each(document.elementsFromPoint(x, y), function(el){
 									if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
