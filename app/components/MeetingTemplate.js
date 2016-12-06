@@ -53,11 +53,10 @@ Ext.define('MeetingTemplate',
 					        // Called when the drag operation completes
 					        endDrag : function(dropTarget) {
 					        	var match = null;
-								console.log(newCmp.getY());
-								console.log(newCmp.getX());
-								var y = newCmp.getY() + window.pageYOffset;								
-								console.dir(document.elementsFromPoint(newCmp.getX(), y));								
-					        	Ext.each(document.elementsFromPoint(newCmp.getX(), newCmp.getY()), function(el){
+								var x = dropTarget.parentEvent.browserEvent.clientX;
+								var y = dropTarget.parentEvent.browserEvent.clientY;
+								//console.dir(document.elementsFromPoint(newCmp.getX(), y));								
+					        	Ext.each(document.elementsFromPoint(x, y), function(el){
 									if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
 										match = el;
 								})

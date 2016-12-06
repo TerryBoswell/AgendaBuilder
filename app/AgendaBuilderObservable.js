@@ -612,10 +612,12 @@ Ext.define('AgendaBuilderObservable', {
                         fly.el.dom.classList.add('x-resizable-pinned-mtg');
                     });
                     
-                    cmp.mon(cmp.el, 'mouseup', function(){
+                    cmp.mon(cmp.el, 'mouseup', function(mEvent){
+                        var eventX = mEvent.parentEvent.browserEvent.clientX;
+                        var eventY = mEvent.parentEvent.browserEvent.clientY;
                         var match = null;
-                        var x = cmp.getX() + 1;
-                        var y = cmp.getY();
+                        var x = eventX + 1;
+                        var y = eventY;
                         Ext.each(document.elementsFromPoint(x, y), function(el){
                         if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
                             match = el;
