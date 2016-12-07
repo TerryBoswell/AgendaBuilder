@@ -612,6 +612,20 @@ Ext.define('AgendaBuilderObservable', {
                         fly.el.dom.classList.add('x-resizable-pinned-mtg');
                     });
                     
+                    cmp.mon(cmp.el, 'mouseover', function(mEvent){
+                        Ext.each(cmp.el.query('.x-component-handle'), function(handle){
+                            handle.classList.add('x-resizable-pinned-mtg-hover');
+                            handle.classList.remove('x-resizable-pinned-mtg');
+                        });
+                    });
+
+                    cmp.mon(cmp.el, 'mouseout', function(mEvent){
+                        Ext.each(cmp.el.query('.x-component-handle'), function(handle){
+                            handle.classList.add('x-resizable-pinned-mtg');
+                            handle.classList.remove('x-resizable-pinned-mtg-hover');
+                        });
+                    });
+
                     cmp.mon(cmp.el, 'mouseup', function(mEvent){
                         var browserEvent = null;
                         if (mEvent && mEvent.parentEvent && mEvent.parentEvent.browserEvent)

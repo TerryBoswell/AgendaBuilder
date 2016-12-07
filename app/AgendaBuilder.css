@@ -210,3 +210,10 @@ div.meetingTip:before {
   background-color: rgba(0, 0, 0, 0.3) !important;
   background-image: none !important;
 }
+
+.x-resizable-pinned-mtg-hover
+{
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  background-image: none !important;
+  border-radius: 3px;
+}
