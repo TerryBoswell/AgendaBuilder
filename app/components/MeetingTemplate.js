@@ -48,7 +48,7 @@ Ext.define('MeetingTemplate',
 					        // Called when element is dropped in a spot without a dropzone, or in a dropzone without matching a ddgroup.
 					        onInvalidDrop : function(target) {
 					        	// Set a flag to invoke the animated repair
-					            newCmp.invalidDrop = false;
+								newCmp.invalidDrop = false;
 					        },
 					        // Called when the drag operation completes
 					        endDrag : function(dropTarget) {
@@ -73,20 +73,24 @@ Ext.define('MeetingTemplate',
 									if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
 										match = el;
 								})
-
-					            // Invoke the animation if the invalidDrop flag is set to true
-					            if (match == null) {
+								// Invoke the animation if the invalidDrop flag is set to true
+					            if (match == null || !match.dataset || !match.dataset.date || !match.dataset.hour) {
 					                // Remove the drop invitation
 					                newCmp.el.removeCls('dropOK');
 
 					                // Create the animation configuration object
 					                var animCfgObj = {
 					                    easing   : 'elasticOut',
-					                    duration : 1,
+					                    duration : 100,
 					                    scope    : this,
 					                    callback : function() {
-					                        // Remove the position attribute
-					                        //newCmp.el.dom.style.position = '';
+											Ext.ComponentQuery.query('#MainContainer')[0].el.unmask();
+											Ext.ComponentQuery.query('#northCtrMeal')[0].el.unmask();
+											Ext.ComponentQuery.query('#northCtrMtg')[0].el.unmask();		
+											Ext.each(Ext.query('.meeting-item-type'), function(e){
+												Ext.fly(e).el.unmask();
+											});
+					                        newCmp.destroy();
 					                    }
 					                };
 					                // Apply the repair animation
