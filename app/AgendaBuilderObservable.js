@@ -888,6 +888,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     /*******************Scrolling Functionality************/
     setScrollingHandlers: function(){
+        var runner = new Ext.util.TaskRunner();
         //We are dealing with the left and right scrolling here
         var rightNorthCtrMtg = Ext.ComponentQuery.query('#rightNorthCtrMtg')[0];
         var leftNorthCtrMtg = Ext.ComponentQuery.query('#leftNorthCtrMtg')[0];
@@ -895,21 +896,37 @@ Ext.define('AgendaBuilderObservable', {
         var northCtrMtgItems = northCtrMtg.items.items;
         var mtgFarLeft = northCtrMtg.getX();
         var mtgFarRight = mtgFarLeft + northCtrMtg.getWidth();
-        rightNorthCtrMtg.mon(rightNorthCtrMtg.el, 'click', function(){
-            if (northCtrMtgItems[0].getX() >= mtgFarLeft)
-                return;
-            Ext.each(northCtrMtgItems, function(i){
-                i.setX(i.getX() + 20);
-            })
-        });
-        leftNorthCtrMtg.mon(leftNorthCtrMtg.el, 'click', function(){
+        var rightNorthCtrHandler = function(){
             var lastItem = northCtrMtgItems[northCtrMtgItems.length - 1];
             if (lastItem.getX() + lastItem.getWidth() <= mtgFarRight)
                 return;
             Ext.each(northCtrMtgItems, function(i){
                 i.setX(i.getX() - 20);
             })
+        };
+        rightNorthCtrMtg.mon(rightNorthCtrMtg.el, 'click', rightNorthCtrHandler);
+        rightNorthCtrMtg.task = runner.newTask({
+            run: function() {rightNorthCtrHandler();},
+            interval: 50 // 1-minute interval
         });
+        rightNorthCtrMtg.mon(rightNorthCtrMtg.el, 'mousedown', function(){rightNorthCtrMtg.task.start()});        
+        rightNorthCtrMtg.mon(rightNorthCtrMtg.el, 'mouseup', function(){rightNorthCtrMtg.task.stop()});
+
+        var leftNorthCtrHandler = function(){
+            if (northCtrMtgItems[0].getX() >= mtgFarLeft)
+                return;
+            Ext.each(northCtrMtgItems, function(i){
+                i.setX(i.getX() + 20);
+            })
+        };
+        leftNorthCtrMtg.mon(leftNorthCtrMtg.el, 'click', leftNorthCtrHandler);
+        leftNorthCtrMtg.task = runner.newTask({
+            run: function() {leftNorthCtrHandler();},
+            interval: 50 // 1-minute interval
+        });
+        leftNorthCtrMtg.mon(leftNorthCtrMtg.el, 'mousedown', function(){leftNorthCtrMtg.task.start()});        
+        leftNorthCtrMtg.mon(leftNorthCtrMtg.el, 'mouseup', function(){leftNorthCtrMtg.task.stop()});
+
 
         var rightNorthCtrMeal = Ext.ComponentQuery.query('#rightNorthCtrMeal')[0];
         var leftNorthCtrMeal = Ext.ComponentQuery.query('#leftNorthCtrMeal')[0];
@@ -917,21 +934,38 @@ Ext.define('AgendaBuilderObservable', {
         var northCtrMealItems = northCtrMeal.items.items;
         var mealFarLeft = northCtrMeal.getX();
         var mealFarRight = mealFarLeft + northCtrMeal.getWidth();
-        rightNorthCtrMeal.mon(rightNorthCtrMeal.el, 'click', function(){
-            if (northCtrMealItems[0].getX() >= mealFarLeft)
-                return;
-            Ext.each(northCtrMealItems, function(i){
-                i.setX(i.getX() + 20);
-            })
-        });
-        leftNorthCtrMeal.mon(leftNorthCtrMeal.el, 'click', function(){
+        
+        var rightClickMealHandler = function(){
             var lastItem = northCtrMealItems[northCtrMealItems.length - 1];
             if (lastItem.getX() + lastItem.getWidth() <= mealFarRight)
                 return;
             Ext.each(northCtrMealItems, function(i){
                 i.setX(i.getX() - 20);
             })
-        });                
+        }
+        var leftClickMealHandler = function(){
+            if (northCtrMealItems[0].getX() >= mealFarLeft)
+                return;
+            Ext.each(northCtrMealItems, function(i){
+                i.setX(i.getX() + 20);
+            })
+        }
+        rightNorthCtrMeal.mon(rightNorthCtrMeal.el, 'click', rightClickMealHandler);
+        rightNorthCtrMeal.task = runner.newTask({
+            run: function() {rightClickMealHandler();},
+            interval: 50 // 1-minute interval
+        });
+        rightNorthCtrMeal.mon(rightNorthCtrMeal.el, 'mousedown', function(){rightNorthCtrMeal.task.start()});        
+        rightNorthCtrMeal.mon(rightNorthCtrMeal.el, 'mouseup', function(){rightNorthCtrMeal.task.stop()});
+
+        leftNorthCtrMeal.mon(leftNorthCtrMeal.el, 'click', leftClickMealHandler);
+        leftNorthCtrMeal.task = runner.newTask({
+            run: function() {leftClickMealHandler();},
+            interval: 50 // 1-minute interval
+        });
+        leftNorthCtrMeal.mon(leftNorthCtrMeal.el, 'mousedown', function(){leftNorthCtrMeal.task.start()});        
+        leftNorthCtrMeal.mon(leftNorthCtrMeal.el, 'mouseup', function(){leftNorthCtrMeal.task.stop()});
+                
     },
     convertTimeTo12Hrs: function(time){
         time = time.replace('1900/01/01 ', '');
