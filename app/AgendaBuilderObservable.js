@@ -1178,6 +1178,16 @@ Ext.define('AgendaBuilderObservable', {
         }
         
         scope.fireEvent('meetingSaved', newRows);
+        Ext.each(scope.dates, function(d){
+            var row = me.getRow(d.date);
+            //console.dir(d.meetings);
+            me.shiftMeetings(d.meetings, d.date, row, me.dates, postedData.id, me);
+        });       
+        me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
+        scope.fireEvent('meetingSaveComplete', newRows);
+    },
+    shiftMeetings: function(meetings, date, row, dates, savedMtgId, scope){
+        var me = scope;
         var rowInsertedAt = null; //tracks which row has the first insert
         var startShift = false; //tracks that a shift has started. There will only ever be on shift at a time in this method and it is down only
         var lastMtg = null; //keep track of the last meeting for the first shift;
@@ -1191,24 +1201,33 @@ Ext.define('AgendaBuilderObservable', {
                  rowCount += maxRow;
              }
              return rowCount;
-        }
+        };
+        var rowsNeeded = me.getMaxRowsForDate(meetings);//decrement one because we need the base 0 count
+        console.log(Ext.String.format("Has : {0} Needs : {1}", row.rowCount, rowsNeeded));      
+        var savedAbsoluteRowIndex = 0;
+        Ext.each(meetings, function(mtg){
+            var rowsAbove = getTotalRowsInAboveDates(row.rowIndex, dates, me);
+            if (mtg.id == savedMtgId)
+            {
+                savedAbsoluteRowIndex = mtg.rowIndex + getTotalRowsInAboveDates(row.rowIndex, dates, me);
+            }
+        })
+        console.log(Ext.String.format("New Row Position: {0}", savedAbsoluteRowIndex));
 
-        Ext.each(scope.dates, function(d){
-            var row = me.getRow(d.date);
-            Ext.each(d.meetings, function(mtg){
-                var rowsAbove = getTotalRowsInAboveDates(row.rowIndex, scope.dates, scope);
+        Ext.each(meetings, function(mtg){
+                var rowsAbove = getTotalRowsInAboveDates(row.rowIndex, dates, me);
                 var oldidx = (mtg.oldRowIndex ? mtg.oldRowIndex : 1) + row.rowIndex;
                 var newidx = mtg.rowIndex + row.rowIndex;
-                
-                if (rowInsertedAt == null && oldidx != newidx && mtg.id != postedData.id) //We need the first occurance where the row changed position
+                console.log(Ext.String.format("mtg:{3}-{4} above:{0} old:{1} new:{2}", rowsAbove, oldidx, newidx, mtg.title, mtg.start));
+                if (rowInsertedAt == null && oldidx != newidx && mtg.id != savedMtgId) //We need the first occurance where the row changed position
                 {
-                    console.log(rowsAbove);
                     rowInsertedAt = mtg.rowIndex + rowsAbove;//oldidx;
-                    if (scope.getMaxRowsForDate(d.meetings) != row.rows.length)
+                    if (me.getMaxRowsForDate(meetings) != row.rows.length)
                     {
-                        me.addAdditionalRow(d.date, me, row, rowInsertedAt);
+                        console.log(Ext.String.format("Rows above: {0} Inserted At: {1}", rowsAbove, rowInsertedAt));                    
+                        me.addAdditionalRow(date, me, row, rowInsertedAt);
+                        startShift = true;                    
                     }    
-                    startShift = true;
                     if (lastMtg != null) //We are shifting down the last meeting since it will be the start of the shift
                     {
                         var shiftAmount = lastMtg.rowIndex  - 2; //We need 2 because we always start at row 1 with a base of 0
@@ -1216,15 +1235,15 @@ Ext.define('AgendaBuilderObservable', {
                             me.moveMeetingDownXRows(lastMtg.id, shiftAmount, me);                    
                     }
                 }
-                else if (oldidx == 1 && mtg.id == postedData.id && (mtg.rowIndex - 2) > 1) //This is a bigger shift down, not the first row to second
+                else if (oldidx == 1 && mtg.id == savedMtgId && (mtg.rowIndex - 2) > 1) //This is a bigger shift down, not the first row to second
                 {
-                    console.log(rowsAbove);
                     rowInsertedAt = mtg.rowIndex + rowsAbove - 1;//oldidx;
-                    if (scope.getMaxRowsForDate(d.meetings) != row.rows.length)
+                    if (me.getMaxRowsForDate(d.meetings) != row.rows.length)
                     {
+                        console.log(Ext.String.format("Rows above: {0} Inserted At: {1}", rowsAbove, rowInsertedAt));                                            
                         me.addAdditionalRow(d.date, me, row, rowInsertedAt);
+                        startShift = true;                    
                     }
-                    startShift = true;
                     var shiftAmount = mtg.rowIndex  - 3;
                     me.moveMeetingDownXRows(mtg.id, shiftAmount, me);
                 }
@@ -1234,9 +1253,6 @@ Ext.define('AgendaBuilderObservable', {
                 }
                 lastMtg = mtg;
             })
-        });       
-        me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
-        scope.fireEvent('meetingSaveComplete', newRows);
     },
     onUpdateMeetingItemPeople: function(postedData, response, scope){
         var me = scope;
