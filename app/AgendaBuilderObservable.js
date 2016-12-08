@@ -332,8 +332,6 @@ Ext.define('AgendaBuilderObservable', {
             datesCtr.insert(insertRowAt, row);
         }
         agendaBuilderRow.rows.push({id: row.id})
-        
-        
     },
     buildHourColumns: function(cnt){
         var cols = [];
@@ -1178,20 +1176,22 @@ Ext.define('AgendaBuilderObservable', {
         }
         
         scope.fireEvent('meetingSaved', newRows);
-        Ext.each(scope.dates, function(d){
+        var savedAbsoluteRowIndex = null; //Find the spot the row is saved at
+        var startShift = false; //tracks that a shift has started. There will only ever be on shift at a time in this method and it is down only
+        for(i = 0; i < scope.dates.length; i++)
+        {
+            var d = scope.dates[i];
             var row = me.getRow(d.date);
-            //console.dir(d.meetings);
-            me.shiftMeetings(d.meetings, d.date, row, me.dates, postedData.id, me);
-        });       
+            var results = me.shiftMeetings(d.meetings, d.date, row, me.dates, postedData.id, savedAbsoluteRowIndex, startShift, me);
+            startShift = results.startShift;
+            savedAbsoluteRowIndex = results.savedAbsoluteRowIndex;  
+        }
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
         scope.fireEvent('meetingSaveComplete', newRows);
     },
-    shiftMeetings: function(meetings, date, row, dates, savedMtgId, scope){
+    shiftMeetings: function(meetings, date, row, dates, savedMtgId, savedAbsoluteRowIndex, startShift, scope){
         var me = scope;
-        var rowInsertedAt = null; //tracks which row has the first insert
-        var startShift = false; //tracks that a shift has started. There will only ever be on shift at a time in this method and it is down only
-        var lastMtg = null; //keep track of the last meeting for the first shift;
-
+        
         var getTotalRowsInAboveDates = function(rowIndex, dates, observer)
         { 
              var rowCount = 0;  
@@ -1203,56 +1203,46 @@ Ext.define('AgendaBuilderObservable', {
              return rowCount;
         };
         var rowsNeeded = me.getMaxRowsForDate(meetings);//decrement one because we need the base 0 count
-        console.log(Ext.String.format("Has : {0} Needs : {1}", row.rowCount, rowsNeeded));      
-        var savedAbsoluteRowIndex = 0;
-        Ext.each(meetings, function(mtg){
-            var rowsAbove = getTotalRowsInAboveDates(row.rowIndex, dates, me);
-            if (mtg.id == savedMtgId)
-            {
-                savedAbsoluteRowIndex = mtg.rowIndex + getTotalRowsInAboveDates(row.rowIndex, dates, me);
-            }
-        })
-        console.log(Ext.String.format("New Row Position: {0}", savedAbsoluteRowIndex));
-
-        Ext.each(meetings, function(mtg){
+        
+        //we are only going to keep looking for the savedAbsoluteRowIndex
+        //while we dont have it.
+        if (savedAbsoluteRowIndex == null)
+            Ext.each(meetings, function(mtg){
                 var rowsAbove = getTotalRowsInAboveDates(row.rowIndex, dates, me);
-                var oldidx = (mtg.oldRowIndex ? mtg.oldRowIndex : 1) + row.rowIndex;
-                var newidx = mtg.rowIndex + row.rowIndex;
-                console.log(Ext.String.format("mtg:{3}-{4} above:{0} old:{1} new:{2}", rowsAbove, oldidx, newidx, mtg.title, mtg.start));
-                if (rowInsertedAt == null && oldidx != newidx && mtg.id != savedMtgId) //We need the first occurance where the row changed position
+                if (mtg.id == savedMtgId)
                 {
-                    rowInsertedAt = mtg.rowIndex + rowsAbove;//oldidx;
-                    if (me.getMaxRowsForDate(meetings) != row.rows.length)
+                    savedAbsoluteRowIndex = mtg.rowIndex + getTotalRowsInAboveDates(row.rowIndex, dates, me);
+                    var oldidx = (mtg.oldRowIndex ? mtg.oldRowIndex : 1); //if there is an old row index we use it, otherwise it is new and starts on row 1
+                    var shiftAmount = mtg.rowIndex - oldidx;
+                    if (shiftAmount > 0)    
                     {
-                        console.log(Ext.String.format("Rows above: {0} Inserted At: {1}", rowsAbove, rowInsertedAt));                    
-                        me.addAdditionalRow(date, me, row, rowInsertedAt);
-                        startShift = true;                    
-                    }    
-                    if (lastMtg != null) //We are shifting down the last meeting since it will be the start of the shift
+                        me.moveMeetingDownXRows(mtg.id, shiftAmount, me);
+                    }
+                    else if (shiftAmount < 0)
                     {
-                        var shiftAmount = lastMtg.rowIndex  - 2; //We need 2 because we always start at row 1 with a base of 0
-                        if (shiftAmount > 0)
-                            me.moveMeetingDownXRows(lastMtg.id, shiftAmount, me);                    
+                        me.moveMeetingUpXRows(mtg.id, shiftAmount, me);
                     }
                 }
-                else if (oldidx == 1 && mtg.id == savedMtgId && (mtg.rowIndex - 2) > 1) //This is a bigger shift down, not the first row to second
-                {
-                    rowInsertedAt = mtg.rowIndex + rowsAbove - 1;//oldidx;
-                    if (me.getMaxRowsForDate(d.meetings) != row.rows.length)
-                    {
-                        console.log(Ext.String.format("Rows above: {0} Inserted At: {1}", rowsAbove, rowInsertedAt));                                            
-                        me.addAdditionalRow(d.date, me, row, rowInsertedAt);
-                        startShift = true;                    
-                    }
-                    var shiftAmount = mtg.rowIndex  - 3;
-                    me.moveMeetingDownXRows(mtg.id, shiftAmount, me);
-                }
-                if (startShift)
-                {
+        })
+        if (row.rowCount < rowsNeeded)
+        {
+            me.addAdditionalRow(date, me, row, savedAbsoluteRowIndex - 1);   
+            row.rowCount +=1;
+            startShift = true;                      
+        } 
+
+        if (startShift)
+        {
+            var rowsAbove = getTotalRowsInAboveDates(row.rowIndex, dates, me);
+            Ext.each(meetings, function(mtg){
+                if ((mtg.rowIndex + getTotalRowsInAboveDates(row.rowIndex, dates, me) > savedAbsoluteRowIndex))
                     me.moveMeetingDownXRows(mtg.id, 1, me);
-                }
-                lastMtg = mtg;
             })
+        }
+        return {
+            startShift: startShift,
+            savedAbsoluteRowIndex: savedAbsoluteRowIndex
+        };
     },
     onUpdateMeetingItemPeople: function(postedData, response, scope){
         var me = scope;
