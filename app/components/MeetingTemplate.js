@@ -35,6 +35,7 @@ Ext.define('MeetingTemplate',
 					var overrides = {
 			        	 // Called the instance the element is dragged.
 					        b4StartDrag : function() {
+								newCmp.dragEnded = false;
 								Ext.each(observer.meetingCallouts, function(callout){
 									callout.hide();
 								})
@@ -50,9 +51,21 @@ Ext.define('MeetingTemplate',
 					        	// Set a flag to invoke the animated repair
 								newCmp.invalidDrop = false;
 					        },
+							onMouseUp: function(e){
+								if (newCmp.dragEnded)
+									return;
+								 Ext.ComponentQuery.query('#MainContainer')[0].el.unmask();
+								 Ext.ComponentQuery.query('#northCtrMeal')[0].el.unmask();
+								 Ext.ComponentQuery.query('#northCtrMtg')[0].el.unmask();		
+								 Ext.each(Ext.query('.meeting-item-type'), function(e){
+										Ext.fly(e).el.unmask();
+								  });
+								 newCmp.destroy();
+							},
 					        // Called when the drag operation completes
 					        endDrag : function(dropTarget) {
-					        	var match = null;
+								newCmp.dragEnded = true;
+								var match = null;
 								var browserEvent = null;
 								if (dropTarget && dropTarget.parentEvent && dropTarget.parentEvent.browserEvent)
 								{
