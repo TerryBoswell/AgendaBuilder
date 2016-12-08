@@ -425,6 +425,9 @@ Ext.define('AgendaBuilderObservable', {
                     afterrender: function(tEl) {
                         var x = centerX - (tEl.getWidth() / 2) - datesCtrXY[0];
                         var y = centerY - datesCtrXY[1];
+                        console.log(centerX);
+                        console.log(centerY);
+                        console.log(tEl.el.dom.getBoundingClientRect());
                         tEl.setPosition(x, y);
                         tEl.container = Ext.create('Ext.Container', {
                             renderTo: tEl.el.down('.meetingTip').el,
@@ -601,6 +604,9 @@ Ext.define('AgendaBuilderObservable', {
                 delay: 100,
                 afterrender: function(cmp) {
                     cmp.mon(cmp.el, 'click', function(){
+                        console.log('click')
+                        console.log(cmp.extender.getXY());
+                        console.log(cmp.el.dom.getBoundingClientRect());
                         cmp.extender.show();
                     })
                     Ext.each(Ext.query('.x-resizable-handle'), function(q){
