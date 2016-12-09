@@ -425,9 +425,6 @@ Ext.define('AgendaBuilderObservable', {
                     afterrender: function(tEl) {
                         var x = centerX - (tEl.getWidth() / 2) - datesCtrXY[0];
                         var y = centerY - datesCtrXY[1];
-                        console.log(centerX);
-                        console.log(centerY);
-                        console.log(tEl.el.dom.getBoundingClientRect());
                         tEl.setPosition(x, y);
                         tEl.container = Ext.create('Ext.Container', {
                             renderTo: tEl.el.down('.meetingTip').el,
@@ -443,13 +440,30 @@ Ext.define('AgendaBuilderObservable', {
                             items: [
                                 {
                                     xtype: 'container',
-                                    html: Ext.String.format('<div class="title-text" style="font-size:larger; margin-left:auto;margin-right:auto;text-align:center;">{0}</div>', tEl.titleText),
+                                    meetingId: meetingId,
+                                    observer: tEl.observer,
+                                    html: Ext.String.format('<div class="title-text" style="font-size:larger; margin-left:auto;margin-right:auto;text-align:center;">{0}' + 
+                                        '<i id="closemtg{1}" style="margin-top: 3px; margin-right: 2px; float: right;" class="fa fa-times-circle fa-lg close-tip" aria-hidden="true"></i></div>',
+                                         tEl.titleText, tEl.meetingId),
                                     height: 25,
                                     style: {
                                         color: tEl.titleFontColor,
                                         backgroundColor: tEl.titleColor
                                     },
-                                    cls: 'callout-title'
+                                    cls: 'callout-title',
+                                    listeners: {
+                                                delay: 1000,
+                                                scope: this,
+                                                afterrender: function(targetCmp) {
+                                                    var cmp = Ext.get(Ext.query('#closemtg' + targetCmp.meetingId)[0].id)
+                                                    var fly = new Ext.fly(Ext.query('#closemtg' + targetCmp.meetingId)[0]);
+                                                    fly.on('click', function(){
+                                                        Ext.each(targetCmp.observer.meetingCallouts, function(callout){
+                                                            callout.hide();
+                                                        })
+                                                    })
+                                                }
+                                    } 
                                 },
                                 {
                                     xtype: 'container',
@@ -564,6 +578,12 @@ Ext.define('AgendaBuilderObservable', {
                             cmp.setY(cmp.pendingShift + tipY);
                             delete(cmp.pendingShift);
                         }
+                        new Ext.util.DelayedTask(function(){
+                            var x = cmp.targetCoords.xCenter - (cmp.getWidth() / 2);
+                            var y = cmp.targetCoords.yCenter;
+                            cmp.setX(x);
+                            cmp.setY(y);
+                        }, me).delay(10);  
                     }
                 }
             })   
@@ -604,9 +624,15 @@ Ext.define('AgendaBuilderObservable', {
                 delay: 100,
                 afterrender: function(cmp) {
                     cmp.mon(cmp.el, 'click', function(){
-                        console.log('click')
-                        console.log(cmp.extender.getXY());
-                        console.log(cmp.el.dom.getBoundingClientRect());
+                        var rect = cmp.el.dom.getBoundingClientRect();
+                        var x = cmp.getX();
+                        var y = cmp.getY();
+                        cmp.extender.targetCoords = {
+                            x : x,
+                            xCenter : x + (rect.width / 2),
+                            y: y,
+                            yCenter : y + (rect.height/2)
+                        };
                         cmp.extender.show();
                     })
                     Ext.each(Ext.query('.x-resizable-handle'), function(q){
