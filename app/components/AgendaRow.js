@@ -100,5 +100,45 @@ Ext.define('AgendaRow', {
 
         this.data = {columnWidth: (100/this.columns.length) + '%', columns: columns}; 
         this.callParent(arguments);
+		this.on({
+			delay: 100,
+			render: function(cmp){
+				var hideCmp = cmp.el.down('.hideARow');				
+				if (hideCmp)
+				{ 
+					var parent = cmp;
+					hideCmp.mon(hideCmp.el, 'click', function(){
+						var baseId = hideCmp.id;
+						var mtgsToHide = [];
+						for(var i = 3; i <= 39; i++)
+						{
+							var id = baseId.replace('col-2', Ext.String.format("col-{0}", i));
+							var calBlock = cmp.el.down(Ext.String.format('#{0}', id));
+							var rect = calBlock.el.dom.getBoundingClientRect();
+							var y = (rect.top + rect.bottom) / 2;
+							var x = (rect.left + rect.right) / 2;
+							var matches = document.elementsFromPoint(x, y);
+							
+							Ext.each(matches, function(match){
+								if (match.classList && match.classList.contains('mtg-instance'))
+								{
+									if (mtgsToHide.indexOf(match) == -1)
+									{
+										mtgsToHide.push(match);
+										//match.style.display = "none";
+										var mtg = cmp.observer.getMeeting(Ext.getCmp(match.id).meetingId, cmp.observer);
+										console.dir(mtg);
+									}								
+								}
+							})
+						}
+						//.moveMeetingUpXRows(mtg.id, shiftAmount, me);
+						//console.log(mtgsToHide);
+						//cmp.hide();
+					})
+				}
+			},
+			scope: this
+		})
     }
 });
