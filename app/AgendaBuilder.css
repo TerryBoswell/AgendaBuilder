@@ -217,3 +217,35 @@ div.meetingTip:before {
   background-image: none !important;
   border-radius: 3px;
 }
+
+.link-color
+{
+    color: #43b8bc;
+}
+
+.row-overlay
+{
+        text-align: center; 
+        position: absolute; 
+        width: 900px; 
+        height: 50px; 
+        padding: 10px;    
+        font-size: x-large;
+        z-index: 1000;
+}
+
+.numberCircle {
+    border-radius: 100%;
+    padding: 0px 7px 3px 7px;
+    border: 2px solid #666;
+}
+.numberCircle span {
+    text-align: center;
+    line-height: 120px;
+    display: block;
+}
+
+.bubble-text {
+    background-color: teal;
+    color: white;
+}

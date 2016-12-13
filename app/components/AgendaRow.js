@@ -15,6 +15,7 @@ Ext.define('AgendaRow', {
     parameter: false,
 	observer: null,	
     columns: [],
+	insertOverLay: false,
     initComponent: function() {
         this.tpl = new Ext.XTemplate(
         	'<table style="width:100%;height:100%;" border="0" cellspacing="0">',
@@ -27,6 +28,7 @@ Ext.define('AgendaRow', {
 		        		'</td>',
 		        	'</tpl>',
 		        '</tr>', 
+				' {[this.getHasOverLay()]}',
         	'</table>',
             {
                 strict: true,
@@ -37,6 +39,7 @@ Ext.define('AgendaRow', {
 			    id: this.id,
                 dataField: this.dataField,
 				observer: this.observer,
+				insertOverLay: this.insertOverLay,
                 getData: function(i){
 					var data = '';
                     if (this.dataField)
@@ -69,7 +72,20 @@ Ext.define('AgendaRow', {
                 	{
                 		return '5%';
                 	}           	
-                }
+                },
+				getHasOverLay: function(){
+					if (this.insertOverLay)
+					{
+						var data = '';
+						if (this.dataField)
+						{												
+							data = 'data-date="'+ this.dataField + '"';						
+						}
+						return Ext.String.format('<div {0} class="row-overlay"></div>', data);
+					}
+
+					return '';
+				}
             }
         );
 		var totalColumns = this.leadColumns + this.hoursColumns + this.trailingColumns; 
@@ -99,44 +115,82 @@ Ext.define('AgendaRow', {
 	    });
 
         this.data = {columnWidth: (100/this.columns.length) + '%', columns: columns}; 
-        this.callParent(arguments);
+        this.callParent(arguments);		
 		this.on({
 			delay: 100,
 			render: function(cmp){
-				var hideCmp = cmp.el.down('.hideARow');				
-				if (hideCmp)
-				{ 
-					var parent = cmp;
-					hideCmp.mon(hideCmp.el, 'click', function(){
-						var baseId = hideCmp.id;
+				
+				var hideShow = function(hCmp, parent, overlayCmp){
 						var mtgsToHide = [];
-						for(var i = 3; i <= 39; i++)
+						var date = new Date(parent.dataField);
+						var instance = parent.observer.getInstance(date, parent.observer);
+						var row = parent.observer.getRow(date)
+						//If it hasn't been set, then it is visible
+						if (instance.visible === undefined)
+							instance.visible = true;
+						if (instance.visible)
 						{
-							var id = baseId.replace('col-2', Ext.String.format("col-{0}", i));
-							var calBlock = cmp.el.down(Ext.String.format('#{0}', id));
-							var rect = calBlock.el.dom.getBoundingClientRect();
-							var y = (rect.top + rect.bottom) / 2;
-							var x = (rect.left + rect.right) / 2;
-							var matches = document.elementsFromPoint(x, y);
-							
-							Ext.each(matches, function(match){
-								if (match.classList && match.classList.contains('mtg-instance'))
-								{
-									if (mtgsToHide.indexOf(match) == -1)
-									{
-										mtgsToHide.push(match);
-										//match.style.display = "none";
-										var mtg = cmp.observer.getMeeting(Ext.getCmp(match.id).meetingId, cmp.observer);
-										console.dir(mtg);
-									}								
-								}
+							hCmp.innerText = '+Show';
+							Ext.each(instance.meetings, function(mtg){
+								var mtgCmp = parent.observer.findMeetingComponent(mtg.id);
+								mtgCmp.hide();
 							})
+							for(i = 1; i < row.rows.length; i++)
+							{
+								var rowCmp = Ext.getCmp(row.rows[i].id);
+								rowCmp.hide();
+							}
+							overlayCmp.innerHTML = Ext.String.format("You have <span class='numberCircle bubble-text'>{0}</span> events on this day. <span class='link-color expand-view'>Expand view ></span>", instance.meetings.length);																
 						}
-						//.moveMeetingUpXRows(mtg.id, shiftAmount, me);
-						//console.log(mtgsToHide);
-						//cmp.hide();
-					})
+						else
+						{
+							hCmp.innerText = '-Hide';
+							Ext.each(instance.meetings, function(mtg){
+								var mtgCmp = parent.observer.findMeetingComponent(mtg.id);
+								mtgCmp.show();
+							})
+							for(i = 1; i < row.rows.length; i++)
+							{
+								var rowCmp = Ext.getCmp(row.rows[i].id);
+								rowCmp.show();
+							}
+							overlayCmp.innerHTML = '';										
+						}	
+						instance.visible = !instance.visible;						
+						
+						//.moveMeetingUpXRows(mtg.id, shiftAmount, me);						
+				};
+
+				var hideCmp = null;
+				var overlayCmp = null;
+				Ext.each(Ext.query('.row-overlay'), function(el){
+					if (el && el.dataset && el.dataset.date && el.dataset.date == cmp.dataField)
+					{
+						overlayCmp = el;
+					}
+				})	
+				Ext.each(Ext.query('.hideARow'), function(el){
+					if (el && el.dataset && el.dataset.date && el.dataset.date == cmp.dataField)
+					{
+						hideCmp = el;
+					}
+				})	
+				var parent = cmp;								
+				if (hideCmp && !hideCmp.listeningForClick)
+				{ 					
+					hideCmp.listeningForClick = true;
+					hideCmp.addEventListener('mousedown', function(){
+						hideShow(hideCmp, parent, overlayCmp);
+					});
 				}
+				if (overlayCmp && !overlayCmp.listeningForClick)
+				{
+					overlayCmp.listeningForClick = true;
+					overlayCmp.addEventListener('mousedown', function(){
+						hideShow(hideCmp, parent, overlayCmp);
+					});
+				}
+
 			},
 			scope: this
 		})

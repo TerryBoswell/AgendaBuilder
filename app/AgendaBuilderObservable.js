@@ -259,10 +259,11 @@ Ext.define('AgendaBuilderObservable', {
                     oddColClass: 'oddRowBackGround',
                     dataField: data,
                     observer: this,
+                    insertOverLay: true,
                     columns: [
                         {html: day + ' ' + (instance.date.getMonth() + 1) + '/' + instance.date.getDate(), 
                             style: 'font-size:medium; text-align: center;', Index: 0, cls: ''},
-                        {html: '<span style="background-color: teal;text-align:center; padding: 5px 8px; border-radius: 3px;">' + instance.roomBlocks + 
+                        {html: '<span class="bubble-text" style="text-align:center; padding: 5px 8px; border-radius: 3px;">' + instance.roomBlocks + 
                             '</span>', style: '', Index: 1, cls: ''}
                         ]
                 });
@@ -274,8 +275,8 @@ Ext.define('AgendaBuilderObservable', {
                     dataField: data,
                     observer: this,
                     columns: [
-                        {cls: '', Index: 0},
-                        {html: '-Hide', cls: 'hideARow', style : 'color: #43b8bc;text-align: center;height: 42px;', Index: 1}
+                        //{cls: '', Index: 0},
+                        {html: '-Hide', cls: 'hideARow link-color', style : 'text-align: center;height: 42px; float:left;', Index: 0}
                         ]
                 });
             parentCtr.add(bottomRow);
@@ -322,7 +323,7 @@ Ext.define('AgendaBuilderObservable', {
                     observer: this,
                     columns: [
                         {cls: '', Index: 0},
-                        {html: '-Hide', cls: 'hideARow', style : 'color: #43b8bc;text-align: center;height: 42px;', Index: 1}
+                        {html: '', cls: 'link-color', style : 'text-align: center;height: 42px;', Index: 1} //{html: '-Hide', cls: '', style : 'text-align: center;height: 42px;', Index: 1}
                         ]
                 });
         if (insertRowAt == null || insertRowAt == undefined)
@@ -1221,29 +1222,29 @@ Ext.define('AgendaBuilderObservable', {
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
         scope.fireEvent('meetingSaveComplete', newRows);
     },
+    getTotalRowsInAboveDates : function(rowIndex, dates, observer)
+    { 
+        var rowCount = 0;  
+        for(i = 0; i < rowIndex; i++)
+        {  
+            var maxRow = observer.getMaxRowsForDate(dates[i].meetings);
+            rowCount += maxRow;
+        }
+        return rowCount;
+    },
     shiftMeetings: function(meetings, date, row, dates, savedMtgId, savedAbsoluteRowIndex, startShift, scope){
         var me = scope;
         
-        var getTotalRowsInAboveDates = function(rowIndex, dates, observer)
-        { 
-             var rowCount = 0;  
-             for(i = 0; i < rowIndex; i++)
-             {  
-                 var maxRow = observer.getMaxRowsForDate(dates[i].meetings);
-                 rowCount += maxRow;
-             }
-             return rowCount;
-        };
         var rowsNeeded = me.getMaxRowsForDate(meetings);//decrement one because we need the base 0 count
         
         //we are only going to keep looking for the savedAbsoluteRowIndex
         //while we dont have it.
         if (savedAbsoluteRowIndex == null)
             Ext.each(meetings, function(mtg){
-                var rowsAbove = getTotalRowsInAboveDates(row.rowIndex, dates, me);
+                var rowsAbove = me.getTotalRowsInAboveDates(row.rowIndex, dates, me);
                 if (mtg.id == savedMtgId)
                 {
-                    savedAbsoluteRowIndex = mtg.rowIndex + getTotalRowsInAboveDates(row.rowIndex, dates, me);
+                    savedAbsoluteRowIndex = mtg.rowIndex + me.getTotalRowsInAboveDates(row.rowIndex, dates, me);
                     var oldidx = (mtg.oldRowIndex ? mtg.oldRowIndex : 1); //if there is an old row index we use it, otherwise it is new and starts on row 1
                     var shiftAmount = mtg.rowIndex - oldidx;
                     if (shiftAmount > 0)    
@@ -1265,9 +1266,9 @@ Ext.define('AgendaBuilderObservable', {
 
         if (startShift)
         {
-            var rowsAbove = getTotalRowsInAboveDates(row.rowIndex, dates, me);
+            var rowsAbove = me.getTotalRowsInAboveDates(row.rowIndex, dates, me);
             Ext.each(meetings, function(mtg){
-                if ((mtg.rowIndex + getTotalRowsInAboveDates(row.rowIndex, dates, me) > savedAbsoluteRowIndex))
+                if ((mtg.rowIndex + me.getTotalRowsInAboveDates(row.rowIndex, dates, me) > savedAbsoluteRowIndex))
                     me.moveMeetingDownXRows(mtg.id, 1, me);
             })
         }
