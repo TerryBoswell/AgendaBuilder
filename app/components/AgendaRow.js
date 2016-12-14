@@ -135,11 +135,23 @@ Ext.define('AgendaRow', {
 								var mtgCmp = parent.observer.findMeetingComponent(mtg.id);
 								mtgCmp.hide();
 							})
+							var hiddenCount = 0;
 							for(i = 1; i < row.rows.length; i++)
 							{
 								var rowCmp = Ext.getCmp(row.rows[i].id);
 								rowCmp.hide();
+								hiddenCount++;
 							}
+							for(i = 0; i < parent.observer.dates.length; i++)
+							{
+								if (parent.observer.dates[i].date > date)
+								{
+									Ext.each(parent.observer.dates[i].meetings, function(mtg){
+										parent.observer.moveMeetingUpXRows(mtg.id, hiddenCount, parent.observer)
+									})
+								}
+							}
+
 							overlayCmp.innerHTML = Ext.String.format("You have <span class='numberCircle bubble-text'>{0}</span> events on this day. <span class='link-color expand-view'>Expand view ></span>", instance.meetings.length);																
 						}
 						else
@@ -149,16 +161,25 @@ Ext.define('AgendaRow', {
 								var mtgCmp = parent.observer.findMeetingComponent(mtg.id);
 								mtgCmp.show();
 							})
+							var shownCount = 0;
 							for(i = 1; i < row.rows.length; i++)
 							{
 								var rowCmp = Ext.getCmp(row.rows[i].id);
 								rowCmp.show();
+								shownCount++;
+							}
+							for(i = 0; i < parent.observer.dates.length; i++)
+							{
+								if (parent.observer.dates[i].date > date)
+								{
+									Ext.each(parent.observer.dates[i].meetings, function(mtg){
+										parent.observer.moveMeetingDownXRows(mtg.id, shownCount, parent.observer)
+									})
+								}
 							}
 							overlayCmp.innerHTML = '';										
 						}	
-						instance.visible = !instance.visible;						
-						
-						//.moveMeetingUpXRows(mtg.id, shiftAmount, me);						
+						instance.visible = !instance.visible;												
 				};
 
 				var hideCmp = null;

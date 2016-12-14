@@ -86,8 +86,15 @@ Ext.define('MeetingTemplate',
 									if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
 										match = el;
 								})
+								var instance = null;
+								if (match && match.dataset && match.dataset.date)
+								{
+									var instanceDate = new Date(match.dataset.date);
+									instance = observer.getInstance(instanceDate, observer);
+								}
 								// Invoke the animation if the invalidDrop flag is set to true
-					            if (match == null || !match.dataset || !match.dataset.date || !match.dataset.hour) {
+					            if (match == null || !match.dataset || !match.dataset.date || !match.dataset.hour || (
+									instance && instance.visible == false)) {
 					                // Remove the drop invitation
 					                newCmp.el.removeCls('dropOK');
 
