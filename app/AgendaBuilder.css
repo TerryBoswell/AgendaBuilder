@@ -231,7 +231,7 @@ div.meetingTip:before {
         height: 50px; 
         padding: 10px;    
         font-size: x-large;
-        z-index: 1000;
+        z-index: 1;
 }
 
 .numberCircle {
@@ -248,4 +248,8 @@ div.meetingTip:before {
 .bubble-text {
     background-color: teal;
     color: white;
+}
+.mtg-instance
+{
+    z-index: 2
 }
