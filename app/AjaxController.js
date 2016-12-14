@@ -84,6 +84,7 @@ Ext.define('AjaxController', {
         var url = Ext.String.format('/planners/rfp/meeting_item_delete/{0}}/json/', me.rfpNumber, scope);
         new Ext.util.DelayedTask(function(){
             var fakeResponse = {id: id, success: true};
+            console.info('A mocked delete has occurred', id, fakeResponse);
             callback(id, scope);
         }, me).delay(100);   
     },

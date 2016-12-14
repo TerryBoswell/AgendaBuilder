@@ -442,7 +442,7 @@ Ext.define('MeetingEditor', {
                         handler : function(){
                             var me = this;
                             var id = me.meeting.id != null ? me.meeting.id : 0;
-                            me.observer.removeMeeting(id);
+                            me.observer.deleteMeetingItem(id);
                             me.hide();
                             me.destroy();
                         }

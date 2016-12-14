@@ -200,15 +200,16 @@ Ext.define('AgendaRow', {
 				if (hideCmp && !hideCmp.listeningForClick)
 				{ 					
 					hideCmp.listeningForClick = true;
-					hideCmp.addEventListener('mousedown', function(){
+					hideCmp.addEventListener('mousedown', function(tEl){
 						hideShow(hideCmp, parent, overlayCmp);
 					});
 				}
 				if (overlayCmp && !overlayCmp.listeningForClick)
 				{
 					overlayCmp.listeningForClick = true;
-					overlayCmp.addEventListener('mousedown', function(){
-						hideShow(hideCmp, parent, overlayCmp);
+					overlayCmp.addEventListener('mousedown', function(tEl){
+						if (tEl.target.classList.contains("expand-view"))
+							hideShow(hideCmp, parent, overlayCmp);
 					});
 				}
 

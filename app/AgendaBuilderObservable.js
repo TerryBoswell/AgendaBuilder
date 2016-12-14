@@ -303,6 +303,9 @@ Ext.define('AgendaBuilderObservable', {
         })
     },
     addAdditionalRow: function(date, context, agendaBuilderRow, insertRowAt){
+        //We can not add a new row at index 0 or 1 because of the left hand items of dates and -Hide
+        if (insertRowAt != undefined && (insertRowAt == 0 || insertRowAt == 1))
+            insertRowAt = 2;
         if (context)
             var me = context;
         else
@@ -752,7 +755,6 @@ Ext.define('AgendaBuilderObservable', {
         return mtgs;
     },
     deleteMeeting: function(meetingId, scope){
-        
         this.removeMeeting(meetingId);
         Ext.each(scope.dates, function(instance){
             var mtgs = [];
@@ -761,8 +763,7 @@ Ext.define('AgendaBuilderObservable', {
                     mtgs.push(meeting);
             })            
             instance.meetings = mtgs;    
-        });
-        
+        });        
     },
     getDate: function(meetingId, scope){
         var date = null;
@@ -1362,7 +1363,24 @@ Ext.define('AgendaBuilderObservable', {
         this.ajaxController.saveMeetingItem(mtg, this.onUpdateMeetingItemPeople, this);
     },
     deleteMeetingItem: function(id){
-        this.ajaxController.deleteMeetingItem(id, this.onDeleteMeetingItem, this);
+        Ext.Msg.show({
+            title:'Confirm Delete',
+            message: 'This will permanently delete this event. Are you sure?',
+            closable : false,
+            buttons : Ext.Msg.YESCANCEl,
+            buttonText : 
+            {
+                yes : 'Yes',
+                cancel : 'Cancel'
+            },
+            icon: Ext.Msg.QUESTION,
+            scope: this,
+            fn : function(buttonValue, inputText, showConfig){
+                if (buttonValue == 'yes')
+                    this.ajaxController.deleteMeetingItem(id, this.onDeleteMeetingItem, this);
+            }
+        });
+        
     },
     saveAlternateOption: function(){},
     savePrePostDays: function(type, count){
@@ -1466,18 +1484,19 @@ Ext.define('AgendaBuilderObservable', {
                     if (typeof name === 'string') {
                         hook = hooks[name];
                         if (!hook) {
-                            hooks[name] = hook = {
-                                name: Element.normalize(name)
-                            };
+                            if (Element && Element.normalize)
+                                hooks[name] = hook = {                                
+                                    name: Element.normalize(name)
+                                };
                         }
                         value = (value == null) ? '' : value;
                         // map null && undefined to ''
-                        if (hook.set) {
+                        if (hook && hook.set) {
                             hook.set(dom, value, me);
-                        } else {
+                        } else if (hook) {
                             style[hook.name] = value;
                         }
-                        if (hook.afterSet) {
+                        if (hook && hook.afterSet) {
                             hook.afterSet(dom, value, me);
                         }
                     } else {
