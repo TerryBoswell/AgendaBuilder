@@ -256,8 +256,11 @@ div.meetingTip:before {
 
 .twentyfourhr-bubble
 {
-    float:right;
+    /*float:right;*/
+    position: absolute;
     z-index:1000; 
+    top: 0px;
+    right: 0px;
     opacity: 1 !important;
     margin-top:15px;
     padding: 3px 3px 3px 3px !important;

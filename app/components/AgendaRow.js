@@ -19,7 +19,7 @@ Ext.define('AgendaRow', {
 	show24Hr: false,
     initComponent: function() {
         this.tpl = new Ext.XTemplate(
-        	'<table style="width:100%;height:100%;" border="0" cellspacing="0">',
+			'<table style="width:100%;height:100%;" border="0" cellspacing="0">',
         		'<tpl for="columns">',
 		            '<col width="{[this.getColumnWidth(xindex)]} max-width="{[this.getColumnWidth(xindex)]}">',
 	        	'</tpl>',
@@ -29,8 +29,8 @@ Ext.define('AgendaRow', {
 		        		'</td>',
 		        	'</tpl>',
 		        '</tr>', 
-				' {[this.getHasOverLay()]}',
-        	'</table>',
+				' {[this.getHasOverLay()]}',				
+        	'</table>',			
 			'{[this.getShow24Hr()]}',
             {
                 strict: true,
@@ -43,7 +43,7 @@ Ext.define('AgendaRow', {
 				observer: this.observer,
 				insertOverLay: this.insertOverLay,
 				show24Hr: this.show24Hr,
-                getData: function(i){
+				getData: function(i){
 					var data = '';
                     if (this.dataField)
 					{												
@@ -91,7 +91,7 @@ Ext.define('AgendaRow', {
 				},
 				getShow24Hr: function(){
 					if (this.show24Hr)
-						return '<div class="numberCircle bubble-text twentyfourhr-bubble">24</div>';
+						return '<span data-hasListner=false class="numberCircle bubble-text twentyfourhr-bubble">24</span>';
 					return '';
 				}
             }
@@ -121,8 +121,7 @@ Ext.define('AgendaRow', {
 	    		columns[c.Index] = Ext.apply(columns[c.Index], c);
 	    	}
 	    });
-		console.dir(this.columns);
-        this.data = {columnWidth: (100/this.columns.length) + '%', columns: columns}; 
+		this.data = {columnWidth: (100/this.columns.length) + '%', columns: columns}; 
         this.callParent(arguments);		
 		this.on({
 			delay: 100,
@@ -222,6 +221,44 @@ Ext.define('AgendaRow', {
 							hideShow(hideCmp, parent, overlayCmp);
 					});
 				}
+
+				Ext.each(Ext.query('.twentyfourhr-bubble'), function(el){
+					if (el)
+					{
+						var fly = Ext.fly(el);
+						if (fly.dom.dataset.haslistner == "false")
+						{
+							fly.dom.dataset.haslistner = "true"
+							el.addEventListener('mousedown', function(event){
+								var meetingIds = [];											
+								Ext.each(document.elementsFromPoint(event.clientX, event.clientY), function(match){									
+									if (match.id.indexOf('agendarow-ctr') != -1 && match.id.indexOf('col') != -1 && match.dataset.date)
+									{
+										for(var i = 3; i <= 38; i++)
+										{
+											var curId = match.id.substring(0, match.id.indexOf('col')) + 'col-' + i;
+											var rect = document.getElementById(curId).getBoundingClientRect();
+											var y = (rect.top + rect.bottom) / 2; //We'll get the center
+											var x = (rect.left + rect.right) / 2;
+											Ext.each(document.elementsFromPoint(x, y), function(subMatch){
+												if (subMatch.classList.contains('mtg-instance'))
+												{
+													var mtgId = Ext.getCmp(subMatch.id).meetingId;
+													if (!meetingIds.includes(mtgId))
+														meetingIds.push(mtgId);													
+												}
+											})											
+										}
+									}
+								})
+								Ext.each(meetingIds, function(mtgId){
+									console.dir(parent.observer.getMeeting(mtgId, parent.observer));
+								})
+								
+							});
+						}
+					}
+				})
 
 			},
 			scope: this
