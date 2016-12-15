@@ -138,7 +138,7 @@ Ext.define('MeetingEditor', {
                                     inputCls: 'timeInput',
                                     itemId  : 'end_time',
                                     validTime: true,
-                                    value   : observer.convertTimeTo12Hrs(meeting.end_time),
+                                    value   : observer.convertTimeTo12Hrs(meeting.end_time, 6),
                                     observer: observer,
                                     listeners: {
                                         change: function(cmp, newValue, oldValue, e)
@@ -525,7 +525,7 @@ Ext.define('MeetingEditor', {
             msg = "Please provide a valid title";
             isValid = false;
         }
-        if (mtg.start_time >= mtg.end_time)
+        if (mtg.start_time >= mtg.end_time && mtg.end_time != '00:00')
         {
             msg = "Please select a valid time range";
             isValid = false;

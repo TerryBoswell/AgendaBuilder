@@ -253,3 +253,14 @@ div.meetingTip:before {
 {
     z-index: 2
 }
+
+.twentyfourhr-bubble
+{
+    float:right;
+    z-index:1000; 
+    opacity: 1 !important;
+    margin-top:15px;
+    padding: 3px 3px 3px 3px !important;
+    margin-right: 15px;
+    border: none;
+}

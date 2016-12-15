@@ -274,6 +274,7 @@ Ext.define('AgendaBuilderObservable', {
                     evenColClass : 'evenRowBackGroundB',
                     dataField: data,
                     observer: this,
+                    show24Hr: true,
                     columns: [
                         //{cls: '', Index: 0},
                         {html: '-Hide', cls: 'hideARow link-color', style : 'text-align: center;height: 42px; float:left;', Index: 0}
@@ -324,6 +325,7 @@ Ext.define('AgendaBuilderObservable', {
                     oddColClass: oddColClass,
                     dataField: data,
                     observer: this,
+                    show24Hr: true,
                     columns: [
                         {cls: '', Index: 0},
                         {html: '', cls: 'link-color', style : 'text-align: center;height: 42px;', Index: 1} //{html: '-Hide', cls: '', style : 'text-align: center;height: 42px;', Index: 1}
@@ -1013,7 +1015,7 @@ Ext.define('AgendaBuilderObservable', {
         leftNorthCtrMeal.mon(leftNorthCtrMeal.el, 'mouseup', function(){leftNorthCtrMeal.task.stop()});
                 
     },
-    convertTimeTo12Hrs: function(time){
+    convertTimeTo12Hrs: function(time, minHour){
         time = time.replace('1900/01/01 ', '');
         var hr = time.substring(0,2) * 1;
         var slice = "AM"
@@ -1023,7 +1025,16 @@ Ext.define('AgendaBuilderObservable', {
             slice = "PM";
         }
         var min = time.substring(3,5);
-        return Ext.String.format("{0}:{1} {2}", hr, min, slice);
+        
+        if (minHour && slice == "AM" && hr < minHour) //if a min hour is provided and the min hour is less than the one provide, we go to 11:30PM
+        {
+            hr = 12;
+            min = '00';
+            slice = "AM";
+        }
+
+        var v  = Ext.String.format("{0}:{1} {2}", hr, min, slice);
+        return v;
     },
     convertTimeTo24Hrs: function(time){
         time = time.toUpperCase()

@@ -16,6 +16,7 @@ Ext.define('AgendaRow', {
 	observer: null,	
     columns: [],
 	insertOverLay: false,
+	show24Hr: false,
     initComponent: function() {
         this.tpl = new Ext.XTemplate(
         	'<table style="width:100%;height:100%;" border="0" cellspacing="0">',
@@ -30,6 +31,7 @@ Ext.define('AgendaRow', {
 		        '</tr>', 
 				' {[this.getHasOverLay()]}',
         	'</table>',
+			'{[this.getShow24Hr()]}',
             {
                 strict: true,
                 parameter: this.parameter,
@@ -40,6 +42,7 @@ Ext.define('AgendaRow', {
                 dataField: this.dataField,
 				observer: this.observer,
 				insertOverLay: this.insertOverLay,
+				show24Hr: this.show24Hr,
                 getData: function(i){
 					var data = '';
                     if (this.dataField)
@@ -85,6 +88,11 @@ Ext.define('AgendaRow', {
 					}
 
 					return '';
+				},
+				getShow24Hr: function(){
+					if (this.show24Hr)
+						return '<div class="numberCircle bubble-text twentyfourhr-bubble">24</div>';
+					return '';
 				}
             }
         );
@@ -113,7 +121,7 @@ Ext.define('AgendaRow', {
 	    		columns[c.Index] = Ext.apply(columns[c.Index], c);
 	    	}
 	    });
-
+		console.dir(this.columns);
         this.data = {columnWidth: (100/this.columns.length) + '%', columns: columns}; 
         this.callParent(arguments);		
 		this.on({
