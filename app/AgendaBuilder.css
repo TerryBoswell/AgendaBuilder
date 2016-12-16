@@ -44,6 +44,15 @@
     border-top: 1px solid black;
 }
 
+.evenRowBackGround-allday{
+    background: 
+    linear-gradient(63deg, #99ccff 23%, transparent 23%) 7px 0, 
+    linear-gradient(63deg, transparent 74%, #99ccff 78%), 
+    linear-gradient(63deg, transparent 34%, #99ccff 38%, #99ccff 58%, transparent 62%), 
+    #0039e6 !important;
+    
+}
+
 .timeInput{
     font-size: x-large;
     text-align: right;
@@ -266,4 +275,9 @@ div.meetingTip:before {
     padding: 3px 3px 3px 3px !important;
     margin-right: 15px;
     border: none;
+}
+
+.bubbleClicked
+{
+    background-color: rgba(0, 128, 128, .3) !important;
 }

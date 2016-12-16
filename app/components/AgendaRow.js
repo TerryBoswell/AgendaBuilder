@@ -230,14 +230,29 @@ Ext.define('AgendaRow', {
 						{
 							fly.dom.dataset.haslistner = "true"
 							el.addEventListener('mousedown', function(event){
-								var meetingIds = [];											
+								var meetingIds = [];	
+								var toggle24Hour = function(rowEl)
+								{
+									if (rowEl.classList.contains('evenRowBackGroundA') ||
+										rowEl.classList.contains('evenRowBackGroundB') ||
+										rowEl.classList.contains('evenRowBackGroundC'))
+									{
+										if (rowEl.classList.contains('evenRowBackGround-allday'))
+											rowEl.classList.remove('evenRowBackGround-allday');
+										else
+											rowEl.classList.add('evenRowBackGround-allday');
+									}
+								}										
 								Ext.each(document.elementsFromPoint(event.clientX, event.clientY), function(match){									
 									if (match.id.indexOf('agendarow-ctr') != -1 && match.id.indexOf('col') != -1 && match.dataset.date)
 									{
-										for(var i = 3; i <= 38; i++)
+										for(var i = 3; i <= 39; i++)
 										{
 											var curId = match.id.substring(0, match.id.indexOf('col')) + 'col-' + i;
-											var rect = document.getElementById(curId).getBoundingClientRect();
+											//evenRowBackGround-allday
+											var rowEl = document.getElementById(curId);
+											toggle24Hour(rowEl);
+											var rect = rowEl.getBoundingClientRect();
 											var y = (rect.top + rect.bottom) / 2; //We'll get the center
 											var x = (rect.left + rect.right) / 2;
 											Ext.each(document.elementsFromPoint(x, y), function(subMatch){
@@ -251,8 +266,13 @@ Ext.define('AgendaRow', {
 										}
 									}
 								})
+								var twentyFourHrCmp = (Ext.fly(el));
+								if (twentyFourHrCmp.dom.classList.contains('bubbleClicked'))
+									twentyFourHrCmp.dom.classList.remove('bubbleClicked');
+								else
+									twentyFourHrCmp.dom.classList.add('bubbleClicked');
 								Ext.each(meetingIds, function(mtgId){
-									console.dir(parent.observer.getMeeting(mtgId, parent.observer));
+									parent.observer.updateMeeting24Hours(mtgId, parent.observer);
 								})
 								
 							});

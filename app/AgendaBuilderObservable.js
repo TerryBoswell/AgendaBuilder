@@ -1293,6 +1293,11 @@ Ext.define('AgendaBuilderObservable', {
         var me = scope;
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
     },
+    onUpdateMeeting24Hours: function(postedData, response, scope){
+        //var mtg = scope.getMeeting(postedData.id, scope);
+        //console.dir(mtg);
+        scope.fireEvent('meeting24HourUpdated', postedData);
+    },
     onDeleteMeetingItem: function(id, scope){
         scope.deleteMeeting(id, scope);
         scope.fireEvent('meetingItemDeleted', id);
@@ -1372,6 +1377,14 @@ Ext.define('AgendaBuilderObservable', {
             throw("Meeting not found");
         mtg.num_people = numPeople;
         this.ajaxController.saveMeetingItem(mtg, this.onUpdateMeetingItemPeople, this);
+    },
+    updateMeeting24Hours: function(meetingId, scope){
+        var me = scope;
+        var mtg = me.getMeeting(meetingId, me);
+        if (!mtg)
+            throw("Meeting not found");
+        mtg.all_day = !mtg.all_day;
+        this.ajaxController.saveMeetingItem(mtg, this.onUpdateMeeting24Hours, this);
     },
     deleteMeetingItem: function(id){
         Ext.Msg.show({
