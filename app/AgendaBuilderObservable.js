@@ -410,6 +410,7 @@ Ext.define('AgendaBuilderObservable', {
                 target: target,
                 floating: true,
                 renderTo: renderTo.el,
+                parent: renderTo,
                 hidden: true,
                 observer: observer,
                 meetingId: meetingId,
@@ -429,9 +430,8 @@ Ext.define('AgendaBuilderObservable', {
                 ],
                 listeners: {
                     afterrender: function(tEl) {
-                        var x = centerX - (tEl.getWidth() / 2) - datesCtrXY[0];
-                        var y = centerY - datesCtrXY[1];
-                        tEl.setPosition(x, y);
+                        //var x = centerX - (tEl.getWidth() / 2) - datesCtrXY[0];
+                        //var y = centerY - datesCtrXY[1];
                         tEl.container = Ext.create('Ext.Container', {
                             renderTo: tEl.el.down('.meetingTip').el,
                             style: 'padding: 1px 1px;',
@@ -577,14 +577,8 @@ Ext.define('AgendaBuilderObservable', {
                                                 
                     },
                     show: function(cmp){
-                        cmp.tipCenter = cmp.getX() - (cmp.getWidth() / 2);
-                        if (cmp.pendingShift)
-                        {
-                            var tipY = cmp.getY();
-                            cmp.setY(cmp.pendingShift + tipY);
-                            delete(cmp.pendingShift);
-                        }
                         new Ext.util.DelayedTask(function(){
+                            //var centerCoords = cmp.parent.getCenterXY();
                             var x = cmp.targetCoords.xCenter - (cmp.getWidth() / 2);
                             var y = cmp.targetCoords.yCenter;
                             cmp.setX(x);
@@ -630,14 +624,27 @@ Ext.define('AgendaBuilderObservable', {
                 delay: 100,
                 afterrender: function(cmp) {
                     cmp.mon(cmp.el, 'click', function(){
-                        var rect = cmp.el.dom.getBoundingClientRect();
+                        var xCenter = null;
+                        var yCenter = null;
+                        if (cmp.getCenterXY)
+                        {
+                            var centerXY = cmp.getCenterXY();
+                            var yCenter = centerXY.y - 3;
+                            var xCenter = centerXY.x - 3;
+                        }
+                        else
+                        {
+                            var rect = cmp.el.dom.getBoundingClientRect();
+                            xCenter = x + (rect.width / 2);
+                            yCenter = y + (rect.height/2);
+                        }
                         var x = cmp.getX();
                         var y = cmp.getY();
                         cmp.extender.targetCoords = {
                             x : x,
-                            xCenter : x + (rect.width / 2),
+                            xCenter : xCenter,
                             y: y,
-                            yCenter : y + (rect.height/2)
+                            yCenter : yCenter
                         };
                         cmp.extender.show();
                     })
@@ -1629,6 +1636,18 @@ Ext.define('AgendaBuilderObservable', {
                 if (!this.el)
                     return;
                 this.callSuper(x, y);
+            },
+            getCenterXY: function(){
+                    var me = this;
+                    if (me && me.getViewRegion && Ext.isFunction(me.getViewRegion))
+                    {
+                        var viewRegion = me.getViewRegion();
+                        var x = (viewRegion.right + viewRegion.left) / 2;
+                        var y = (viewRegion.top + viewRegion.bottom) / 2;
+                        return {x: x, y: y};
+                    }
+
+                    return null;
             }
         })
 
@@ -1637,6 +1656,18 @@ Ext.define('AgendaBuilderObservable', {
                 if (!this.el)
                     return;
                 this.callSuper(x, y);
+            },
+            getCenterXY: function(){
+                    var me = this;
+                    if (me && me.getViewRegion && Ext.isFunction(me.getViewRegion))
+                    {
+                        var viewRegion = me.getViewRegion();
+                        var x = (viewRegion.right + viewRegion.left) / 2;
+                        var y = (viewRegion.top + viewRegion.bottom) / 2;
+                        return {x: x, y: y};
+                    }
+
+                    return null;
             }
         })
 
