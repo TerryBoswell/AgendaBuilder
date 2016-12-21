@@ -3,6 +3,7 @@ Ext.ns('AgendaBuilder');
 Ext.define('AgendaRow', {
     extend: 'Ext.Component',
     xtype: 'agendarow-ctr',
+	cls: 'agendaRowClass',
 	leadColumns: 2,
     hoursColumns: 36, //30min of 18 hrs
     trailingColumns: 1,
@@ -91,7 +92,7 @@ Ext.define('AgendaRow', {
 				},
 				getShow24Hr: function(){
 					if (this.show24Hr)
-						return '<span data-hasListner=false class="numberCircle bubble-text twentyfourhr-bubble">24</span>';
+						return Ext.String.format('<span id="agenda-row-hr-{0}" data-hasListner=false class="numberCircle bubble-text twentyfourhr-bubble">24</span>', this.id);
 					return '';
 				}
             }
@@ -283,5 +284,49 @@ Ext.define('AgendaRow', {
 			},
 			scope: this
 		})
-    }
+    },
+	toggleTwentyFourHour: function(isAllDay){
+		var me = this;
+		var toggleRow = function(rows){
+			Ext.each(rows, function(rowEl){
+				if (!isAllDay)
+					rowEl.classList.remove('evenRowBackGround-allday');
+				if (isAllDay)
+					rowEl.classList.add('evenRowBackGround-allday');
+			})
+		}
+		toggleRow(me.el.dom.querySelectorAll('.evenRowBackGroundA'));
+		toggleRow(me.el.dom.querySelectorAll('.evenRowBackGroundB'));
+		toggleRow(me.el.dom.querySelectorAll('.evenRowBackGroundC'));
+		var twentyFourHrCmp = (Ext.fly(Ext.query('#agenda-row-hr-' + this.id)[0]));
+		if (twentyFourHrCmp)
+		{
+			if (!isAllDay)
+				twentyFourHrCmp.dom.classList.remove('bubbleClicked');
+			else
+				twentyFourHrCmp.dom.classList.add('bubbleClicked');
+		}
+	},
+	getMeetingsCurrentlyOnRow: function(){
+		var me = this;
+		var rowViewRegion = me.getViewRegion();
+		var mtgs = [];
+		Ext.each(Ext.query('.mtg-instance'), function(mtg){
+			var mtgViewRegion = Ext.getCmp(mtg.id).getViewRegion();
+			if (mtgViewRegion.top >= rowViewRegion.top && mtgViewRegion.bottom <= rowViewRegion.bottom)
+				mtgs.push(me.observer.getMeeting(Ext.getCmp(mtg.id).meetingId, me.observer));
+		})
+
+		return mtgs;
+	},
+	setAllDayToMatchMeetings: function(){
+		var me = this;
+		var meetings = me.getMeetingsCurrentlyOnRow();
+		var hasAllDayItem = false;
+		Ext.each(meetings, function(mtg){
+			if (mtg.all_day)
+				hasAllDayItem = true;
+		})
+		me.toggleTwentyFourHour(hasAllDayItem);
+	}
 });

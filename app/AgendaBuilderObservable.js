@@ -87,7 +87,8 @@ Ext.define('AgendaBuilderObservable', {
         Ext.each(dates, function(instance){
             me.buildSingleDate(instance, datesCtr);
             me.buildMeetingsForDate(instance, me);
-        });        
+        }); 
+        this.setAllRows24HourStatus();       
     },
     getDates: function(){
         return this.dates;
@@ -1295,6 +1296,11 @@ Ext.define('AgendaBuilderObservable', {
             startShift: startShift,
             savedAbsoluteRowIndex: savedAbsoluteRowIndex
         };
+    },
+    setAllRows24HourStatus: function(){
+        Ext.each(Ext.query('.agendaRowClass'), function(el){
+            Ext.getCmp(el.id).setAllDayToMatchMeetings()
+        });
     },
     onUpdateMeetingItemPeople: function(postedData, response, scope){
         var me = scope;
