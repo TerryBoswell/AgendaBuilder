@@ -232,6 +232,22 @@ div.meetingTip:before {
     color: #43b8bc;
 }
 
+.fill-color
+{
+    background-color: #DFE8F6;
+}
+
+.btn-disable
+{
+    cursor: not-allowed;
+    pointer-events: none;
+
+    /*Button disabled - CSS color class*/
+    color: #c0c0c0;
+    background-color: #ffffff;
+
+}
+
 .row-overlay
 {
         text-align: center; 

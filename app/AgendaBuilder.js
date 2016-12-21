@@ -47,6 +47,7 @@ Ext.define('AgendaBuilder.MainContainer', {
                             xtype: 'container',
                             itemId: 'rightNorthCtrMtg',
                             style:  'background-color: #d9d9db;z-index:1000;',
+                            cls: 'btn-disable',
                             html: '<div ><i style="margin-top: 2px; margin-right: 2px; float: right;" class="fa fa-chevron-circle-right fa-3x" aria-hidden="true"></i></div>'
                         
                         }
@@ -55,8 +56,8 @@ Ext.define('AgendaBuilder.MainContainer', {
                 },
                 {
                     xtype   : 'container',
-                    height: 10,
-                    style: 'background-color: #DFE8F6;'
+                    height: 5,
+                    cls: 'fill-color'
                 },
                 {
                     flex: 1,
@@ -81,12 +82,18 @@ Ext.define('AgendaBuilder.MainContainer', {
                             width: 35,
                             xtype: 'container',
                             itemId: 'rightNorthCtrMeal',
+                            cls: 'btn-disable',
                             style:  'background-color: #d9d9db;z-index:1000;',
                             html: '<div ><i style="margin-top: 2px; margin-right: 2px; float: right;" class="fa fa-chevron-circle-right fa-3x" aria-hidden="true"></i></div>'
                         
                         }
 
                     ]
+                },
+                {
+                    xtype   : 'container',
+                    height: 5,
+                    cls: 'fill-color'
                 }
 
             ]
