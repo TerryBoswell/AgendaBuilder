@@ -2,7 +2,8 @@
     Ext.onReady(function() {
             var mainCtr = Ext.create('AgendaBuilder.MainContainer', {
                  renderTo: Ext.getBody(),
-                 rfpNumber: '11055'
+                 //rfpNumber: '11055'
+                 rfpNumber: '12036'
             });
 
             Ext.create('Ext.Button',{

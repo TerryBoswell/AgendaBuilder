@@ -514,6 +514,9 @@ Ext.define('AgendaBuilderObservable', {
                                                             callout.hide();
                                                         })
                                                         targetCmp.observer.showMeetingEditor(mtg, targetCmp.observer, mtg.meeting_item_type, mtg.date);
+                                                        //var meeting = targetCmp.observer.createMeeting(0, mtg.date, mtg.start, mtg.end, mtg.title, 'white', 
+                                                        //    mtg.meeting_item_type.color, 0, targetCmp.observer, mtg.meeting_item_type);
+                                                        
                                                     })
                                                 }
                                             }
