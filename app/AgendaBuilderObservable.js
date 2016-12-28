@@ -148,7 +148,6 @@ Ext.define('AgendaBuilderObservable', {
         Ext.each(dataOrderedData, function(d){
             d.oldRowIndex = d.rowIndex;
             d.rowIndex = colorOrderDictionary[d.meeting_item_type.color];
-            //console.log(d.title + " " + d.rowIndex);            
         })
         //This function will be used to detect record overlaps
         var overLapsSamePreviousType = function(idx, data)
@@ -180,8 +179,6 @@ Ext.define('AgendaBuilderObservable', {
             }
             instance.meetings[i].rowIndex += recordOverlaps;
             maxRows = instance.meetings[i].rowIndex;
-            //if (date.getDate() == 21)
-            //    console.log(instance.meetings[i].title + " " + instance.meetings[i].rowIndex);
             
         }
         /*********************************/
@@ -348,7 +345,7 @@ Ext.define('AgendaBuilderObservable', {
         }
         return cols;
     },
-    createMeeting: function(id, date, startHour, endHour, text, fontColor, color, rowIdx, context, MeetingTemplate){
+    createMeeting: function(id, date, startHour, endHour, text, fontColor, color, rowIdx, context, MeetingTemplate, renderCallBack){
         if (context)
             var me = context;
         else
@@ -391,7 +388,6 @@ Ext.define('AgendaBuilderObservable', {
         {
             return;
         }
-        
         var width = Math.abs(xy[0] - efly.getXY()[0]);
         
         var datesCtr = Ext.ComponentQuery.query('#datesCtr')[0];
@@ -449,9 +445,7 @@ Ext.define('AgendaBuilderObservable', {
                                     xtype: 'container',
                                     meetingId: meetingId,
                                     observer: tEl.observer,
-                                    html: Ext.String.format('<div class="title-text" style="font-size:larger; margin-left:auto;margin-right:auto;text-align:center;">{0}' + 
-                                        '<i id="closemtg{1}" style="margin-top: 3px; margin-right: 2px; float: right;" class="fa fa-times-circle fa-lg close-tip" aria-hidden="true"></i></div>',
-                                         tEl.titleText, tEl.meetingId),
+                                    html: tEl.observer.getMeetingHtml(tEl.titleText, tEl.meetingId),
                                     height: 25,
                                     style: {
                                         color: tEl.titleFontColor,
@@ -459,16 +453,10 @@ Ext.define('AgendaBuilderObservable', {
                                     },
                                     cls: 'callout-title',
                                     listeners: {
-                                                delay: 1000,
+                                                delay: 10,
                                                 scope: this,
                                                 afterrender: function(targetCmp) {
-                                                    var cmp = Ext.get(Ext.query('#closemtg' + targetCmp.meetingId)[0].id)
-                                                    var fly = new Ext.fly(Ext.query('#closemtg' + targetCmp.meetingId)[0]);
-                                                    fly.on('click', function(){
-                                                        Ext.each(targetCmp.observer.meetingCallouts, function(callout){
-                                                            callout.hide();
-                                                        })
-                                                    })
+                                                    targetCmp.observer.subScribeOnMtgClick(targetCmp.meetingId, targetCmp.observer);
                                                 }
                                     } 
                                 },
@@ -509,13 +497,20 @@ Ext.define('AgendaBuilderObservable', {
                                                     targetCmp.mon(targetCmp.el, 'click', function(){
                                                         var mtg = targetCmp.observer.getMeeting(targetCmp.meetingId, targetCmp.observer);
                                                         mtg.date = targetCmp.observer.getDate(targetCmp.meetingId, targetCmp.observer);
-                                                        delete(mtg.id);
+                                                        //delete(mtg.id);
                                                         Ext.each(targetCmp.observer.meetingCallouts, function(callout){
                                                             callout.hide();
                                                         })
-                                                        targetCmp.observer.showMeetingEditor(mtg, targetCmp.observer, mtg.meeting_item_type, mtg.date);
-                                                        //var meeting = targetCmp.observer.createMeeting(0, mtg.date, mtg.start, mtg.end, mtg.title, 'white', 
-                                                        //    mtg.meeting_item_type.color, 0, targetCmp.observer, mtg.meeting_item_type);
+                                                        var start = mtg.start_time.replace('1900/01/01 ', '');
+                                                        var end = mtg.end_time.replace('1900/01/01 ', '');
+                                                        var color = "#" + mtg.meeting_item_type.color;
+                                                        var copyMtg = targetCmp.observer.createMeeting(0, mtg.date, start, end, mtg.title, 'white', 
+                                                            color, 0, targetCmp.observer, mtg.meeting_item_type, function(_m){
+                                                               new Ext.util.DelayedTask(function(){
+                                                                    targetCmp.observer.saveMeetingItem(_m);
+                                                                }, this).delay(100); 
+                                                                
+                                                            }); 
                                                         
                                                     })
                                                 }
@@ -596,8 +591,8 @@ Ext.define('AgendaBuilderObservable', {
         if (!mtg)
             mtg = m;
         var mtgHtml = '<div class="truncate">' + 
-                        '<span>' + text  + "<span><div>" + 
-                        '<span>' + mtg.room_setup_type.title + " | " + mtg.num_people +"pp</span>"
+                        '<span class="mtg-instance-text">' + text  + "</span></br>" + 
+                        '<span class="mtg-instance-title">' + mtg.room_setup_type.title + " | " + mtg.num_people +"pp</span>"
                        '</div>';
         var cmp = Ext.create('Ext.Component', {
             html: mtgHtml,
@@ -607,6 +602,7 @@ Ext.define('AgendaBuilderObservable', {
             cls: 'mtg-instance',
             meetingId: id,
             observer: observer,
+            renderCallBack: renderCallBack,
             style: {
                 paddingTop: '3px',
                 paddingLeft: '3px',
@@ -652,26 +648,8 @@ Ext.define('AgendaBuilderObservable', {
                         };
                         cmp.extender.show();
                     })
-                    Ext.each(Ext.query('.x-resizable-handle'), function(q){
-                        var fly = new Ext.fly(q);
-                        if (!fly)
-                            return;
-                        fly.el.dom.classList.add('x-resizable-pinned-mtg');
-                    });
                     
-                    cmp.mon(cmp.el, 'mouseover', function(mEvent){
-                        Ext.each(cmp.el.query('.x-component-handle'), function(handle){
-                            handle.classList.add('x-resizable-pinned-mtg-hover');
-                            handle.classList.remove('x-resizable-pinned-mtg');
-                        });
-                    });
-
-                    cmp.mon(cmp.el, 'mouseout', function(mEvent){
-                        Ext.each(cmp.el.query('.x-component-handle'), function(handle){
-                            handle.classList.add('x-resizable-pinned-mtg');
-                            handle.classList.remove('x-resizable-pinned-mtg-hover');
-                        });
-                    });
+                    cmp.observer.monitorMeetingHandle(cmp);
 
                     cmp.mon(cmp.el, 'mouseup', function(mEvent){
                         var browserEvent = null;
@@ -711,6 +689,8 @@ Ext.define('AgendaBuilderObservable', {
                             match = el;
                         })
                         var end = (match.dataset.hour);
+                        if (!end)
+                            end = "00:00:00";
                         var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
                         if (mtg.start_time.replace('1900/01/01 ', '') == start &&
                             mtg.end_time.replace('1900/01/01 ', '') == end)
@@ -720,6 +700,9 @@ Ext.define('AgendaBuilderObservable', {
                         mtg.date = new Date(match.dataset.date);
                         cmp.observer.saveMeetingItem(mtg);
                     })
+
+                    if (cmp.renderCallBack && Ext.isFunction(cmp.renderCallBack))
+                        cmp.renderCallBack(mtg);
                 },
                 resize: function(cmp, width, height, oldwidth, oldheight, opts)
                 {
@@ -736,6 +719,34 @@ Ext.define('AgendaBuilderObservable', {
         this.meetingCallouts.push(createTip(cmp, datesCtr, id, this, color, fontColor, text));
         
         return m;
+    },
+    monitorMeetingHandle: function(cmp){
+        Ext.each(Ext.query('.x-resizable-handle'), function(q){
+            var fly = new Ext.fly(q);
+            if (!fly)
+                return;
+            fly.el.dom.classList.add('x-resizable-pinned-mtg');
+        });
+        
+        cmp.mon(cmp.el, 'mouseover', function(mEvent){
+            Ext.each(cmp.el.query('.x-component-handle'), function(handle){
+                handle.classList.add('x-resizable-pinned-mtg-hover');
+                handle.classList.remove('x-resizable-pinned-mtg');
+            });
+        });
+
+        cmp.mon(cmp.el, 'mouseout', function(mEvent){
+            Ext.each(cmp.el.query('.x-component-handle'), function(handle){
+                handle.classList.add('x-resizable-pinned-mtg');
+                handle.classList.remove('x-resizable-pinned-mtg-hover');
+            });
+        });
+
+    },
+    getMeetingHtml: function(titleText, meetingId){
+        return Ext.String.format('<div class="title-text" style="font-size:larger; margin-left:auto;margin-right:auto;text-align:center;">{0}' + 
+        '<i id="closemtg{1}" style="margin-top: 3px; margin-right: 2px; float: right;" class="fa fa-times-circle fa-lg close-tip" aria-hidden="true"></i></div>',
+        titleText, meetingId);
     },
     getMeeting: function(meetingId, scope){
         var mtg = null;
@@ -874,13 +885,24 @@ Ext.define('AgendaBuilderObservable', {
                 c.meetingId = newId; 
         })
     },
+    subScribeOnMtgClick: function(meetingId, scope){
+        var cmp = Ext.get(Ext.query('#closemtg' + meetingId)[0].id)
+        var fly = new Ext.fly(Ext.query('#closemtg' + meetingId)[0]);
+        fly.on('click', function(){
+            Ext.each(scope.meetingCallouts, function(callout){
+                callout.hide();
+            })
+        });
+    },
     updateMeetingText: function(meetingId, title, start, end, room_setup_type, num_people, scope){
         var me = scope;
         var tip = me.findMeetingTip(meetingId);
         if (tip == null)
             return;
         
-        tip.el.down('.callout-title').down('.title-text').el.dom.innerHTML = title;
+        var titleText = Ext.String.format('{0}<i id="closemtg{1}" style="margin-top: 3px; margin-right: 2px; float: right;" class="fa fa-times-circle fa-lg close-tip" aria-hidden="true"></i>',
+        title, meetingId);
+        tip.el.down('.callout-title').down('.title-text').el.dom.innerHTML = titleText;
         var html = '<div class="callout-time" style="text-align:center;">' + me.getDisplayHours(start) + " - " + me.getDisplayHours(end)  + "<div>" + 
                                             '<div class="callout-room" style="text-align:center;">' + room_setup_type.title + " | " + num_people +"pp</div>";
         Ext.fly(tip.el.down('.thinBorderBottom')).update(html);
@@ -892,8 +914,9 @@ Ext.define('AgendaBuilderObservable', {
                         '<span>' + title  + "<span><div>" + 
                         '<span>' + room_setup_type.title + " | " + num_people +"pp</span>"
                        '</div>';
-        mtg.update(mtgHtml);
-
+        mtg.el.down('.mtg-instance-text').el.dom.innerText = title;
+        mtg.el.down('.mtg-instance-title').el.dom.innerText = room_setup_type.title + " | " + num_people +"pp";
+        scope.subScribeOnMtgClick(meetingId, scope);
     },
     getRow: function(date){
         var row = null;
@@ -1141,7 +1164,6 @@ Ext.define('AgendaBuilderObservable', {
     getMaxRowsForDate: function(meetings){
             var maxRow = 0;                 
                  Ext.each(meetings, function(lmtg){
-                     //console.log(lmtg.date + lmtg.title + lmtg.rowIndex);
                      if (lmtg.rowIndex > maxRow)
                         maxRow = lmtg.rowIndex
                  });
@@ -1149,7 +1171,6 @@ Ext.define('AgendaBuilderObservable', {
     },
     onSaveMeetingItem: function(postedData, response, scope){
         var me = scope;
-        
         var agendaBuilderRow = me.getRow(postedData.date);
         if (agendaBuilderRow == null)
             throw "Row Not found";
@@ -1191,7 +1212,6 @@ Ext.define('AgendaBuilderObservable', {
             savedMeeting = me.getMeeting(postedData.id, scope);  
             Ext.apply(savedMeeting, postedData);              
         }
-
         //update the meeting data with the saved info or create  a new entry
         Ext.each(scope.dates, function(instance){
             if (postedData.date.getDate() == instance.date.getDate() && postedData.date.getMonth() == instance.date.getMonth())
@@ -1217,7 +1237,6 @@ Ext.define('AgendaBuilderObservable', {
                 hour = hour + ':00'
             return hour;
         }
-        
         //Check to see if the time changed and width of the component
         //we need to find the coordinates for the timeframes
         var rowIdx = savedMeeting.rowIndex;
@@ -1225,36 +1244,6 @@ Ext.define('AgendaBuilderObservable', {
             rowIdx = 0;
         if (rowIdx > agendaBuilderRow.rows.length - 1)
             rowIdx = agendaBuilderRow.rows.length - 1;
-        var row = agendaBuilderRow.rows[rowIdx];
-        var startHour = fmtTime(savedMeeting.start_time);
-        var endHour = fmtTime(savedMeeting.end_time);
-        var startColId = me.getColForHour(startHour);
-        var startHourId = row.id + "-col-" + startColId;
-        var sfly = Ext.fly(document.getElementById(startHourId));
-        var xy = sfly.getXY();
-        var endColId = me.getColForHour(endHour);
-        var endHourId = row.id + "-col-" + endColId;
-        var efly = Ext.fly(document.getElementById(endHourId));
-        if (efly)
-        {
-            var width = Math.abs(xy[0] - efly.getXY()[0]);    
-            var mtgCmp = me.findMeetingComponent(savedMeeting.id);
-            //meeting lenght changed
-            if (width != mtgCmp.getWidth())
-                mtgCmp.setWidth(width)
-            //meeting start or end changed
-            var mtgX = mtgCmp.getXY()[0];
-            if (xy[0] != mtgX)
-            {
-                mtgCmp.setX(xy[0]);
-                var tipCmp = me.findMeetingTip(savedMeeting.id);
-
-                var mtgCenter = xy[0] - (width / 2);
-                var difference = mtgCenter - tipCmp.tipCenter; 
-                tipCmp.setX(tipCmp.getX() - difference);
-            }
-        }
-        
         scope.fireEvent('meetingSaved', newRows);
         var savedAbsoluteRowIndex = null; //Find the spot the row is saved at
         var startShift = false; //tracks that a shift has started. There will only ever be on shift at a time in this method and it is down only
@@ -1334,8 +1323,6 @@ Ext.define('AgendaBuilderObservable', {
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
     },
     onUpdateMeeting24Hours: function(postedData, response, scope){
-        //var mtg = scope.getMeeting(postedData.id, scope);
-        //console.dir(mtg);
         scope.fireEvent('meeting24HourUpdated', postedData);
     },
     onDeleteMeetingItem: function(id, scope){
