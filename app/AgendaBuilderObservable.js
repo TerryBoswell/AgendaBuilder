@@ -345,6 +345,33 @@ Ext.define('AgendaBuilderObservable', {
         }
         return cols;
     },
+    getDimensions: function(rowIdx, date, startHour, endHour){
+        var me = this;
+        var agendaBuilderRow = me.getRow(date);
+        //temp to get the first row
+        if (rowIdx == undefined || rowIdx == null)
+            rowIdx = 0;
+        var row = agendaBuilderRow.rows[rowIdx];
+        var startColId = me.getColForHour(startHour);
+        var startHourId = row.id + "-col-" + startColId;
+        var sfly = Ext.fly(document.getElementById(startHourId));
+        var xy = sfly.getXY();
+        var height = sfly.getHeight();
+
+        var endColId = me.getColForHour(endHour);
+        var endHourId = row.id + "-col-" + endColId;
+        var efly = Ext.fly(document.getElementById(endHourId));
+        if (!efly)
+        {
+            return null;
+        }
+        var width = Math.abs(xy[0] - efly.getXY()[0]);
+        return {
+            height: height,
+            width: width,
+            xy: xy
+        }
+    },
     createMeeting: function(id, date, startHour, endHour, text, fontColor, color, rowIdx, context, MeetingTemplate, renderCallBack){
         if (context)
             var me = context;
@@ -370,26 +397,13 @@ Ext.define('AgendaBuilderObservable', {
             date: date,
             rowIndex: rowIdx
         };
-        var agendaBuilderRow = me.getRow(date);
-        //temp to get the first row
-        if (rowIdx == undefined || rowIdx == null)
-            rowIdx = 0;
-        var row = agendaBuilderRow.rows[rowIdx];
-        var startColId = me.getColForHour(startHour);
-        var startHourId = row.id + "-col-" + startColId;
-        var sfly = Ext.fly(document.getElementById(startHourId));
-        var xy = sfly.getXY();
-        var height = sfly.getHeight();
-
-        var endColId = me.getColForHour(endHour);
-        var endHourId = row.id + "-col-" + endColId;
-        var efly = Ext.fly(document.getElementById(endHourId));
-        if (!efly)
-        {
-            return;
-        }
-        var width = Math.abs(xy[0] - efly.getXY()[0]);
         
+        var dimensions = me.getDimensions(rowIdx, date, startHour, endHour);
+        if (!dimensions)
+            return;
+        var height = dimensions.height;
+        var width = dimensions.width;
+        var xy = dimensions.xy;
         var datesCtr = Ext.ComponentQuery.query('#datesCtr')[0];
         var datesCtrXY = datesCtr.getXY();
         
@@ -651,25 +665,10 @@ Ext.define('AgendaBuilderObservable', {
                     
                     cmp.observer.monitorMeetingHandle(cmp);
 
-                    cmp.mon(cmp.el, 'mouseup', function(mEvent){
-                        var browserEvent = null;
-                        if (mEvent && mEvent.parentEvent && mEvent.parentEvent.browserEvent)
-                        {
-                            browserEvent = mEvent.parentEvent.browserEvent;
-                        }
-                        else if (mEvent && mEvent.browserEvent)
-                        {
-                            browserEvent = mEvent.browserEvent;
-                        }
-                        if (browserEvent == null)
-                        {
-                            throw("Cannoth find browserEvent");									
-                        }
-                        var eventX = browserEvent.clientX;
-                        var eventY = browserEvent.clientY;
+                    //This is the function to save the hour changes via a resize event
+                    cmp.saveHourChange = function(){
+                        cmp.resizeRunner.stop();
                         var match = null;
-                        //var x = eventX + 1;
-                        //var y = eventY;
                         var rect = cmp.el.dom.getBoundingClientRect();
                         var y = (rect.top + rect.bottom) / 2; //We'll get the center
 
@@ -689,9 +688,17 @@ Ext.define('AgendaBuilderObservable', {
                             match = el;
                         })
                         var end = (match.dataset.hour);
-                        if (!end)
-                            end = "00:00:00";
                         var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
+                        if (!end)
+                        {
+                            end = "00:00:00";
+                            var date = mtg.date;
+                            if (!date)
+                                date = new Date(match.dataset.date);
+                            var dimensions = me.getDimensions(mtg.rowIndex, date, start, end);
+                            var m_cmp = me.findMeetingComponent(mtg.id);
+                            m_cmp.setWidth(dimensions.width);
+                        }
                         if (mtg.start_time.replace('1900/01/01 ', '') == start &&
                             mtg.end_time.replace('1900/01/01 ', '') == end)
                             return;
@@ -699,18 +706,34 @@ Ext.define('AgendaBuilderObservable', {
                         mtg.end_time = end;
                         mtg.date = new Date(match.dataset.date);
                         cmp.observer.saveMeetingItem(mtg);
+                    }
+
+                    var runner = new Ext.util.TaskRunner();
+                    cmp.resizeRunner = runner.newTask({
+                        run: function() {
+                            cmp.saveHourChange();
+                        },
+                        interval: 1000 // 1-minute interval
+                    });
+                    cmp.on({
+                        resize: function(cmp, width, height, oldwidth, oldheight, opts){
+                            //we'll reset the task each time so while a drag is still going on
+                            //we won't start the save. more than a second will be detected as a save change end
+                            cmp.resizeRunner.stop();
+                            cmp.resizeRunner.start();
+                            if (!width || !oldwidth)
+                                return;
+                            Ext.each(cmp.observer.meetingCallouts, function(callout){
+                                callout.hide();
+                            })
+                        }
+                    });
+                    cmp.mon(cmp.el, 'mouseup', function(){
+                        cmp.saveHourChange();
                     })
 
                     if (cmp.renderCallBack && Ext.isFunction(cmp.renderCallBack))
                         cmp.renderCallBack(mtg);
-                },
-                resize: function(cmp, width, height, oldwidth, oldheight, opts)
-                {
-                    if (!width || !oldwidth)
-                        return;
-                    Ext.each(cmp.observer.meetingCallouts, function(callout){
-                        callout.hide();
-                    })
                 }
             }
 
@@ -1511,7 +1534,7 @@ Ext.define('AgendaBuilderObservable', {
         else if (hour == '23:30:00')
             return 38;
         else 
-            return 38;            
+            return 39;            
     },
     executeOverrides: function(){
         /**************Overrides */
