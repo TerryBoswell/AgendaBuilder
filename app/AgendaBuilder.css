@@ -293,6 +293,37 @@ div.meetingTip:before {
     border: none;
 }
 
+.twentyfourhr-bubble:hover
+{
+    cursor: pointer !important
+}
+
+.mtg-instance:hover
+{
+    cursor: pointer !important
+}
+.hideARow:hover
+{
+    cursor: pointer !important
+}
+.expand-view:hover
+{
+    cursor: pointer !important
+}
+.meeting-item-type:hover
+{
+    cursor: pointer !important
+}
+.fa-btn:hover
+{
+    cursor: pointer !important
+}
+
+.row-overlay:hover
+{
+    cursor: default
+}
+
 .bubbleClicked
 {
     background-color: rgba(0, 128, 128, .3) !important;
