@@ -1017,10 +1017,14 @@ Ext.define('AgendaBuilderObservable', {
         };
         rightNorthCtrMtg.mon(rightNorthCtrMtg.el, 'click', function(){rightNorthCtrHandler(true)});
         rightNorthCtrMtg.task = runner.newTask({
-            run: function() {rightNorthCtrHandler();},
+            run: function() {
+                rightNorthCtrHandler();},
             interval: 50 // 1-minute interval
         });
-        rightNorthCtrMtg.mon(rightNorthCtrMtg.el, 'mousedown', function(){rightNorthCtrMtg.task.start()});        
+        rightNorthCtrMtg.mon(rightNorthCtrMtg.el, 'mousedown', function(){
+            leftNorthCtrMtg.removeCls('btn-disable');
+            rightNorthCtrMtg.task.start()
+        });        
         rightNorthCtrMtg.mon(rightNorthCtrMtg.el, 'mouseup', function(){rightNorthCtrMtg.task.stop()});
 
         var leftNorthCtrHandler = function(applyClass){
@@ -1038,10 +1042,15 @@ Ext.define('AgendaBuilderObservable', {
         };
         leftNorthCtrMtg.mon(leftNorthCtrMtg.el, 'click', function(){leftNorthCtrHandler(true)});
         leftNorthCtrMtg.task = runner.newTask({
-            run: function() {leftNorthCtrHandler();},
+            run: function() {
+                leftNorthCtrHandler();
+            },
             interval: 50 // 1-minute interval
         });
-        leftNorthCtrMtg.mon(leftNorthCtrMtg.el, 'mousedown', function(){leftNorthCtrMtg.task.start()});        
+        leftNorthCtrMtg.mon(leftNorthCtrMtg.el, 'mousedown', function(){
+            rightNorthCtrMtg.removeCls('btn-disable');
+            leftNorthCtrMtg.task.start()
+        });        
         leftNorthCtrMtg.mon(leftNorthCtrMtg.el, 'mouseup', function(){leftNorthCtrMtg.task.stop()});
 
 
@@ -1081,18 +1090,28 @@ Ext.define('AgendaBuilderObservable', {
         }
         rightNorthCtrMeal.mon(rightNorthCtrMeal.el, 'click', function() {rightClickMealHandler(true)});
         rightNorthCtrMeal.task = runner.newTask({
-            run: function() {rightClickMealHandler();},
-            interval: 50 // 1-minute interval
+            run: function() {
+                rightClickMealHandler();
+            },
+            interval: 50 
         });
-        rightNorthCtrMeal.mon(rightNorthCtrMeal.el, 'mousedown', function(){rightNorthCtrMeal.task.start()});        
+        rightNorthCtrMeal.mon(rightNorthCtrMeal.el, 'mousedown', function(){
+            leftNorthCtrMeal.removeCls('btn-disable');
+            rightNorthCtrMeal.task.start();
+        });        
         rightNorthCtrMeal.mon(rightNorthCtrMeal.el, 'mouseup', function(){rightNorthCtrMeal.task.stop()});
 
         leftNorthCtrMeal.mon(leftNorthCtrMeal.el, 'click', function(){leftClickMealHandler(true)});
         leftNorthCtrMeal.task = runner.newTask({
-            run: function() {leftClickMealHandler();},
-            interval: 50 // 1-minute interval
+            run: function() {
+                leftClickMealHandler();
+            },
+            interval: 50 
         });
-        leftNorthCtrMeal.mon(leftNorthCtrMeal.el, 'mousedown', function(){leftNorthCtrMeal.task.start()});        
+        leftNorthCtrMeal.mon(leftNorthCtrMeal.el, 'mousedown', function(){
+            rightNorthCtrMeal.removeCls('btn-disable');
+            leftNorthCtrMeal.task.start();
+        });        
         leftNorthCtrMeal.mon(leftNorthCtrMeal.el, 'mouseup', function(){leftNorthCtrMeal.task.stop()});
                 
     },
