@@ -158,13 +158,18 @@ Ext.define('AgendaBuilderObservable', {
                 return false;
             if (data[idx].meeting_item_type.color != data[idx - 1].meeting_item_type.color)
                 return false;
+            if (data[idx].meeting_item_type.color == data[idx - 1].meeting_item_type.color &&
+                 data[idx - 1].all_day)
+                 return true;
             return data[idx].start < data[idx - 1].end;
         }
 
         //we'll order by column index now
         var rowOrderedData = dataOrderedData.sort(function(itemA, itemB){
             if (itemA.rowIndex == itemB.rowIndex)
+            {
                 return itemA.start.getTime() - itemB.start.getTime();
+            }
             return itemA.rowIndex - itemB.rowIndex;
         })
 
