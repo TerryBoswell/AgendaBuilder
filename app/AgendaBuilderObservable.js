@@ -259,7 +259,7 @@ Ext.define('AgendaBuilderObservable', {
                     observer: this,
                     insertOverLay: true,
                     columns: [
-                        {html: day + ' ' + (instance.date.getMonth() + 1) + '/' + instance.date.getDate(), 
+                        {html: day + '</br> ' + (instance.date.getMonth() + 1) + '/' + instance.date.getDate(), 
                             style: 'font-size:medium; text-align: center;', Index: 0, cls: ''},
                         {html: '<span class="bubble-text" style="text-align:center; padding: 5px 8px; border-radius: 3px;">' + instance.roomBlocks + 
                             '</span>', style: '', Index: 1, cls: ''}

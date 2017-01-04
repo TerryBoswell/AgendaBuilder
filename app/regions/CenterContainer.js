@@ -71,7 +71,8 @@ Ext.define('CenterContainer', {
 		{
 			xtype	: 'container',
 			height	: 400,
-			style   : 'overflow-y: scroll; overflow-x: hidden;',
+			style   : '-y: scroll; overflow-x: hidden;',
+			itemId	: 'datesCtrParent',
 			items	: [
 					{
 						xtype	: 'container',

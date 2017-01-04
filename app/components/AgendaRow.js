@@ -133,6 +133,8 @@ Ext.define('AgendaRow', {
 						var date = new Date(parent.dataField);
 						var instance = parent.observer.getInstance(date, parent.observer);
 						var row = parent.observer.getRow(date)
+						var topMostCmp = Ext.ComponentQuery.query('#datesCtrParent')[0];
+						var scrollTop = topMostCmp.el.dom.scrollTop;
 						//If it hasn't been set, then it is visible
 						if (instance.visible === undefined)
 							instance.visible = true;
@@ -190,6 +192,7 @@ Ext.define('AgendaRow', {
 						Ext.each(parent.observer.meetingCallouts, function(callout){
 								callout.hide();
 						})										
+						topMostCmp.el.dom.scrollTop = scrollTop;
 				};
 
 				var hideCmp = null;
