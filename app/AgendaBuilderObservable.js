@@ -688,7 +688,7 @@ Ext.define('AgendaBuilderObservable', {
                             throw('error finding match in date');
                         var start = (match.dataset.hour)
                         //x+=cmp.getWidth();
-                        var endingPoint = rect.right;// - 1; //shifted one pixel to make sure we are on the ending point
+                        var endingPoint = rect.right + 10;// - 1; //shifted one pixel to make sure we are on the ending point
                         Ext.each(document.elementsFromPoint(endingPoint, y), function(el){
                         if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
                             match = el;
@@ -697,14 +697,15 @@ Ext.define('AgendaBuilderObservable', {
                         var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
                         if (!end)
                         {
-                            end = "00:00:00";
-                            var date = mtg.date;
-                            if (!date)
-                                date = new Date(match.dataset.date);
-                            var dimensions = me.getDimensions(mtg.rowIndex, date, start, end);
-                            var m_cmp = me.findMeetingComponent(mtg.id);
-                            m_cmp.setWidth(dimensions.width);
+                            end = "00:00:00";                            
                         }
+                        var date = mtg.date;
+                        if (!date)
+                            date = new Date(match.dataset.date);                            
+                        var dimensions = me.getDimensions(mtg.rowIndex, date, start, end);
+                        var m_cmp = me.findMeetingComponent(mtg.id);
+                        m_cmp.setWidth(dimensions.width);
+                    
                         if (mtg.start_time.replace('1900/01/01 ', '') == start &&
                             mtg.end_time.replace('1900/01/01 ', '') == end)
                             return;
@@ -1193,7 +1194,6 @@ Ext.define('AgendaBuilderObservable', {
     },
     onGetMeetingItems: function(obj, scope){
         var convertedData = [];
-        console.log(obj);
         Ext.each(obj, function(data)
         {
             var d = {
