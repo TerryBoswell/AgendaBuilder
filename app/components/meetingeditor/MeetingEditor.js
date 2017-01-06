@@ -350,7 +350,7 @@ Ext.define('MeetingEditor', {
                                         Ext.each(me.observer.getDates(), function(d)
                                         {
                                             var dateStr = Ext.Date.format(d.date, 'D n/j');
-                                            var html = Ext.String.format('<div><span style="font-size:larger;">{0}</span><span style="float:right; font-size:larger;">{1}</span></div>', dateStr, d.roomBlocks);
+                                            var html = Ext.String.format('<div><span style="font-size:larger;">{0}</span><span style="float:right; font-size:larger;">{1}</span></div>', dateStr, d.room_block);
                                             var selectorXtype = Ext.Date.format(meeting.date, 'Y-m-d') == Ext.Date.format(d.date, 'Y-m-d') ? 'box' : 'checkbox';      
                                             var cls = Ext.Date.format(meeting.date, 'Y-m-d') == Ext.Date.format(d.date, 'Y-m-d') ? '' : 'copyToCheck';   
                                             var parent = me.parent;                                         

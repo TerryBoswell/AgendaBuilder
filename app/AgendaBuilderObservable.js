@@ -173,6 +173,7 @@ Ext.define('AgendaBuilderObservable', {
             return itemA.rowIndex - itemB.rowIndex;
         })
 
+        instance.meetings = rowOrderedData;
         var recordOverlaps = 0;
         var maxRows = 0;
         //now we will bump any records with record overlaps
@@ -180,7 +181,7 @@ Ext.define('AgendaBuilderObservable', {
         {
             if (overLapsSamePreviousType(i, instance.meetings))
             {
-                    recordOverlaps++;
+                recordOverlaps++;
             }
             instance.meetings[i].rowIndex += recordOverlaps;
             maxRows = instance.meetings[i].rowIndex;
@@ -207,8 +208,8 @@ Ext.define('AgendaBuilderObservable', {
             newRows.push({
                 date : Ext.Date.add(firstDate, Ext.Date.DAY, -i),
                 meetings: [],
-                roomBlocks: 0,
-                roomNight: firstDate.roomNight - i
+                room_block: 0,
+                room_night: firstDate.room_night - i
             })
         }
         Ext.each(me.dates, function(d){
@@ -233,8 +234,8 @@ Ext.define('AgendaBuilderObservable', {
             newRows.push({
                 date : Ext.Date.add(lastDate, Ext.Date.DAY, i),
                 meetings: [],
-                roomBlocks: 0,
-                roomNight: lastDate.roomNight + i
+                room_block: 0,
+                room_night: lastDate.room_night + i
             })
         }
         me.agendaBuilderRows = [];
@@ -266,7 +267,7 @@ Ext.define('AgendaBuilderObservable', {
                     columns: [
                         {html: day + '</br> ' + (instance.date.getMonth() + 1) + '/' + instance.date.getDate(), 
                             style: 'font-size:medium; text-align: center;', Index: 0, cls: ''},
-                        {html: '<span class="bubble-text" style="text-align:center; padding: 5px 8px; border-radius: 3px;">' + instance.roomBlocks + 
+                        {html: '<span class="bubble-text" style="text-align:center; padding: 5px 8px; border-radius: 3px;">' + instance.room_block + 
                             '</span>', style: '', Index: 1, cls: ''}
                         ]
                 });
@@ -1192,12 +1193,13 @@ Ext.define('AgendaBuilderObservable', {
     },
     onGetMeetingItems: function(obj, scope){
         var convertedData = [];
+        console.log(obj);
         Ext.each(obj, function(data)
         {
             var d = {
                 date: new Date(data.date),
-                roomBlocks: data.room_block,
-                roomNight: data.room_night,
+                room_block: data.room_block,
+                room_night: data.room_night,
                 meetings: data.meeting_items,
             };
             Ext.each(d.meetings, function(m){
@@ -1336,7 +1338,8 @@ Ext.define('AgendaBuilderObservable', {
                     }
                     else if (shiftAmount < 0)
                     {
-                        me.moveMeetingUpXRows(mtg.id, shiftAmount, me);
+                        savedAbsoluteRowIndex = null;
+                        shiftAmount = 0;
                     }
                 }
         })
@@ -1391,6 +1394,15 @@ Ext.define('AgendaBuilderObservable', {
         this.ajaxController.getMeetingItems(this.onGetMeetingItems, this);
     },
     saveMeetingItem: function(meeting){
+        var instance = this.getInstance(meeting.date, this);
+        if (instance == null)
+            throw("Instance not found");
+        meeting.room_night = instance.room_night;
+        meeting.room_block = instance.room_block;
+        if (meeting.room_night == undefined || meeting.room_night == null)
+            throw ("room night must be provided");
+        if (meeting.room_block == undefined || meeting.room_block == null)
+            throw ("room block must be provided");
         this.ajaxController.saveMeetingItem(meeting, this.onSaveMeetingItem, this);
     },
     getInstance: function(d, scope)
