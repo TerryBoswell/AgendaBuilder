@@ -1,5 +1,5 @@
 Ext.ns('AgendaBuilder');
-
+const agendaMode={Planner: 'planner', Hotel: 'hotel'};
 var centerContainer = Ext.create('CenterContainer');
 
 var observer = Ext.create('AgendaBuilderObservable');
@@ -15,6 +15,7 @@ Ext.define('AgendaBuilder.MainContainer', {
     cls : 'abMain',
     layout: 'border',
     rfpNumber: null,
+    agendaMode: agendaMode.Planner,
     items: [
     	{
     		xtype	: 'container',
@@ -110,6 +111,7 @@ Ext.define('AgendaBuilder.MainContainer', {
                 Ext.Date.dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
                 observer.setScrollingHandlers();
                 observer.setRfpNumber(cmp.component.rfpNumber);
+                observer.setAgendaMode(cmp.component.agendaMode);
                 observer.initAjaxController('https://etouches987.zentilaqa.com', observer);
                 observer.getRoomSetups();
                 observer.on({
@@ -133,6 +135,10 @@ Ext.define('AgendaBuilder.MainContainer', {
     },
     addPostDays: function(count){
         this.observer.addPostDays(count);
+    },
+    setAgendaMode: function(mode){
+        this.agendaMode = mode;
+        this.observer.setAgendaMode(mode);
     }
 })
 

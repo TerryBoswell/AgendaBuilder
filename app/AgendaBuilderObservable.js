@@ -7,6 +7,7 @@ Ext.define('AgendaBuilderObservable', {
     // calling Ext.apply(this, config); instead of this.initConfig(config);
     $applyConfigs: true,
     rfpNumber: null,
+    agendaMode: null,
     meeting_item_types: null,
     room_setups: null,
     dates: null,
@@ -192,9 +193,19 @@ Ext.define('AgendaBuilderObservable', {
     },
     calculateRowIndex(meeting, instance){
         return meeting.rowIndex - 1;
-        //if (meeting.meeting_item_type.is_meal)
-        //    return 0;
-        //return 1;
+    },
+    setAgendaMode: function(mode){
+        if (mode == agendaMode.Hotel || mode == agendaMode.Planner)
+        {
+            this.agendaMode = mode;
+        }
+        else
+        {
+            throw("Agenda Mode is not valid (Hotel or Planner)");
+        }
+    },
+    getAgendaMode: function(){
+        return this.agendaMode;
     },
     addPreDays: function(count){
         var me = this;
