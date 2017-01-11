@@ -113,7 +113,7 @@ Ext.define('AgendaRow', {
 	    		col.cls = this.evenColClass;
 	    	if (this.oddColClass && isOdd(i))
 	    		col.cls = this.oddColClass;
-	    	columns.push(col);	    
+			columns.push(col);	    
 	    }
 	    //loop through the columns passed 
 	    Ext.each(this.columns, function(c){
@@ -165,7 +165,7 @@ Ext.define('AgendaRow', {
 						}
 						else
 						{
-							hCmp.innerText = '-Hide';
+							hCmp.innerText = '-Collapse';
 							Ext.each(instance.meetings, function(mtg){
 								var mtgCmp = parent.observer.findMeetingComponent(mtg.id);
 								mtgCmp.show();

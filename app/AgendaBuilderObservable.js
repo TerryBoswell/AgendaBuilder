@@ -36,8 +36,8 @@ Ext.define('AgendaBuilderObservable', {
     createMeetingTemplateComponent: function(m){
             var t = new Ext.Template(
                         '<div>',
-                            '<i style="padding-left:3px; padding-top:3px;" class="fa fa-bars fa-2x" aria-hidden="true"></i>',
-                            '<span style="margin-left: 3px; margin-left:10px;">{title}</span>',
+                            '<img class="grabBars" src="app/images/grabBars.png">',
+                            '<span class="grabTitle">{title}</span>',
                         '</div>',
                         // a configuration object:
                         {
@@ -292,7 +292,7 @@ Ext.define('AgendaBuilderObservable', {
                     show24Hr: true,
                     columns: [
                         //{cls: '', Index: 0},
-                        {html: '-Hide', cls: 'hideARow link-color', style : 'text-align: center;height: 42px; float:left;', Index: 0}
+                        {html: '-Collapse', cls: 'hideARow link-color', style : 'text-align: center;height: 42px; float:left;', Index: 0}
                         ]
                 });
             parentCtr.add(bottomRow);
@@ -319,7 +319,7 @@ Ext.define('AgendaBuilderObservable', {
         })
     },
     addAdditionalRow: function(date, context, agendaBuilderRow, insertRowAt){
-        //We can not add a new row at index 0 or 1 because of the left hand items of dates and -Hide
+        //We can not add a new row at index 0 or 1 because of the left hand items of dates and -Collapse
         if (insertRowAt != undefined && (insertRowAt == 0 || insertRowAt == 1))
             insertRowAt = 2;
         if (context)
@@ -343,7 +343,7 @@ Ext.define('AgendaBuilderObservable', {
                     show24Hr: true,
                     columns: [
                         {cls: '', Index: 0},
-                        {html: '', cls: 'link-color', style : 'text-align: center;height: 42px;', Index: 1} //{html: '-Hide', cls: '', style : 'text-align: center;height: 42px;', Index: 1}
+                        {html: '', cls: 'link-color', style : 'text-align: center;height: 42px;', Index: 1} //{html: '-Collapse', cls: '', style : 'text-align: center;height: 42px;', Index: 1}
                         ]
                 });
         if (insertRowAt == null || insertRowAt == undefined)
