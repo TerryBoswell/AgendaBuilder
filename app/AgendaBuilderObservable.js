@@ -279,7 +279,8 @@ Ext.define('AgendaBuilderObservable', {
                         {html: day + '</br> ' + (instance.date.getMonth() + 1) + '/' + instance.date.getDate(), 
                             style: 'font-size:medium; text-align: center;', Index: 0, cls: ''},
                         {html: '<span class="bubble-text" style="text-align:center; padding: 5px 8px; border-radius: 3px;">' + instance.room_block + 
-                            '</span>', style: '', Index: 1, cls: ''}
+                            '</span>', style: '', Index: 1, cls: ''},
+                        {html: '', style : 'background-color:grey;', Index: 38  }
                         ]
                 });
             parentCtr.add(topRow);
@@ -292,7 +293,8 @@ Ext.define('AgendaBuilderObservable', {
                     show24Hr: true,
                     columns: [
                         //{cls: '', Index: 0},
-                        {html: '-Collapse', cls: 'hideARow link-color', style : 'text-align: center;height: 42px; float:left;', Index: 0}
+                        {html: '-Collapse', cls: 'hideARow link-color', style : 'text-align: center;height: 42px; float:left; padding-left:3px;', Index: 0},
+                        {html: '', style : 'background-color:grey;', Index: 38  }
                         ]
                 });
             parentCtr.add(bottomRow);
@@ -309,7 +311,7 @@ Ext.define('AgendaBuilderObservable', {
             var dvdr = Ext.create('AgendaRow', 
                 {
                     height: 1,
-                    defaultColStyle:'border-bottom: 1px solid grey'
+                    defaultColStyle:'border-bottom: 1px solid black !important;'
                 });
             parentCtr.add(dvdr);
     },
@@ -752,6 +754,13 @@ Ext.define('AgendaBuilderObservable', {
 
                     if (cmp.renderCallBack && Ext.isFunction(cmp.renderCallBack))
                         cmp.renderCallBack(mtg);
+
+                    var titleCmpRatio = {
+                        mtgCmpWidth : cmp.getWidth(),
+                        titleWidth : Ext.fly(cmp.el.query('.mtg-instance-title')[0]).getWidth()  
+                    };
+                    console.log(titleCmpRatio);
+                    //console.log(cmp.down('.mtg-instance-title').getWidth())
                 }
             }
 

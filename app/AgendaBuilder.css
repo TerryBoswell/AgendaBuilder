@@ -7,53 +7,36 @@
     background-color: #e7e7e7 !important;
 }
 .evenRowBackGroundA{
-    opacity: .1;
-        background: 
-    linear-gradient(63deg, #999 23%, transparent 23%) 7px 0, 
-    linear-gradient(63deg, transparent 74%, #999 78%), 
-    linear-gradient(63deg, transparent 34%, #999 38%, #999 58%, transparent 62%), 
-    #444;
-    background-size: 16px 48px;
+    background: #a3a7a9;
     border-bottom: 1px solid black;
 }
 
 .evenRowBackGroundB{
-    opacity: .1;
-        background: 
-    linear-gradient(63deg, #999 23%, transparent 23%) 7px 0, 
-    linear-gradient(63deg, transparent 74%, #999 78%), 
-    linear-gradient(63deg, transparent 34%, #999 38%, #999 58%, transparent 62%), 
-    #444;
-    background-size: 16px 48px;
+    background: #a3a7a9;
 }
 
 .evenRowBackGroundC{
-    opacity: .1;
-        background: 
-    linear-gradient(63deg, #999 23%, transparent 23%) 7px 0, 
-    linear-gradient(63deg, transparent 74%, #999 78%), 
-    linear-gradient(63deg, transparent 34%, #999 38%, #999 58%, transparent 62%), 
-    #444;
-    background-size: 16px 48px;
+    background: #a3a7a9;
     border-top: 1px solid black;
 }
 
 .oddRowBackGround{
-    opacity: .1;
     border-bottom: 1px solid black;
+    background: #e7e7e7 ;
 }
 
 .oddRowBackGroundB{
-    opacity: .1;
     border-top: 1px solid black;
+    background: #e7e7e7 ;
 }
 
+
+.oddRowBackGround-allday{
+    background: #c8dceb !important;
+    
+}
 .evenRowBackGround-allday{
-    background: 
-    linear-gradient(63deg, #99ccff 23%, transparent 23%) 7px 0, 
-    linear-gradient(63deg, transparent 74%, #99ccff 78%), 
-    linear-gradient(63deg, transparent 34%, #99ccff 38%, #99ccff 58%, transparent 62%), 
-    #0039e6 !important;
+    background: #a3b6c5 !important;
     
 }
 

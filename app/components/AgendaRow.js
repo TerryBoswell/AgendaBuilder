@@ -246,6 +246,15 @@ Ext.define('AgendaRow', {
 										else
 											rowEl.classList.add('evenRowBackGround-allday');
 									}
+									if (rowEl.classList.contains('oddRowBackGround') ||
+										rowEl.classList.contains('oddRowBackGroundB'))
+									{
+										if (rowEl.classList.contains('oddRowBackGround-allday'))
+											rowEl.classList.remove('oddRowBackGround-allday');
+										else
+											rowEl.classList.add('oddRowBackGround-allday');
+									}
+
 								}										
 								Ext.each(document.elementsFromPoint(event.clientX, event.clientY), function(match){									
 									if (match.id.indexOf('agendarow-ctr') != -1 && match.id.indexOf('col') != -1 && match.dataset.date)
@@ -290,17 +299,23 @@ Ext.define('AgendaRow', {
     },
 	toggleTwentyFourHour: function(isAllDay){
 		var me = this;
-		var toggleRow = function(rows){
+		var toggleRow = function(rows, clsName){
 			Ext.each(rows, function(rowEl){
 				if (!isAllDay)
-					rowEl.classList.remove('evenRowBackGround-allday');
+				{
+					rowEl.classList.remove(clsName)
+				}
 				if (isAllDay)
-					rowEl.classList.add('evenRowBackGround-allday');
+				{
+					rowEl.classList.add(clsName);
+				}
 			})
 		}
-		toggleRow(me.el.dom.querySelectorAll('.evenRowBackGroundA'));
-		toggleRow(me.el.dom.querySelectorAll('.evenRowBackGroundB'));
-		toggleRow(me.el.dom.querySelectorAll('.evenRowBackGroundC'));
+		toggleRow(me.el.dom.querySelectorAll('.evenRowBackGroundA'), 'evenRowBackGround-allday');
+		toggleRow(me.el.dom.querySelectorAll('.evenRowBackGroundB'), 'evenRowBackGround-allday');
+		toggleRow(me.el.dom.querySelectorAll('.evenRowBackGroundC'), 'evenRowBackGround-allday');
+		toggleRow(me.el.dom.querySelectorAll('.oddRowBackGround'), 'oddRowBackGround-allday');
+		toggleRow(me.el.dom.querySelectorAll('.oddRowBackGroundB'), 'oddRowBackGround-allday');
 		var twentyFourHrCmp = (Ext.fly(Ext.query('#agenda-row-hr-' + this.id)[0]));
 		if (twentyFourHrCmp)
 		{
