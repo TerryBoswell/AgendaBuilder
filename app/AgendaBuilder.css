@@ -258,7 +258,6 @@ div.meetingTip:before {
 }
 
 .bubble-text {
-    background-color: teal;
     color: white;
 }
 .mtg-instance
@@ -311,10 +310,6 @@ div.meetingTip:before {
     cursor: default
 }
 
-.bubbleClicked
-{
-    background-color: rgba(0, 128, 128, .3) !important;
-}
 
 .grabBars
 {
@@ -355,4 +350,24 @@ div.meetingTip:before {
     font-size:14px;
     position: absolute;
     bottom: 5px;
+}
+
+.inRatioMtg
+{
+    text-align: center;
+}
+
+.lineHidden
+{
+    display: none;
+}
+
+.lineThrough
+{
+    height: 35px;
+    width: 35px;
+    top: 8px;
+    position:absolute;
+    right:7px;
+    background-color: grey;
 }

@@ -757,10 +757,16 @@ Ext.define('AgendaBuilderObservable', {
 
                     var titleCmpRatio = {
                         mtgCmpWidth : cmp.getWidth(),
-                        titleWidth : Ext.fly(cmp.el.query('.mtg-instance-title')[0]).getWidth()  
+                        titleWidth : Ext.fly(cmp.el.query('.mtg-instance-title')[0]).getWidth()
                     };
-                    console.log(titleCmpRatio);
-                    //console.log(cmp.down('.mtg-instance-title').getWidth())
+                    if (titleCmpRatio.titleWidth > titleCmpRatio.mtgCmpWidth)
+                    {
+                        cmp.removeCls('inRatioMtg');
+                    }
+                    else
+                    {
+                        cmp.addCls('inRatioMtg');
+                    }
                 }
             }
 
@@ -966,6 +972,18 @@ Ext.define('AgendaBuilderObservable', {
                        '</div>';
         mtg.el.down('.mtg-instance-text').el.dom.innerText = title;
         mtg.el.down('.mtg-instance-title').el.dom.innerText = room_setup_type.title + " | " + num_people +"pp";
+        var titleCmpRatio = {
+                        mtgCmpWidth : mtg.getWidth(),
+                        titleWidth : Ext.fly(mtg.el.query('.mtg-instance-title')[0]).getWidth()
+        };
+        if (titleCmpRatio.titleWidth > titleCmpRatio.mtgCmpWidth)
+        {
+            mtg.removeCls('inRatioMtg');
+        }
+        else
+        {
+            mtg.addCls('inRatioMtg');
+        }
         scope.subScribeOnMtgClick(meetingId, scope);
     },
     getRow: function(date){
