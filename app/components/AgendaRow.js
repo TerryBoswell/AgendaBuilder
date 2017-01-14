@@ -92,7 +92,7 @@ Ext.define('AgendaRow', {
 				},
 				getShow24Hr: function(){
 					if (this.show24Hr)
-						return Ext.String.format('<img id="agenda-row-hr-{0}" data-hasListner=false class="lineThrough" src="app/images/24.png">', this.id);
+						return Ext.String.format('<img id="agenda-row-hr-{0}" data-hasListner=false class="lineThrough" src="app/images/24line.png">', this.id);
 					return '';
 				}
             }
@@ -258,7 +258,7 @@ Ext.define('AgendaRow', {
 											rowEl.classList.add('oddRowBackGround-allday');
 									}
 
-								}										
+								}		
 								Ext.each(document.elementsFromPoint(event.clientX, event.clientY), function(match){									
 									if (match.id.indexOf('agendarow-ctr') != -1 && match.id.indexOf('col') != -1 && match.dataset.date)
 									{
@@ -329,14 +329,14 @@ Ext.define('AgendaRow', {
 		toggleRow(me.el.dom.querySelectorAll('.evenRowBackGroundC'), 'evenRowBackGround-allday');
 		toggleRow(me.el.dom.querySelectorAll('.oddRowBackGround'), 'oddRowBackGround-allday');
 		toggleRow(me.el.dom.querySelectorAll('.oddRowBackGroundB'), 'oddRowBackGround-allday');
-		var twentyFourHrCmp = (Ext.fly(Ext.query('#agenda-row-hr-' + this.id)[0]));
-		if (twentyFourHrCmp)
-		{
-			if (!isAllDay)
-				twentyFourHrCmp.dom.classList.remove('bubbleClicked');
-			else
-				twentyFourHrCmp.dom.classList.add('bubbleClicked');
-		}
+		// var twentyFourHrCmp = (Ext.fly(Ext.query('#agenda-row-hr-' + this.id)[0]));
+		// if (twentyFourHrCmp)
+		// {
+		// 	if (!isAllDay)
+		// 		twentyFourHrCmp.dom.classList.remove('bubbleClicked');
+		// 	else
+		// 		twentyFourHrCmp.dom.classList.add('bubbleClicked');
+		// }
 	},
 	getMeetingsCurrentlyOnRow: function(){
 		var me = this;

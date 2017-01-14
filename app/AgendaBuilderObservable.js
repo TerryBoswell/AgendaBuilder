@@ -280,7 +280,7 @@ Ext.define('AgendaBuilderObservable', {
                             style: 'font-size:medium; text-align: center;', Index: 0, cls: ''},
                         {html: '<span class="bubble-text" style="text-align:center; padding: 5px 8px; border-radius: 3px;">' + instance.room_block + 
                             '</span>', style: '', Index: 1, cls: ''},
-                        {html: '', style : 'background-color:grey;', Index: 38  }
+                        {html: '', style : 'background-color:grey !important;', Index: 38  }
                         ]
                 });
             parentCtr.add(topRow);
@@ -294,7 +294,7 @@ Ext.define('AgendaBuilderObservable', {
                     columns: [
                         //{cls: '', Index: 0},
                         {html: '-Collapse', cls: 'hideARow link-color', style : 'text-align: center;height: 42px; float:left; padding-left:3px;', Index: 0},
-                        {html: '', style : 'background-color:grey;', Index: 38  }
+                        {html: '', style : 'background-color:grey !important;', Index: 38  }
                         ]
                 });
             parentCtr.add(bottomRow);
@@ -345,7 +345,8 @@ Ext.define('AgendaBuilderObservable', {
                     show24Hr: true,
                     columns: [
                         {cls: '', Index: 0},
-                        {html: '', cls: 'link-color', style : 'text-align: center;height: 42px;', Index: 1} //{html: '-Collapse', cls: '', style : 'text-align: center;height: 42px;', Index: 1}
+                        {html: '', cls: 'link-color', style : 'text-align: center;height: 42px;', Index: 1}, //{html: '-Collapse', cls: '', style : 'text-align: center;height: 42px;', Index: 1}
+                        {html: '', style : 'background-color:grey !important;', Index: 38  }
                         ]
                 });
         if (insertRowAt == null || insertRowAt == undefined)
