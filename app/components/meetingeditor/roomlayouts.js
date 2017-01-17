@@ -205,7 +205,7 @@ Ext.define('boothlayout', Ext.apply({
         html: '<img class="img-roomlayout" src="app/images/booths.png">' +
                 '<div class="layoutName">Booth</div>',
         extenderInput : [{xtype: 'box', height: 1},
-                {xtype: 'displayfield', value: 'Please answer at least one:', height: 18},
+                {xtype: 'displayfield', value: 'Please answer at least one:', height: 18, style: 'z-index: 1001;'},
                 {xtype: 'box', height: 1},
                 {xtype: 'numberfield', itemId: 'boothsqft', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, height: 20},
                 {xtype: 'box', height: 1},
@@ -229,7 +229,7 @@ Ext.define('posterlayout', Ext.apply({
         html: '<img class="img-roomlayout" src="app/images/posters.png">' +
                 '<div class="layoutName">Poster</div>',
         extenderInput : [{xtype: 'box', height: 1},
-                {xtype: 'displayfield', value: 'Please answer at least one:', height: 18},
+                {xtype: 'displayfield', value: 'Please answer at least one:', height: 18, style: 'z-index: 1001;'},
                 {xtype: 'box', height: 1},
                 {xtype: 'numberfield', itemId: 'postersqft', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, height: 20},
                 {xtype: 'box', height: 1},
@@ -251,7 +251,7 @@ Ext.define('tabletoplayout', Ext.apply({
         html: '<img class="img-roomlayout" src="app/images/tabletops.png">' +
                 '<div class="layoutName">Table Top</div>',
         extenderInput : [{xtype: 'box', height: 1},
-                {xtype: 'displayfield', value: 'Please answer at least one:', height: 18},
+                {xtype: 'displayfield', value: 'Please answer at least one:', height: 18, style: 'z-index: 1001;'},
                 {xtype: 'box', height: 1},
                 {xtype: 'numberfield', itemId: 'tabletopsqft', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, height: 20},
                 {xtype: 'box', height: 1},

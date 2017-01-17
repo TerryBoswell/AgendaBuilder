@@ -365,7 +365,7 @@ Ext.define('MeetingEditor', {
                                                 items: [
                                                     {
                                                         xtype: selectorXtype,
-                                                        width : 25,
+                                                        width : 30,
                                                         date: d.date,
                                                         cls: cls,
                                                         listeners: {
