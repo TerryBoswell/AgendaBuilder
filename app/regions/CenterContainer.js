@@ -33,7 +33,7 @@ Ext.define('CenterContainer', {
 						{html: '<span class="hourText">9</span>', style: headingStylePM, Index: 32}, {html: '', style: headingStylePM, Index: 33},
     					{html: '<span class="hourText">10</span>', style: headingStylePM, Index: 34}, {html: '', style: headingStylePM, Index: 35},
 						{html: '<span class="hourText">11</span>', style: headingStylePM, Index: 36}, {html: '', style: headingStylePM, Index: 37},
-    					{html: '24hr Hold', style: 'background-color: grey; color: white;font-size:14px; text-align: center;', Index: 38}
+    					{html: '24hr Hold', style: 'background-color: grey; color: white;font-size:14px; text-align: center; border-bottom: 1px solid black;', Index: 38}
     					]
 	  			}
 		),

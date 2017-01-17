@@ -288,6 +288,7 @@ Ext.define('AgendaBuilderObservable', {
                 {
                     height: 50,
                     evenColClass : 'evenRowBackGroundB',
+                    oddColClass: 'oddRowBackGroundC',
                     dataField: data,
                     observer: this,
                     show24Hr: true,
@@ -461,8 +462,6 @@ Ext.define('AgendaBuilderObservable', {
                 ],
                 listeners: {
                     afterrender: function(tEl) {
-                        //var x = centerX - (tEl.getWidth() / 2) - datesCtrXY[0];
-                        //var y = centerY - datesCtrXY[1];
                         tEl.container = Ext.create('Ext.Container', {
                             renderTo: tEl.el.down('.meetingTip').el,
                             style: 'padding: 1px 1px;',

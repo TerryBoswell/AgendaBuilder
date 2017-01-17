@@ -235,9 +235,13 @@ Ext.define('AgendaRow', {
 							el.addEventListener('mousedown', function(event){
 								var meetingIds = [];
 								if (el.src.indexOf('24line.png') != -1)
+								{
 									el.src = el.src.replace('24line.png', '24.png');
+								}
 								else
-									el.src = el.src.replace('24.png', '24line.png');	
+								{
+									el.src = el.src.replace('24.png', '24line.png');
+								}	
 								var toggle24Hour = function(rowEl)
 								{
 									if (rowEl.classList.contains('evenRowBackGroundA') ||
@@ -250,7 +254,8 @@ Ext.define('AgendaRow', {
 											rowEl.classList.add('evenRowBackGround-allday');
 									}
 									if (rowEl.classList.contains('oddRowBackGround') ||
-										rowEl.classList.contains('oddRowBackGroundB'))
+										rowEl.classList.contains('oddRowBackGroundB') ||
+										rowEl.classList.contains('oddRowBackGroundC'))
 									{
 										if (rowEl.classList.contains('oddRowBackGround-allday'))
 											rowEl.classList.remove('oddRowBackGround-allday');
@@ -329,14 +334,19 @@ Ext.define('AgendaRow', {
 		toggleRow(me.el.dom.querySelectorAll('.evenRowBackGroundC'), 'evenRowBackGround-allday');
 		toggleRow(me.el.dom.querySelectorAll('.oddRowBackGround'), 'oddRowBackGround-allday');
 		toggleRow(me.el.dom.querySelectorAll('.oddRowBackGroundB'), 'oddRowBackGround-allday');
-		// var twentyFourHrCmp = (Ext.fly(Ext.query('#agenda-row-hr-' + this.id)[0]));
-		// if (twentyFourHrCmp)
-		// {
-		// 	if (!isAllDay)
-		// 		twentyFourHrCmp.dom.classList.remove('bubbleClicked');
-		// 	else
-		// 		twentyFourHrCmp.dom.classList.add('bubbleClicked');
-		// }
+		toggleRow(me.el.dom.querySelectorAll('.oddRowBackGroundC'), 'oddRowBackGround-allday');
+		 var twentyFourHrCmp = (Ext.fly(Ext.query('#agenda-row-hr-' + this.id)[0]));
+		 if (twentyFourHrCmp && isAllDay)
+		 {
+			if (twentyFourHrCmp.dom.src.indexOf('24line.png') != -1)
+			{
+				twentyFourHrCmp.dom.src = twentyFourHrCmp.dom.src.replace('24line.png', '24.png');
+			}
+			else
+			{
+				twentyFourHrCmp.dom.src = twentyFourHrCmp.dom.src.replace('24.png', '24line.png');
+			}
+		 }
 	},
 	getMeetingsCurrentlyOnRow: function(){
 		var me = this;

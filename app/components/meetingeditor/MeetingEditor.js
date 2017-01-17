@@ -74,11 +74,11 @@ Ext.define('MeetingEditor', {
                         {
                             xtype: 'container',
                             height: 50,
-                            html: '<div style="text-align:center;font-size:x-large; font-weight: bold;">' + Ext.Date.format(meeting.date, 'l n/j') + '</div>'
+                            html: '<div class="date-large">' + Ext.Date.format(meeting.date, 'l n/j') + '</div>'
                         },
                         {
                             xtype: 'container',
-                            height: 50,
+                            height: 40,
                             layout: {
                                 type: 'hbox',
                                 align: 'stretch'
@@ -328,7 +328,7 @@ Ext.define('MeetingEditor', {
                         items: [
                             {
                                 xtype: 'container',
-                                html : '<div style="font-size: large">Copy to Event</div>'
+                                html : '<div style="font-size: large">Copy Event To</div>'
                             },
                             {
                                 xtype: 'container',

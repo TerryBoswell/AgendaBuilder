@@ -14,35 +14,62 @@ var baseConfig = {
                 return;
             if (!target.el || !target.el.dom)
                 return;
-            var targetPos = target.el.dom.getElementsByClassName('layoutName')[0].getBoundingClientRect();
-            var pPos = target.ownerCt.ownerCt.el.dom.getBoundingClientRect();
-            var centerPos = (targetPos.width / 2) + targetPos.x - pPos.left;
+            var targetX = target.getX();
+            //we need to get the parent target center
+            var targetCenter = targetX + (target.getWidth()/2);
             target.extender = Ext.create('Ext.Component', {
                 html: '<div id="' + target.itemId +'div" class="expand"></div>',
-                style: 'background: rgba(1, 0, 0, 0);padding-top: 12px',
+                style: 'background: rgba(1, 0, 0, 0);padding-top: 12px;',
+                cls: 'invisible',
                 target: target,
                 floating: true,
+                x:targetCenter,
+                y: 90,
                 renderTo : target.ownerCt.ownerCt.el,
+                extenderHeight: target.extenderHeight,
                 extenderRadios: target.extenderRadios,
                 extenderInput: target.extenderInput,
                 listeners: {
+                    painted: {
+                        element: 'el', //bind to the underlying el property on the panel
+                        fn: function(cmpEl){
+                            var cmp = Ext.getCmp(cmpEl.id);
+                            new Ext.util.DelayedTask(function(){
+                                var targetX = cmp.target.getX();
+                                //we need to get the parent target center
+                                var targetCenter = targetX + (cmp.target.getWidth()/2);
+                                //so the x coordinate will center of the parent - half the width of cmp
+                                var x = targetCenter - (cmp.getWidth() / 2);
+                                cmp.setPosition(x, 90);
+                                cmp.setX(x);
+                                //We need to align any radios to make sure they are spaced
+                                Ext.each(Ext.query('.x-form-type-radio'), function(r){
+                                    Ext.fly(r).setWidth(110);
+                                })
+
+                                //if an over-ride height is provided, we use it
+                                if (cmp.extenderHeight)
+                                    cmp.el.down('.expand').setHeight(cmp.extenderHeight);
+                                //We make it completely invisible with opacity and after the move, show it
+                                cmp.removeCls('invisible');
+                            }).delay(1);        
+                        }
+                    },
                     afterrender: function(tEl)
                     {
-                        var x = centerPos - (tEl.getWidth()/2); //We need to adjust from the center position of the target element minus half the width of the extender
-                        tEl.setPosition(x, 90);
                         var extenderId = '#' + target.itemId +'div';
                         var expandEl =  Ext.query(extenderId)[0];
                         if (tEl.extenderRadios)
                         {
                             Ext.create('Ext.form.RadioGroup', {
                                 height: 80,
-                                width: 200,
+                                width: 220,
                                 itemId: 'extenderRadioGroup',
                                 renderTo : expandEl,
                                 style: 'z-index: 99999;',
                                 columns: 2,
                                 vertical: true,
-                                padding: 10,
+                                padding: 5,
                                 items: tEl.extenderRadios
                             })
                         }
@@ -116,6 +143,7 @@ Ext.define('roundlayout', Ext.apply({
         itemId: 'roundlayout',
         html: '<img class="img-roomlayout" src="app/images/banquet.png">' +
                 '<div class="layoutName">Rounds</div>',
+        extenderHeight: 60,
         extenderRadios : [
             { boxLabel: 'Rounds of 8', name: 'rb', inputValue: '2', checked: true },
             { boxLabel: 'Rounds of 10', name: 'rb', inputValue: '3'},
@@ -153,6 +181,7 @@ Ext.define('classroomlayout', Ext.apply({
         itemId: 'classroomlayout',
         html: '<img class="img-roomlayout" src="app/images/classroom.png">' +
                 '<div class="layoutName">Classroom</div>',
+        extenderHeight: 40,
         extenderRadios : [
             { boxLabel: '2 per 6ft', name: 'rb', inputValue: '6' , checked: true},
             { boxLabel: '3 per 6ft', name: 'rb', inputValue: '7'}
