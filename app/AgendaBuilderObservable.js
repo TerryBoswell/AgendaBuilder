@@ -649,7 +649,7 @@ Ext.define('AgendaBuilderObservable', {
             renderTo: datesCtr.el,
             resizable:{
                 handles: 'e w',
-                widthIncrement: Ext.fly(Ext.query('.evenRowBackGroundA')[0]).getWidth(),
+                widthIncrement: 5, // Ext.fly(Ext.query('.evenRowBackGroundA')[0]).getWidth(),
                 //transparent: true,
                 pinned: true,
                 dynamic: true
