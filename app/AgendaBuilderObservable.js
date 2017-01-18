@@ -278,7 +278,7 @@ Ext.define('AgendaBuilderObservable', {
                     columns: [
                         {html: day + '</br> ' + (instance.date.getMonth() + 1) + '/' + instance.date.getDate(), 
                             style: 'font-size:medium; text-align: center;', Index: 0, cls: ''},
-                        {html: '<span class="bubble-text" style="text-align:center; padding: 5px 8px; border-radius: 3px;">' + instance.room_block + 
+                        {html: '<span class="room-block" style="text-align:center; padding: 5px 8px; border-radius: 3px;">' + instance.room_block + 
                             '</span>', style: '', Index: 1, cls: ''},
                         {html: '', style : 'background-color:grey !important;', Index: 38  }
                         ]
@@ -295,6 +295,7 @@ Ext.define('AgendaBuilderObservable', {
                     columns: [
                         //{cls: '', Index: 0},
                         {html: '-Collapse', cls: 'hideARow link-color', style : 'text-align: center;height: 42px; float:left; padding-left:3px;', Index: 0},
+                        {html: '', style: '', cls: '', Index: 1},
                         {html: '', style : 'background-color:grey !important;', Index: 38  }
                         ]
                 });
@@ -663,7 +664,7 @@ Ext.define('AgendaBuilderObservable', {
                         {
                             var centerXY = cmp.getCenterXY();
                             var yCenter = centerXY.y - 3;
-                            var xCenter = centerXY.x - 3;
+                            var xCenter = centerXY.x;// - 3;
                         }
                         else
                         {
@@ -700,7 +701,8 @@ Ext.define('AgendaBuilderObservable', {
                         if (match == null)
                             throw('error finding match in date');
                         var start = (match.dataset.hour)
-                        //x+=cmp.getWidth();
+                        if (!start)
+                            start = '06:00:00';
                         var endingPoint = rect.right + 10;// - 1; //shifted one pixel to make sure we are on the ending point
                         Ext.each(document.elementsFromPoint(endingPoint, y), function(el){
                         if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
@@ -715,10 +717,10 @@ Ext.define('AgendaBuilderObservable', {
                         var date = mtg.date;
                         if (!date)
                             date = new Date(match.dataset.date);                            
-                        var dimensions = me.getDimensions(mtg.rowIndex, date, start, end);
+                        var dimensions = me.getDimensions(mtg.rowIndex -1, date, start, end);
                         var m_cmp = me.findMeetingComponent(mtg.id);
+                        m_cmp.setX(dimensions.xy[0]);
                         m_cmp.setWidth(dimensions.width);
-                    
                         if (mtg.start_time.replace('1900/01/01 ', '') == start &&
                             mtg.end_time.replace('1900/01/01 ', '') == end)
                             return;

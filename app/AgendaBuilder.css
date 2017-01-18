@@ -266,6 +266,12 @@ div.meetingTip:before {
 .bubble-text {
     color: white;
 }
+
+.room-block{
+    background-color: teal;
+    color: white;
+}
+
 .mtg-instance
 {
     z-index: 2
