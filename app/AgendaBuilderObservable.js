@@ -649,8 +649,7 @@ Ext.define('AgendaBuilderObservable', {
             renderTo: datesCtr.el,
             resizable:{
                 handles: 'e w',
-                widthIncrement: 5, // Ext.fly(Ext.query('.evenRowBackGroundA')[0]).getWidth(),
-                //transparent: true,
+                widthIncrement: 5, 
                 pinned: true,
                 dynamic: true
             },
@@ -1484,15 +1483,25 @@ Ext.define('AgendaBuilderObservable', {
                 type    : meeting.type,
                 id      : 0
             };
+            var start = meeting.start_time.replace('1900/01/01 ', '');
+            while (start.indexOf("1900") >= 0)
+                start = meeting.start_time.replace('1900/01/01 ', '');
+            var end = meeting.end_time.replace('1900/01/01 ', '');
+            while (end.indexOf("1900") >= 0)
+                end = meeting.end_time.replace('1900/01/01 ', '');
+            if (start.length < 6)
+                start = start + ':00';
+            if (end.length < 6)
+                end = end + ':00';
+            newMtg.start_time =  start;
+            newMtg.end_time =  end;
             instance.meetings.push(newMtg);
             me.assignRowIndexes(instance);
-            var start = meeting.start_time.replace('1900/01/01 ', '');
-            var end = meeting.end_time.replace('1900/01/01 ', '');
             var color = "#" + meeting.meeting_item_type.color;
             var idx = me.calculateRowIndex(newMtg, instance);
             me.createMeeting(newMtg.id, d, start, end, meeting.title, 'white', 
                     color, idx, me, meeting.meeting_item_type);
-
+            
             scope.saveMeetingItem(newMtg);           
         }, scope)
     },
