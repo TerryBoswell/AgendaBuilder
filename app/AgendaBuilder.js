@@ -9,17 +9,15 @@ Ext.define('AgendaBuilder.MainContainer', {
 	extend: 'Ext.Container',
 	width: 900,
 	style:  'margin:20px;',
-    height: 600,
     title:'Month Browser',
     itemId: 'MainContainer',
     cls : 'abMain',
-    layout: 'border',
     rfpNumber: null,
     agendaMode: agendaMode.Planner,
     items: [
     	{
     		xtype	: 'container',
-    		region	: 'north',
+    		//region	: 'north',
     		layout	: {type: 'vbox', align: 'stretch'},
     		height	: 90,
     		itemId	: 'northCtrOuter',
@@ -101,7 +99,12 @@ Ext.define('AgendaBuilder.MainContainer', {
 
 
     	},
-    	centerContainer
+    	centerContainer,
+        {
+            xtype   : 'container',
+            height  : 5,
+            cls     : 'fill-color'
+        }
     ],
     listeners: {
         painted: {

@@ -106,11 +106,14 @@ Ext.define('AgendaBuilderObservable', {
             });
     },
     assignRowIndexes: function(instance){
+        
         var date = new Date(instance.date)
-        var dateStr =    Ext.Date.format(date, "m/d/Y");
+        var dateStr = Ext.Date.format(date, "m/d/Y");
+        var offset = Ext.Date.format(date, 'P');
+        var zone = Ext.Date.format(date, 'T');
         Ext.each(instance.meetings, function(m){
-            m.start = new Date(m.start_time.replace('1900/01/01', dateStr) + ' GMT+0000');
-            m.end = new Date(m.end_time.replace('1900/01/01', dateStr) + ' GMT+0000');
+            m.start = new Date(m.start_time.replace('1900/01/01', dateStr) + ' ' + zone + offset);
+            m.end = new Date(m.end_time.replace('1900/01/01', dateStr) + ' ' + zone + offset);
         })
        /*********************************/
 
@@ -322,10 +325,14 @@ Ext.define('AgendaBuilderObservable', {
             Ext.fly(el).destroy()
         })
     },
-    addAdditionalRow: function(date, context, agendaBuilderRow, insertRowAt){
+    addAdditionalRow: function(date, context, agendaBuilderRow, insertRowAt, relativeIndex, rowsAbove){
         //We can not add a new row at index 0 or 1 because of the left hand items of dates and -Collapse
         if (insertRowAt != undefined && (insertRowAt == 0 || insertRowAt == 1))
             insertRowAt = 2;
+        else if (insertRowAt != undefined && relativeIndex != undefined && rowsAbove != undefined && rowsAbove != 0 && (
+            relativeIndex == 0 || relativeIndex == 1))
+            insertRowAt = rowsAbove + 3;
+        
         if (context)
             var me = context;
         else
@@ -652,6 +659,14 @@ Ext.define('AgendaBuilderObservable', {
                 widthIncrement: 5, 
                 pinned: true,
                 dynamic: true
+            },
+            getCurrentRow: function(){
+                var me = cmp;
+                var y = me.getY();
+                var centerY = Ext.getCmp(Ext.query('.centerCtr')[0].id).getY();
+                var rowOffset = 50;
+                var rowPosition = y - centerY;
+                return Math.round(rowPosition / rowOffset);
             },
             listeners: {
                 delay: 100,
@@ -1178,7 +1193,8 @@ Ext.define('AgendaBuilderObservable', {
             min = '00';
             slice = "AM";
         }
-
+        if (hr == 12 && min == '00')
+            slice = 'PM';
         var v  = Ext.String.format("{0}:{1} {2}", hr, min, slice);
         return v;
     },
@@ -1197,7 +1213,7 @@ Ext.define('AgendaBuilderObservable', {
     getDisplayHours : function(time){
             if (!time)
                 return '';
-                var hours = time.getUTCHours();
+                var hours = time.getHours();
                 var minutes = time.getMinutes();
                 var amPm = "AM"
                 if (hours >= 12)
@@ -1360,7 +1376,8 @@ Ext.define('AgendaBuilderObservable', {
         var me = scope;
         
         var rowsNeeded = me.getMaxRowsForDate(meetings);//decrement one because we need the base 0 count
-        
+        var totalRowsAbove = null;
+        var relativeIdx = null;
         //we are only going to keep looking for the savedAbsoluteRowIndex
         //while we dont have it.
         if (savedAbsoluteRowIndex == null)
@@ -1368,9 +1385,14 @@ Ext.define('AgendaBuilderObservable', {
                 var rowsAbove = me.getTotalRowsInAboveDates(row.rowIndex, dates, me);
                 if (mtg.id == savedMtgId)
                 {
-                    savedAbsoluteRowIndex = mtg.rowIndex + me.getTotalRowsInAboveDates(row.rowIndex, dates, me);
+                    relativeIndex = row.rowIndex;
+                    totalRowsAbove =  me.getTotalRowsInAboveDates(row.rowIndex, dates, me);
+                    savedAbsoluteRowIndex = mtg.rowIndex + totalRowsAbove;
                     var oldidx = (mtg.oldRowIndex ? mtg.oldRowIndex : 1); //if there is an old row index we use it, otherwise it is new and starts on row 1
                     var shiftAmount = mtg.rowIndex - oldidx;
+                    var m_cmp = me.findMeetingComponent(mtg.id);
+                    if (shiftAmount == 0)
+                        shiftAmount = ((mtg.rowIndex - (m_cmp.getCurrentRow() - totalRowsAbove)));
                     if (shiftAmount > 0)    
                     {
                         me.moveMeetingDownXRows(mtg.id, shiftAmount, me);
@@ -1384,7 +1406,7 @@ Ext.define('AgendaBuilderObservable', {
         })
         if (row.rowCount < rowsNeeded)
         {
-            me.addAdditionalRow(date, me, row, savedAbsoluteRowIndex - 1);   
+            me.addAdditionalRow(date, me, row, savedAbsoluteRowIndex - 1, relativeIndex, totalRowsAbove);   
             row.rowCount +=1;
             startShift = true;                      
         } 
@@ -1460,10 +1482,15 @@ Ext.define('AgendaBuilderObservable', {
     {
         var me = scope;
         var dates = copyToDates;
-        this.on('meetingSaveComplete', function(){
+        var listener = null;
+        var fn = function(){
             var d = dates.pop();
             if (!d)
+            {
+                //need to kill the listener so it isn't called on all future saves
+                listener.destroy();
                 return;
+            }
             var instance = me.getInstance(d, me);
             var newMtg = {
                 all_day : meeting.all_day,
@@ -1481,7 +1508,8 @@ Ext.define('AgendaBuilderObservable', {
                 tabletops: meeting.tabletops,
                 title   : meeting.title,
                 type    : meeting.type,
-                id      : 0
+                id      : 0,
+                oldRowIndex: 1
             };
             var start = meeting.start_time.replace('1900/01/01 ', '');
             while (start.indexOf("1900") >= 0)
@@ -1503,7 +1531,8 @@ Ext.define('AgendaBuilderObservable', {
                     color, idx, me, meeting.meeting_item_type);
             
             scope.saveMeetingItem(newMtg);           
-        }, scope)
+        };
+        listener = this.on('meetingSaveComplete', fn , scope)
     },
     updateMeetingItemPeople: function(meetingId, numPeople, scope){
         var me = scope;

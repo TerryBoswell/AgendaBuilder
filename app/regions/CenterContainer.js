@@ -6,14 +6,15 @@ var amStyle = "background-color: teal; height: 10px; padding-top: 5px;";
 var pmStyle = "background-color: DarkSlateGray;";
 Ext.define('CenterContainer', {
 	extend: 'Ext.Container',
-    layout: {type: 'vbox', align: 'stretch'},
+	cls: 'centerCtr',
+	layout: {type: 'vbox', align: 'stretch'},
     region: 'center',
     items: [
         Ext.create('AgendaRow', 
     			{
     				height: 50,
                     defaultColStyle: headingStyleAM,
-    				columns: [
+					columns: [
                         {style: '', Index: 0} ,
     					{html: 'Room Block', style: 'font-size:medium;', Index: 1}, 
     					{html: '<span class="hourText">6</span>', style: headingStyleAM, Index: 2},{html: '<span class="hourText">7</span>', style: headingStyleAM, Index: 4}, 
@@ -39,22 +40,12 @@ Ext.define('CenterContainer', {
 		),
 		{
 			xtype	: 'container',
-			height	: 400,
 			style   : '-y: scroll; overflow-x: hidden;',
-			itemId	: 'datesCtrParent',
-			items	: [
-					{
-						xtype	: 'container',
-						itemId	: 'datesCtr',
-						//style   : 'overflow-y: scroll;',
-						layout	: {
+			itemId	: 'datesCtr',
+			layout	: {
 							type	: 'vbox',
 							align	: 'stretch'
-						},
-						//height	: 400
-					}
-
-			]
+			}
 		}
 		
     ],
