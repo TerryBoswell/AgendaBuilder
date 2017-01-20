@@ -1464,6 +1464,24 @@ Ext.define('AgendaBuilderObservable', {
             Ext.getCmp(el.id).setAllDayToMatchMeetings()
         });
     },
+    findEmptyRow: function(){
+        var me = this;
+        var gap = null;
+        var lastRow = 0;
+        //We need to account for the last row
+        Ext.each(me.dates, function(date){
+            Ext.each(date.meetings, function(meeting){
+                var m_cmp = me.findMeetingComponent(meeting.id);
+                if (m_cmp)
+                {
+                    if ((m_cmp.getCurrentRow() - lastRow) > 1)
+                        gap = lastRow + 1;
+                    lastRow = m_cmp.getCurrentRow();
+                }
+            },me)
+        }, me)
+        return gap;
+    },
     onUpdateMeetingItemPeople: function(postedData, response, scope){
         var me = scope;
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
