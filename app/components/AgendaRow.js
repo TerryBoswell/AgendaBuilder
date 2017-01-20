@@ -336,9 +336,9 @@ Ext.define('AgendaRow', {
 		toggleRow(me.el.dom.querySelectorAll('.oddRowBackGroundB'), 'oddRowBackGround-allday');
 		toggleRow(me.el.dom.querySelectorAll('.oddRowBackGroundC'), 'oddRowBackGround-allday');
 		 var twentyFourHrCmp = (Ext.fly(Ext.query('#agenda-row-hr-' + this.id)[0]));
-		 if (twentyFourHrCmp && isAllDay)
+		 if (twentyFourHrCmp)
 		 {
-			if (twentyFourHrCmp.dom.src.indexOf('24line.png') != -1)
+			if (isAllDay)
 			{
 				twentyFourHrCmp.dom.src = twentyFourHrCmp.dom.src.replace('24line.png', '24.png');
 			}
@@ -369,5 +369,19 @@ Ext.define('AgendaRow', {
 				hasAllDayItem = true;
 		})
 		me.toggleTwentyFourHour(hasAllDayItem);
+	},
+	isFirstRow: function(){
+		return this.el.down('.row-overlay') != null;
+	},
+	isSecondRow: function(){
+		return this.el.down('.hideARow') != null;
+	},
+	getRowIndex: function(){
+		var me = this;
+		var y = me.getY();
+		var centerY = Ext.getCmp(Ext.query('.centerCtr')[0].id).getY();
+		var rowOffset = 50;
+		var rowPosition = y - centerY;
+		return Math.round(rowPosition / rowOffset);
 	}
 });

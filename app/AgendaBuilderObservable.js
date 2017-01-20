@@ -332,11 +332,23 @@ Ext.define('AgendaBuilderObservable', {
         else if (insertRowAt != undefined && relativeIndex != undefined && rowsAbove != undefined && rowsAbove != 0 && (
             relativeIndex == 0 || relativeIndex == 1))
             insertRowAt = rowsAbove + 3;
-        
         if (context)
             var me = context;
         else
             var me = this;
+        //The insert point is always one less than the row index ie... insert at 9 needs to check the row with the index of 8 (0-8)
+        //we can't insert in the first two rows. They are reserved
+        var currRow = me.getRowAt(insertRowAt - 1);
+        if (currRow != null && currRow.isFirstRow())
+        {
+            insertRowAt++;
+            currRow = me.getRowAt(insertRowAt - 1);
+        }
+        if (currRow != null && currRow.isSecondRow())
+        {
+            insertRowAt++;
+        }
+
         if (!agendaBuilderRow)
             agendaBuilderRow = me.getRow(date);
         var data = date.toLocaleDateString();
@@ -365,6 +377,7 @@ Ext.define('AgendaBuilderObservable', {
             datesCtr.insert(insertRowAt, row);
         }
         agendaBuilderRow.rows.push({id: row.id})
+        return row;
     },
     buildHourColumns: function(cnt){
         var cols = [];
@@ -814,6 +827,15 @@ Ext.define('AgendaBuilderObservable', {
             });
         });
 
+    },
+    getRowAt: function(index){
+        var match = null;
+        Ext.each(Ext.query('.agendaRowClass'), function(el){
+            var cmp = Ext.getCmp(el.id);
+            if (cmp.getRowIndex() == index)
+                match = cmp;
+        })
+        return match;
     },
     getMeetingHtml: function(titleText, meetingId){
         return Ext.String.format('<div class="title-text" style="font-size:larger; margin-left:auto;margin-right:auto;text-align:center;">{0}' + 
@@ -1358,6 +1380,7 @@ Ext.define('AgendaBuilderObservable', {
             var results = me.shiftMeetings(d.meetings, d.date, row, me.dates, postedData.id, savedAbsoluteRowIndex, startShift, me);
             startShift = results.startShift;
             savedAbsoluteRowIndex = results.savedAbsoluteRowIndex;  
+            me.setAllRows24HourStatus();
         }
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
         scope.fireEvent('meetingSaveComplete', newRows);
@@ -1406,7 +1429,19 @@ Ext.define('AgendaBuilderObservable', {
         })
         if (row.rowCount < rowsNeeded)
         {
-            me.addAdditionalRow(date, me, row, savedAbsoluteRowIndex - 1, relativeIndex, totalRowsAbove);   
+            var insertRowAt = savedAbsoluteRowIndex - 1;
+            var rowCmp = me.getRowAt(insertRowAt);
+            //we can't insert at the first or second row of the date
+            if (rowCmp && (rowCmp.isFirstRow()))
+            {
+                insertRowAt = rowCmp.getRowIndex() + 1;  
+                rowCmp = me.getRowAt(insertRowAt);
+            }
+            if (rowCmp && (rowCmp.isSecondRow()))
+            {
+                insertRowAt = rowCmp.getRowIndex() + 1;
+            }
+            var x = me.addAdditionalRow(date, me, row, insertRowAt, relativeIndex, totalRowsAbove);   
             row.rowCount +=1;
             startShift = true;                      
         } 
