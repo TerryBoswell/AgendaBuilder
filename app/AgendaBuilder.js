@@ -102,6 +102,7 @@ Ext.define('AgendaBuilder.MainContainer', {
     	centerContainer,
         {
             xtype   : 'container',
+            itemId  : 'versionbox',
             height  : 5,
             cls     : 'fill-color'
         }
@@ -129,6 +130,7 @@ Ext.define('AgendaBuilder.MainContainer', {
                         observer.getMeetingItems();
                     }
                 })
+                Ext.ComponentQuery.query('#versionbox')[0].update('<div style="padding-bottom:10px;">Version:' + observer.version + '</div>')
                 window.agendaBuilder.observer = observer;                
             }
         }
