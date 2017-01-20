@@ -1467,20 +1467,73 @@ Ext.define('AgendaBuilderObservable', {
     findEmptyRow: function(){
         var me = this;
         var gap = null;
+        var dateOfGap = null;
         var lastRow = 0;
-        //We need to account for the last row
+        
+        //loop through all the rowindexes and check for a gap between them
         Ext.each(me.dates, function(date){
             Ext.each(date.meetings, function(meeting){
                 var m_cmp = me.findMeetingComponent(meeting.id);
                 if (m_cmp)
                 {
                     if ((m_cmp.getCurrentRow() - lastRow) > 1)
+                    {
                         gap = lastRow + 1;
+                        dateOfGap = date.date;
+                    }
                     lastRow = m_cmp.getCurrentRow();
                 }
             },me)
         }, me)
-        return gap;
+        if (gap != null)
+            return {index : gap, date: dateOfGap};
+        //we will need to check the very last row to see if everything works out
+        //if the last row index isn't the same as the last meet row index, there isn't a gap because it is
+        //the last sequence but it is missing.
+        if (lastRow != null)
+        {
+            var lastRowId = me.agendaBuilderRows[me.agendaBuilderRows.length-1].rows[me.agendaBuilderRows[me.agendaBuilderRows.length-1].rows.length - 1].id
+            var agendaBuilderRow = Ext.getCmp(lastRowId);
+            if (agendaBuilderRow)
+            {
+                var lastRowIndex = agendaBuilderRow.getRowIndex();
+                dateOfGap = new Date(agendaBuilderRow.dataField);
+                if (lastRow != lastRowIndex)
+                    gap = lastRowIndex;
+            }
+        }
+        if (gap == null)
+            return null;
+        return {index : gap, date: dateOfGap};;
+    },
+    removeEmptyRows: function(){
+        var me = this;
+        var emptyRow = me.findEmptyRow();
+        if (emptyRow == null)
+            return;
+        Ext.each(me.dates, function(date){
+            Ext.each(date.meetings, function(meeting){
+                var m_cmp = me.findMeetingComponent(meeting.id);
+                if (m_cmp)
+                {
+                    var currRowIdx = m_cmp.getCurrentRow();
+                    if (currRowIdx > emptyRow.index)
+                        me.moveMeetingUpXRows(meeting.id, 1, me);
+                }
+            },me)
+        }, me)
+
+        var row = me.getRow(emptyRow.date);
+        if (row && row.rows && row.rows.length > 2)
+        {
+            var idToRemove = row.rows[row.rows.length - 1].id;
+            var cmpToRemove = Ext.getCmp(idToRemove);
+            if (cmpToRemove)
+            {
+                cmpToRemove.hide();
+                cmpToRemove.destroy();
+            }
+        }
     },
     onUpdateMeetingItemPeople: function(postedData, response, scope){
         var me = scope;
@@ -1490,8 +1543,11 @@ Ext.define('AgendaBuilderObservable', {
         scope.fireEvent('meeting24HourUpdated', postedData);
     },
     onDeleteMeetingItem: function(id, scope){
+        var me = scope;
+        console.log(scope.getMeeting(id, scope));
         scope.deleteMeeting(id, scope);
         scope.fireEvent('meetingItemDeleted', id);
+        me.removeEmptyRows();
     },
     onSaveAlternateOptions: function(obj, scope){},
     onSavePrePostDays: function(obj, scope){

@@ -40,11 +40,12 @@ Ext.define('CenterContainer', {
 		),
 		{
 			xtype	: 'container',
-			style   : '-y: scroll; overflow-x: hidden;',
+			style   : 'overflow-x: hidden;padding-bottom: 110px !important;',
 			itemId	: 'datesCtr',
 			layout	: {
 							type	: 'vbox',
 							align	: 'stretch'
+
 			}
 		}
 		
