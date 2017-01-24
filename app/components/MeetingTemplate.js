@@ -152,12 +152,6 @@ Ext.define('MeetingTemplate',
 
 
         		});
-    	},
-        painted: {
-            element: 'el', //bind to the underlying el property on the panel
-            fn: function(cmp){
-            	
-            }
-        }
+    	}
     }
 })

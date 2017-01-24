@@ -396,6 +396,33 @@ Ext.define('AgendaBuilderObservable', {
             rowIdx = 0;
         var row = agendaBuilderRow.rows[rowIdx];
         var startColId = me.getColForHour(startHour);
+        if (!row)
+            return null;
+        var startHourId = row.id + "-col-" + startColId;
+        var sfly = Ext.fly(document.getElementById(startHourId));
+        var xy = sfly.getXY();
+        var height = sfly.getHeight();
+
+        var endColId = me.getColForHour(endHour);
+        var endHourId = row.id + "-col-" + endColId;
+        var efly = Ext.fly(document.getElementById(endHourId));
+        if (!efly)
+        {
+            return null;
+        }
+        var width = Math.abs(xy[0] - efly.getXY()[0]);
+        return {
+            height: height,
+            width: width,
+            xy: xy
+        }
+    },
+    getDimensionsByRowIndex: function(rowIdx, startHour, endHour){
+        var me = this;
+        var row = me.getRowAt(rowIdx);
+        var startColId = me.getColForHour(startHour);
+        if (!row)
+            return null;
         var startHourId = row.id + "-col-" + startColId;
         var sfly = Ext.fly(document.getElementById(startHourId));
         var xy = sfly.getXY();
@@ -552,7 +579,6 @@ Ext.define('AgendaBuilderObservable', {
                                                     targetCmp.mon(targetCmp.el, 'click', function(){
                                                         var mtg = targetCmp.observer.getMeeting(targetCmp.meetingId, targetCmp.observer);
                                                         mtg.date = targetCmp.observer.getDate(targetCmp.meetingId, targetCmp.observer);
-                                                        //delete(mtg.id);
                                                         Ext.each(targetCmp.observer.meetingCallouts, function(callout){
                                                             callout.hide();
                                                         })
@@ -710,7 +736,148 @@ Ext.define('AgendaBuilderObservable', {
                         };
                         cmp.extender.show();
                     })
+                    cmp.mon(cmp.el, 'mousedown', function(e){
+                        		var overrides = {
+                                    // Called the instance the element is dragged.
+                                        b4StartDrag : function() {
+                                            cmp.dragEnded = false;
+                                            Ext.each(observer.meetingCallouts, function(callout){
+                                                callout.hide();
+                                            })
+                                            // Cache the drag element
+                                            if (!cmp.el) {
+                                                cmp.el = Ext.get(this.getEl());
+                                            }
+                                            cmp.origX = cmp.getX();
+                                            cmp.origY = cmp.getY();
+                                        },
+                                        // Called when element is dropped in a spot without a dropzone, or in a dropzone without matching a ddgroup.
+                                        onInvalidDrop : function(target) {
+                                            // Set a flag to invoke the animated repair
+                                            cmp.invalidDrop = false;
+                                        },
+                                        onMouseUp: function(e){
+                                            if (cmp.dragEnded)
+                                                return;
+                                        },
+                                        // Called when the drag operation completes
+                                        endDrag : function(dropTarget) {
+                                            cmp.dragEnded = true;
+                                            var match = null;
+                                            var browserEvent = null;
+                                            if (dropTarget && dropTarget.parentEvent && dropTarget.parentEvent.browserEvent)
+                                            {
+                                                browserEvent = dropTarget.parentEvent.browserEvent;
+                                            }
+                                            else if (dropTarget && dropTarget.browserEvent)
+                                            {
+                                                browserEvent = dropTarget.browserEvent;
+                                            }
+                                            if (browserEvent == null)
+                                            {
+                                                throw("Cannoth find browserEvent");									
+                                            }
+                                            var x = browserEvent.clientX;
+                                            var y = browserEvent.clientY;
+                                            //console.dir(document.elementsFromPoint(newCmp.getX(), y));								
+                                            Ext.each(document.elementsFromPoint(x, y), function(el){
+                                                if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
+                                                    match = el;
+                                            })
+                                            var instance = null;
+                                            if (match && match.dataset && match.dataset.date)
+                                            {
+                                                var instanceDate = new Date(match.dataset.date);
+                                                instance = observer.getInstance(instanceDate, observer);
+                                            }
+                                            
+                                            var invalidDrop = function(){
+                                                cmp.el.removeCls('dropOK');
+                                                cmp.setX(cmp.origX);
+                                                cmp.setY(cmp.origY);
+                                                delete cmp.invalidDrop;
+                                                delete cmp.origX;
+                                                delete cmp.origY;
+                                            }
+                                            // Invoke the animation if the invalidDrop flag is set to true
+                                            if (match == null || !match.dataset || !match.dataset.date || !match.dataset.hour || (
+                                                instance && instance.visible == false)) {
+                                                // Remove the drop invitation
+                                                invalidDrop();
+                                            }
+                                            else{
+                                                var d = new Date(match.dataset.date);
+                                                var parentId = match.id.substring(0, match.id.indexOf('-col'));
+                                                var rowCmp = Ext.getCmp(parentId);
+                                                var rowIndex = rowCmp.getRowIndex();
+                                                var matchingEl = null;
+                                                var rect = cmp.el.dom.getBoundingClientRect();
+                                                var y = (rect.top + rect.bottom) / 2; //We'll get the center
+
+                                                //Now let's  find the starting timeslot
+                                                var startingPoint = rect.left + 1; //shifted one pixel to make sure we are on the starting block                       
+                                                Ext.each(document.elementsFromPoint(startingPoint, y), function(el){
+                                                if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
+                                                    matchingEl = el;
+                                                })
+                                                if (matchingEl == null)
+                                                    throw('error finding match in date');
+                                                var start = (matchingEl.dataset.hour)
+                                                if (!start)
+                                                    start = '06:00:00';
+                                                var endingPoint = rect.right + 10;// - 1; //shifted one pixel to make sure we are on the ending point
+                                                Ext.each(document.elementsFromPoint(endingPoint, y), function(el){
+                                                if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
+                                                    matchingEl = el;
+                                                })
+                                                var end = (matchingEl.dataset.hour);
+                                                if (!end)
+                                                {
+                                                    end = "00:00:00";                            
+                                                }
+                                                var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
+                                                var dimensions = cmp.observer.getDimensionsByRowIndex(rowIndex, start, end);
+                                                if (!dimensions)
+                                                {
+                                                    invalidDrop();
+                                                    return;
+                                                }
+                                                var m_cmp = cmp.observer.findMeetingComponent(mtg.id);
+                                                m_cmp.setX(dimensions.xy[0]);
+                                                m_cmp.setWidth(dimensions.width);
+                                                m_cmp.setY(dimensions.xy[1] + 3);
+                                                
+                                                if (mtg.start_time.replace('1900/01/01 ', '') == start &&
+                                                    mtg.end_time.replace('1900/01/01 ', '') == end)
+                                                    return;
+                                                mtg.start_time = start;
+                                                mtg.end_time = end;
+                                                mtg.date = d;
+                                                cmp.observer.saveMeetingItem(mtg);
+                                                var listener = cmp.observer.on({
+                                                    meetingSaveComplete : function(){
+                                                        cmp.observer.removeEmptyRows();
+                                                        listener.destroy();
+                                                    },
+                                                    scope: cmp.observer
+                                                })
+                                            }
+                                        }
+
+                                };
+
+                                 var dd = Ext.create('Ext.dd.DD', cmp, 'meetingDate', {
+                                            isTarget  : false
+                                    });
+                                    Ext.apply(dd, overrides);
+                                    dd.setStartPosition();
+                                    dd.b4MouseDown(e);
+                                    dd.onMouseDown(e);
                     
+                                    dd.DDMInstance.handleMouseDown(e, dd);
+                    
+                                    dd.DDMInstance.stopEvent(e);
+                    });
                     cmp.observer.monitorMeetingHandle(cmp);
 
                     //This is the function to save the hour changes via a resize event
