@@ -195,7 +195,7 @@ Ext.define('AgendaBuilderObservable', {
         /*********************************/
         return maxRows;
     },
-    calculateRowIndex(meeting, instance){
+    calculateRowIndex: function(meeting, instance){
         return meeting.rowIndex - 1;
     },
     setAgendaMode: function(mode){
@@ -298,7 +298,7 @@ Ext.define('AgendaBuilderObservable', {
                     show24Hr: true,
                     columns: [
                         //{cls: '', Index: 0},
-                        {html: '-Collapse', cls: 'hideARow link-color', style : 'text-align: center;height: 42px; float:left; padding-left:3px;', Index: 0},
+                        {html: '-Collapse', cls: 'hideARow link-color ltFont', style : 'text-align: center !important;height: 42px; float:left !important; padding-left:3px;', Index: 0},
                         {html: '', style: '', cls: '', Index: 1},
                         {html: '', style : 'background-color:grey !important;', Index: 38  }
                         ]
@@ -1237,7 +1237,7 @@ Ext.define('AgendaBuilderObservable', {
             meeting: meeting,
             alignTarget: datesCtr,
             observer: observer,
-            meetingTemplate, meetingTemplate,
+            meetingTemplate: meetingTemplate,
             date: date
         }).show();
 
@@ -1637,14 +1637,16 @@ Ext.define('AgendaBuilderObservable', {
         var gap = null;
         var dateOfGap = null;
         var lastRow = 0;
-        
+        var rows = [];
         //loop through all the rowindexes and check for a gap between them
         Ext.each(me.dates, function(date){
             Ext.each(date.meetings, function(meeting){
                 var m_cmp = me.findMeetingComponent(meeting.id);
                 if (m_cmp)
                 {
-                    if ((m_cmp.getCurrentRow() - lastRow) > 1)
+                    var currRow = m_cmp.getCurrentRow();
+                    rows.push(currRow);
+                    if (currRow >= lastRow && ((currRow - lastRow) > 1))
                     {
                         gap = lastRow + 1;
                         dateOfGap = date.date;
@@ -1653,6 +1655,8 @@ Ext.define('AgendaBuilderObservable', {
                 }
             },me)
         }, me)
+        if (rows.includes(gap))
+            gap = null;
         if (gap != null)
             return {index : gap, date: dateOfGap};
         //we will need to check the very last row to see if everything works out
