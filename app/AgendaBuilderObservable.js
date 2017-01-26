@@ -760,9 +760,45 @@ Ext.define('AgendaBuilderObservable', {
                                             if (cmp.dragEnded)
                                                 return;
                                         },
+                                        onDragEnter: function(e, id) {
+                                            var rect = cmp.el.dom.getBoundingClientRect();
+                                            var y = (rect.top + rect.bottom) / 2; //We'll get the center
+
+                                            var getColIndex = function(el)
+                                            {
+                                                if (!el || !el.dataset || !el.dataset.colindex)
+                                                    return null;
+                                                return el.dataset.colindex * 1;
+                                            }
+                                            //Now let's  find the starting timeslot
+                                            var startingCol = null;
+                                            var endingCol = null;
+                                            var startingPoint = rect.left + 1; //shifted one pixel to make sure we are on the starting block                       
+                                            Ext.each(document.elementsFromPoint(startingPoint, y), function(el){
+                                                if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
+                                                {
+                                                    startingCol = getColIndex(el);
+                                                }
+                                            })
+                                            var endingPoint = rect.right;// - 1; //shifted one pixel to make sure we are on the ending point
+                                            Ext.each(document.elementsFromPoint(endingPoint, y), function(el){
+                                                if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
+                                                    endingCol = getColIndex(el);
+                                            })
+                                            Ext.each(Ext.query('td'), function(dtel){
+                                                var colIndex = getColIndex(dtel);
+                                                if (colIndex >= startingCol && colIndex <= endingCol)
+                                                    dtel.classList.add('shaded');
+                                                else
+                                                    dtel.classList.remove('shaded');
+                                            })
+                                        },
                                         // Called when the drag operation completes
                                         endDrag : function(dropTarget) {
                                             cmp.dragEnded = true;
+                                            Ext.each(Ext.query('td'), function(dtel){
+                                                    dtel.classList.remove('shaded');
+                                            })
                                             var match = null;
                                             var browserEvent = null;
                                             if (dropTarget && dropTarget.parentEvent && dropTarget.parentEvent.browserEvent)
@@ -844,7 +880,7 @@ Ext.define('AgendaBuilderObservable', {
                                                 }
                                                 var m_cmp = cmp.observer.findMeetingComponent(mtg.id);
                                                 m_cmp.setX(dimensions.xy[0]);
-                                                m_cmp.setWidth(dimensions.width);
+                                                //m_cmp.setWidth(dimensions.width);
                                                 m_cmp.setY(dimensions.xy[1] + 3);
                                                 
                                                 if (mtg.start_time.replace('1900/01/01 ', '') == start &&
@@ -1716,7 +1752,6 @@ Ext.define('AgendaBuilderObservable', {
     },
     onDeleteMeetingItem: function(id, scope){
         var me = scope;
-        console.log(scope.getMeeting(id, scope));
         scope.deleteMeeting(id, scope);
         scope.fireEvent('meetingItemDeleted', id);
         me.removeEmptyRows();
@@ -2171,6 +2206,7 @@ Ext.define('AgendaBuilderObservable', {
                 }
             }
         })
+        
     }
     
 });

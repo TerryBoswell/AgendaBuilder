@@ -54,6 +54,8 @@ Ext.define('AgendaRow', {
 							var hour = this.observer.getHourForCol(i);
 							if (hour && hour.length)
 								data = 'data-hour="' + hour + '" ' + data;
+							if (i)
+								data = 'data-colIndex="' + i + '" ' + data;
 						}
 					}
                     return data;
@@ -141,6 +143,7 @@ Ext.define('AgendaRow', {
 						if (instance.visible)
 						{
 							hCmp.innerText = '+Show';
+							Ext.fly(overlayCmp).setHeight(50);
 							Ext.each(instance.meetings, function(mtg){
 								var mtgCmp = parent.observer.findMeetingComponent(mtg.id);
 								mtgCmp.hide();
@@ -166,6 +169,7 @@ Ext.define('AgendaRow', {
 						else
 						{
 							hCmp.innerText = '-Collapse';
+							Ext.fly(overlayCmp).setHeight(0);
 							Ext.each(instance.meetings, function(mtg){
 								var mtgCmp = parent.observer.findMeetingComponent(mtg.id);
 								mtgCmp.show();
@@ -310,7 +314,12 @@ Ext.define('AgendaRow', {
 				Ext.each(Ext.query('.lineThrough'), onTwentyFourHourClick)
 				Ext.each(Ext.query('.twentyfourhour-parent'), onTwentyFourHourClick)
 				
-				
+				Ext.each(cmp.el.down('tr').el.dom.children, function(tr){
+					var mainTarget = Ext.create('Ext.dd.DDTarget', Ext.fly(tr), 'meetingDate', 
+					{
+            			ignoreSelf: false
+					});
+				})
 			},
 			scope: this
 		})
