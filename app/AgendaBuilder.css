@@ -396,7 +396,24 @@ div.meetingTip:before {
     opacity: 0;
 }
 
+.dragDropHourPreview
+{
+    z-index: 999999; 
+    border: 1px solid;
+    color: white;
+    font-size: 20px;
+    border-radius: 10px;
+    background: linear-gradient(
+      rgba(0, 0, 0, 0.5), 
+      rgba(0, 0, 0, 0.5)
+    ) !important;
+}
+
 .shaded
 {
-    background: #4c4c4c !important;
+    background: linear-gradient(
+      rgba(0, 0, 0, 0.5), 
+      rgba(0, 0, 0, 0.5)
+    ) !important;
 }
+

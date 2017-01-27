@@ -3,6 +3,9 @@ const agendaMode={Planner: 'planner', Hotel: 'hotel'};
 var centerContainer = Ext.create('CenterContainer');
 
 var observer = Ext.create('AgendaBuilderObservable');
+
+
+
 window.agendaBuilder = {};
 Ext.define('AgendaBuilder.MainContainer', {
     observer: observer,

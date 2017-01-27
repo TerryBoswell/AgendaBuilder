@@ -772,29 +772,50 @@ Ext.define('AgendaBuilderObservable', {
                                             }
                                             //Now let's  find the starting timeslot
                                             var startingCol = null;
+                                            var startingLeft = null;
                                             var endingCol = null;
+                                            var endingRight = null;
                                             var startingPoint = rect.left + 1; //shifted one pixel to make sure we are on the starting block                       
                                             Ext.each(document.elementsFromPoint(startingPoint, y), function(el){
                                                 if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
                                                 {
                                                     startingCol = getColIndex(el);
+                                                    var startingRect = el.getBoundingClientRect();
+                                                    startingLeft = startingRect.left;
                                                 }
                                             })
                                             var endingPoint = rect.right;// - 1; //shifted one pixel to make sure we are on the ending point
                                             Ext.each(document.elementsFromPoint(endingPoint, y), function(el){
                                                 if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
+                                                {
                                                     endingCol = getColIndex(el);
+                                                    endingRight = el.getBoundingClientRect().right;
+                                                }
                                             })
+                                            var elementsToUpdate = [];
                                             Ext.each(Ext.query('td'), function(dtel){
                                                 var colIndex = getColIndex(dtel);
-                                                if (colIndex >= startingCol && colIndex <= endingCol)
+                                                var dtRect = dtel.getBoundingClientRect();
+                                    
+                                                /**
+                                                 * Left of Column < right of cmp
+                                                    and
+                                                    right of column > right of cmp
+                                                 */
+                                                var isOverLapLastRow = dtRect.left < endingRight && dtRect.right > endingRight;
+                                                if (colIndex >= startingCol && colIndex <= endingCol &&
+                                                    !isOverLapLastRow)
+                                                {
                                                     dtel.classList.add('shaded');
+                                                }
                                                 else
                                                     dtel.classList.remove('shaded');
                                             })
+                                            observer.showDragDropHourPreview(endingRight, rect.bottom + 10, 1,1, observer)
                                         },
                                         // Called when the drag operation completes
                                         endDrag : function(dropTarget) {
+                                            observer.hideDragDropHourPreview(observer);
                                             cmp.dragEnded = true;
                                             Ext.each(Ext.query('td'), function(dtel){
                                                     dtel.classList.remove('shaded');
@@ -1009,6 +1030,46 @@ Ext.define('AgendaBuilderObservable', {
         
         return m;
     },
+    showDragDropHourPreview: function(xCoord, yCoord, startHr, endHr, scope){
+        var me=this;
+        if (scope)
+            me = scope;
+        var html = '<div style="height:75px;display: flex;align-items: center; justify-content: center">3:00 PM - 5:00 PM</div>';
+        if (!me.dragDropHourPreview)
+        {
+            me.dragDropHourPreview = Ext.create('Ext.Container', {
+			            html: html,
+			            cls: 'dragDropHourPreview',
+			            floating: true,
+			            height : 75,
+			            width: 200,
+			            x: xCoord,
+			            y: yCoord,
+			            renderTo: Ext.getBody()
+			        });
+        }
+        else
+        {
+            me.dragDropHourPreview.removeCls('invisible');
+            me.dragDropHourPreview.setHeight(75);
+            me.dragDropHourPreview.setX(xCoord);
+            me.dragDropHourPreview.setY(yCoord);
+        }
+        me.dragDropHourPreview.el.setStyle('z-index', '100000')
+
+    },
+    hideDragDropHourPreview: function(scope){
+        var me=this;
+        if (scope)
+            me = scope;
+        if (me.dragDropHourPreview)
+        {
+            me.dragDropHourPreview.addCls('invisible');
+            me.dragDropHourPreview.setHeight(0);
+        }
+    },
+
+
     monitorMeetingHandle: function(cmp){
         Ext.each(Ext.query('.x-resizable-handle'), function(q){
             var fly = new Ext.fly(q);
