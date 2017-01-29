@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.000',
+    version: '1.001',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -828,6 +828,16 @@ Ext.define('AgendaBuilderObservable', {
                         };
                         cmp.extender.show();
                     })
+
+                    cmp.mon(cmp.el, 'dblclick', function(){
+                        var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
+                        mtg.date = cmp.observer.getDate(cmp.meetingId, cmp.observer);
+                        Ext.each(cmp.observer.meetingCallouts, function(callout){
+                            callout.hide();
+                        })
+                        cmp.observer.showMeetingEditor(mtg, cmp.observer, mtg.meeting_item_type, mtg.date);
+                    })
+
                     cmp.mon(cmp.el, 'mousedown', function(e){
                         		var overrides = {
                                     // Called the instance the element is dragged.
