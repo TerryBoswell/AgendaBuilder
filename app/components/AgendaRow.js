@@ -315,11 +315,9 @@ Ext.define('AgendaRow', {
 				Ext.each(Ext.query('.twentyfourhour-parent'), onTwentyFourHourClick)
 				
 				Ext.each(cmp.el.down('tr').el.dom.children, function(tr){
-					var mainTarget = Ext.create('Ext.dd.DDTarget', Ext.fly(tr), 'meetingDate', 
-					{
-            			ignoreSelf: false
-					});
-				})
+					if (parent && parent.observer)
+						parent.observer.addDragOverListener(tr, parent.observer);
+				}, parent)
 			},
 			scope: this
 		})

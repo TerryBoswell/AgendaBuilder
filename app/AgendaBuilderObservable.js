@@ -15,6 +15,7 @@ Ext.define('AgendaBuilderObservable', {
     totalRowCount: 0,
     meetingCallouts: [],
     ajaxController: null,
+    currentDragMtg: null, //This is used to target when item is current being dragged
     initAjaxController: function(url, scope){
         var me = scope;
         me.ajaxController = Ext.create('AjaxController', {
@@ -442,6 +443,97 @@ Ext.define('AgendaBuilderObservable', {
             xy: xy
         }
     },
+    addDragOverListener: function(el, observer){
+        el.addEventListener('mouseover', function(mouseEvent){
+        var currentDragMtg = null;
+            if (observer && observer.currentDragMtg)
+                currentDragMtg = observer.currentDragMtg;
+            else
+                return;
+            observer.handleMeetingDrag(mouseEvent, currentDragMtg, observer);
+        });
+    },
+    handleMeetingDrag: function(mouseEvent, meeting, scope){
+        var me = scope;
+        var rect = meeting.el.dom.getBoundingClientRect();
+        var y = (rect.top + rect.bottom) / 2; //We'll get the center
+        var getColIndex = function(el)
+        {
+            if (!el || !el.dataset || !el.dataset.colindex)
+                return null;
+            return el.dataset.colindex * 1;
+        }
+
+        var getHour = function(el){
+            if (!el || !el.dataset || !el.dataset.hour)
+                return null;
+            return el.dataset.hour;
+        
+        };
+        //Now let's  find the starting timeslot
+        var startingCol = null;
+        var startingLeft = null;
+        var startingHour = null;
+        var endingCol = null;
+        var endingRight = null;
+        var endingHour = null;
+        var startingPoint = rect.left + 1; //shifted one pixel to make sure we are on the starting block                       
+        Ext.each(document.elementsFromPoint(startingPoint, y), function(el){
+            if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
+            {
+                startingCol = getColIndex(el);
+                var startingRect = el.getBoundingClientRect();
+                startingHour = getHour(el);
+                startingLeft = startingRect.left;
+            }
+        })
+        if (startingCol < 3)
+        {
+            Ext.each(Ext.query('td'), function(dtel){dtel.classList.remove('shaded');});
+            me.hideDragDropHourPreview();
+            return;
+        }
+        var endingPoint = rect.right;// - 1; //shifted one pixel to make sure we are on the ending point
+        Ext.each(document.elementsFromPoint(endingPoint, y), function(el){
+            if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
+            {
+                var endRect = el.getBoundingClientRect();
+                endingCol = getColIndex(el);
+                endingRight = endRect.right;
+                endingHour = getHour(el);
+            }
+        })
+        endingCol -= 1;
+        if (endingCol > 38)
+        {
+            Ext.each(Ext.query('td'), function(dtel){dtel.classList.remove('shaded');});
+            me.hideDragDropHourPreview();
+            return;
+        }
+        var elementsToUpdate = [];
+        Ext.each(Ext.query('td'), function(dtel){
+            var colIndex = getColIndex(dtel);
+            var dtRect = dtel.getBoundingClientRect();
+
+            /**
+             * Left of Column < right of cmp
+                and
+                right of column > right of cmp
+                */
+            var isOverLapLastRow = dtRect.left < endingRight && dtRect.right > endingRight;
+            if (colIndex >= startingCol && colIndex <= endingCol &&
+                !isOverLapLastRow)
+            {
+                dtel.classList.add('shaded');
+            }
+            else
+                dtel.classList.remove('shaded');
+        })
+        
+        if (startingHour && endingHour && endingRight)
+            me.showDragDropHourPreview(endingRight, mouseEvent.pageY + 40, 
+                me.convertTimeTo12Hrs(startingHour),me.convertTimeTo12Hrs(endingHour), me)
+    },
     createMeeting: function(id, date, startHour, endHour, text, fontColor, color, rowIdx, context, MeetingTemplate, renderCallBack){
         if (context)
             var me = context;
@@ -740,6 +832,7 @@ Ext.define('AgendaBuilderObservable', {
                         		var overrides = {
                                     // Called the instance the element is dragged.
                                         b4StartDrag : function() {
+                                            observer.currentDragMtg = cmp; //Used to track the cmp being dragged
                                             cmp.dragEnded = false;
                                             Ext.each(observer.meetingCallouts, function(callout){
                                                 callout.hide();
@@ -760,61 +853,13 @@ Ext.define('AgendaBuilderObservable', {
                                             if (cmp.dragEnded)
                                                 return;
                                         },
-                                        onDragEnter: function(e, id) {
-                                            var rect = cmp.el.dom.getBoundingClientRect();
-                                            var y = (rect.top + rect.bottom) / 2; //We'll get the center
-
-                                            var getColIndex = function(el)
-                                            {
-                                                if (!el || !el.dataset || !el.dataset.colindex)
-                                                    return null;
-                                                return el.dataset.colindex * 1;
-                                            }
-                                            //Now let's  find the starting timeslot
-                                            var startingCol = null;
-                                            var startingLeft = null;
-                                            var endingCol = null;
-                                            var endingRight = null;
-                                            var startingPoint = rect.left + 1; //shifted one pixel to make sure we are on the starting block                       
-                                            Ext.each(document.elementsFromPoint(startingPoint, y), function(el){
-                                                if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
-                                                {
-                                                    startingCol = getColIndex(el);
-                                                    var startingRect = el.getBoundingClientRect();
-                                                    startingLeft = startingRect.left;
-                                                }
-                                            })
-                                            var endingPoint = rect.right;// - 1; //shifted one pixel to make sure we are on the ending point
-                                            Ext.each(document.elementsFromPoint(endingPoint, y), function(el){
-                                                if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
-                                                {
-                                                    endingCol = getColIndex(el);
-                                                    endingRight = el.getBoundingClientRect().right;
-                                                }
-                                            })
-                                            var elementsToUpdate = [];
-                                            Ext.each(Ext.query('td'), function(dtel){
-                                                var colIndex = getColIndex(dtel);
-                                                var dtRect = dtel.getBoundingClientRect();
-                                    
-                                                /**
-                                                 * Left of Column < right of cmp
-                                                    and
-                                                    right of column > right of cmp
-                                                 */
-                                                var isOverLapLastRow = dtRect.left < endingRight && dtRect.right > endingRight;
-                                                if (colIndex >= startingCol && colIndex <= endingCol &&
-                                                    !isOverLapLastRow)
-                                                {
-                                                    dtel.classList.add('shaded');
-                                                }
-                                                else
-                                                    dtel.classList.remove('shaded');
-                                            })
-                                            observer.showDragDropHourPreview(endingRight, rect.bottom + 10, 1,1, observer)
-                                        },
+                                        // onDragEnter: function(e, id) { 
+                                        //     //Leaving the reference here so devs know. OnDragEnter will not fireEvent
+                                        //     //when resizing
+                                        // },
                                         // Called when the drag operation completes
                                         endDrag : function(dropTarget) {
+                                            observer.currentDragMtg = null; //Drag is over, so don't track it.
                                             observer.hideDragDropHourPreview(observer);
                                             cmp.dragEnded = true;
                                             Ext.each(Ext.query('td'), function(dtel){
@@ -1005,7 +1050,7 @@ Ext.define('AgendaBuilderObservable', {
                     cmp.mon(cmp.el, 'mouseup', function(){
                         cmp.saveHourChange();
                     })
-
+                   cmp.observer.addDragOverListener(cmp.el.dom, cmp.observer);
                     if (cmp.renderCallBack && Ext.isFunction(cmp.renderCallBack))
                         cmp.renderCallBack(mtg);
 
@@ -1034,7 +1079,8 @@ Ext.define('AgendaBuilderObservable', {
         var me=this;
         if (scope)
             me = scope;
-        var html = '<div style="height:75px;display: flex;align-items: center; justify-content: center">3:00 PM - 5:00 PM</div>';
+        var html = Ext.String.format('<div style="height:75px;display: flex;align-items: center; justify-content: center">{0} - {1}</div>', 
+                            startHr, endHr);
         if (!me.dragDropHourPreview)
         {
             me.dragDropHourPreview = Ext.create('Ext.Container', {
@@ -1050,6 +1096,7 @@ Ext.define('AgendaBuilderObservable', {
         }
         else
         {
+            me.dragDropHourPreview.update(html);
             me.dragDropHourPreview.removeCls('invisible');
             me.dragDropHourPreview.setHeight(75);
             me.dragDropHourPreview.setX(xCoord);
