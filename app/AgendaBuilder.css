@@ -417,3 +417,7 @@ div.meetingTip:before {
     ) !important;
 }
 
+.copyTo .x-box-inner
+{
+    overflow-y: auto;
+}

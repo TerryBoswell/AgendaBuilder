@@ -334,7 +334,7 @@ Ext.define('MeetingEditor', {
                                 xtype: 'container',
                                 itemId: 'copytogrid',
                                 style: 'padding: 5px 0px;',
-                                cls: 'thinBorderAll',                                                
+                                cls: 'thinBorderAll copyTo',                                                
                                 flex: 1,
                                 layout: {
                                     type: 'vbox',
@@ -391,6 +391,10 @@ Ext.define('MeetingEditor', {
                                                         xtype: 'displayfield',
                                                         value: html,
                                                         flex: 1
+                                                    },
+                                                    {
+                                                        xtype: 'container',
+                                                        width: 25
                                                     }
                                                     ]                                
                                                 })

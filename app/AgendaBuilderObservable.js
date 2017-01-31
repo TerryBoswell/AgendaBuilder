@@ -214,7 +214,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     addPreDays: function(count){
         var me = this;
-        me.savePrePostDays('pre', count);
+        me.savePrePostDays('pre', count, me);
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
         me.removeAllMeetings();
         var firstDate = me.dates[0].date;
@@ -237,7 +237,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     addPostDays: function(count){
         var me = this;
-        me.savePrePostDays('post', count);
+        me.savePrePostDays('post', count, me);
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
         me.removeAllMeetings();        
         var lastDate = me.dates[me.dates.length - 1].date;
@@ -531,7 +531,7 @@ Ext.define('AgendaBuilderObservable', {
         })
         
         if (startingHour && endingHour && endingRight)
-            me.showDragDropHourPreview(endingRight, mouseEvent.pageY + 40, 
+            me.showDragDropHourPreview(endingRight - 50, mouseEvent.pageY + 40, 
                 me.convertTimeTo12Hrs(startingHour),me.convertTimeTo12Hrs(endingHour), me)
     },
     createMeeting: function(id, date, startHour, endHour, text, fontColor, color, rowIdx, context, MeetingTemplate, renderCallBack){
@@ -887,7 +887,7 @@ Ext.define('AgendaBuilderObservable', {
                                             }
                                             if (browserEvent == null)
                                             {
-                                                throw("Cannoth find browserEvent");									
+                                                throw("Cannot find browserEvent");									
                                             }
                                             var x = browserEvent.clientX;
                                             var y = browserEvent.clientY;
@@ -1876,7 +1876,11 @@ Ext.define('AgendaBuilderObservable', {
     },
     onSaveAlternateOptions: function(obj, scope){},
     onSavePrePostDays: function(obj, scope){
-        scope.fireEvent('prePostDaysSaved', obj);
+        var me = this;
+        if (scope)
+            me = scope;
+        if (me && me.fireEvent)
+            me.fireEvent('prePostDaysSaved', obj);
     },
     /*******************Ajax calls */ 
     getRoomSetups: function(){
@@ -2006,7 +2010,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     saveAlternateOption: function(){},
     savePrePostDays: function(type, count){
-        thisa.ajaxController.savePrePostDays(type, count, this.onSavePrePostDays, this);
+        this.ajaxController.savePrePostDays(type, count, this.onSavePrePostDays, this);
     },
     getColForHour: function(hour){
         if (hour == '06:00:00')
