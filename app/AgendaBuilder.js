@@ -133,6 +133,12 @@ Ext.define('AgendaBuilder.MainContainer', {
                         observer.getMeetingItems();
                     }
                 })
+                Ext.each(Ext.query('.arHeader'), function(el){
+                    // el.addEventListener('mouseover', function(evt){
+                    //     if (observer.currentDragMtg && observer.currentDragDrop)
+                    //         observer.currentDragDrop.endDrag(evt, true, observer.currentDragMtg);
+                    // })	
+                });
                 Ext.ComponentQuery.query('#versionbox')[0].update('<div style="padding-bottom:10px;">Version:' + observer.version + '</div>')
                 window.agendaBuilder.observer = observer;                
             }

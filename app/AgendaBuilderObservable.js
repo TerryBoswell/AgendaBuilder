@@ -16,6 +16,7 @@ Ext.define('AgendaBuilderObservable', {
     meetingCallouts: [],
     ajaxController: null,
     currentDragMtg: null, //This is used to target when item is current being dragged
+    currentDragDrop: null, //This is the current drag drop manager
     initAjaxController: function(url, scope){
         var me = scope;
         me.ajaxController = Ext.create('AjaxController', {
@@ -444,7 +445,7 @@ Ext.define('AgendaBuilderObservable', {
         }
     },
     addDragOverListener: function(el, observer){
-        el.addEventListener('mouseover', function(mouseEvent){
+        el.addEventListener('mousemove', function(mouseEvent){
         var currentDragMtg = null;
             if (observer && observer.currentDragMtg)
                 currentDragMtg = observer.currentDragMtg;
@@ -503,7 +504,9 @@ Ext.define('AgendaBuilderObservable', {
                 endingHour = getHour(el);
             }
         })
+        //console.log(endingRight + " " + rect.right + " " + meeting.getWidth() + rect.left);
         endingCol -= 1;
+        
         if (endingCol > 38)
         {
             Ext.each(Ext.query('td'), function(dtel){dtel.classList.remove('shaded');});
@@ -862,13 +865,15 @@ Ext.define('AgendaBuilderObservable', {
                                         onMouseUp: function(e){
                                             if (cmp.dragEnded)
                                                 return;
-                                        },
+                                        }, 
                                         // onDragEnter: function(e, id) { 
                                         //     //Leaving the reference here so devs know. OnDragEnter will not fireEvent
                                         //     //when resizing
                                         // },
                                         // Called when the drag operation completes
-                                        endDrag : function(dropTarget) {
+                                        endDrag : function(dropTarget, invalidate, mtgCmp) {
+                                            if (mtgCmp)
+                                                cmp=mtgCmp;
                                             observer.currentDragMtg = null; //Drag is over, so don't track it.
                                             observer.hideDragDropHourPreview(observer);
                                             cmp.dragEnded = true;
@@ -885,13 +890,21 @@ Ext.define('AgendaBuilderObservable', {
                                             {
                                                 browserEvent = dropTarget.browserEvent;
                                             }
-                                            if (browserEvent == null)
+                                            
+                                            var invalidDrop = function(){
+                                                cmp.el.removeCls('dropOK');
+                                                cmp.setX(cmp.origX);
+                                                cmp.setY(cmp.origY);
+                                                delete cmp.invalidDrop;
+                                                delete cmp.origX;
+                                                delete cmp.origY;
+                                            }
+                                            if (browserEvent == null || invalidate == true)
                                             {
                                                 throw("Cannot find browserEvent");									
                                             }
                                             var x = browserEvent.clientX;
                                             var y = browserEvent.clientY;
-                                            //console.dir(document.elementsFromPoint(newCmp.getX(), y));								
                                             Ext.each(document.elementsFromPoint(x, y), function(el){
                                                 if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
                                                     match = el;
@@ -903,14 +916,7 @@ Ext.define('AgendaBuilderObservable', {
                                                 instance = observer.getInstance(instanceDate, observer);
                                             }
                                             
-                                            var invalidDrop = function(){
-                                                cmp.el.removeCls('dropOK');
-                                                cmp.setX(cmp.origX);
-                                                cmp.setY(cmp.origY);
-                                                delete cmp.invalidDrop;
-                                                delete cmp.origX;
-                                                delete cmp.origY;
-                                            }
+                                            
                                             // Invoke the animation if the invalidDrop flag is set to true
                                             if (match == null || !match.dataset || !match.dataset.date || !match.dataset.hour || (
                                                 instance && instance.visible == false)) {
@@ -985,13 +991,12 @@ Ext.define('AgendaBuilderObservable', {
                                     dd.setStartPosition();
                                     dd.b4MouseDown(e);
                                     dd.onMouseDown(e);
-                    
                                     dd.DDMInstance.handleMouseDown(e, dd);
-                    
+                                    //dd.DDMInstance.handleMouseOut(e, dd);
                                     dd.DDMInstance.stopEvent(e);
+                                    cmp.observer.currentDragDrop = dd;
                     });
                     cmp.observer.monitorMeetingHandle(cmp);
-
                     //This is the function to save the hour changes via a resize event
                     cmp.saveHourChange = function(){
                         cmp.resizeRunner.stop();

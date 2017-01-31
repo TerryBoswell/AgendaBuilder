@@ -14,6 +14,7 @@ Ext.define('CenterContainer', {
     			{
     				height: 50,
                     defaultColStyle: headingStyleAM,
+					defaultColClass: 'arHeader',
 					columns: [
                         {style: '', Index: 0} ,
     					{html: 'Room Block', style: 'font-size:medium;', Index: 1}, 
