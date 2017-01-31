@@ -38,7 +38,7 @@ Ext.define('AgendaBuilderObservable', {
     createMeetingTemplateComponent: function(m){
             var t = new Ext.Template(
                         '<div>',
-                            '<img class="grabBars" src="app/images/grabBars.png">',
+                            '<img class="grabBars" src="app/images/grabbars.png">',
                             '<span class="grabTitle">{title}</span>',
                         '</div>',
                         // a configuration object:
