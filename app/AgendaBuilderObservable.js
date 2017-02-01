@@ -1630,7 +1630,7 @@ Ext.define('AgendaBuilderObservable', {
         var newRows = [];
         var savedMeeting = {};
         //Create a new meeting since it has not id
-        if (!postedData.id)
+        if (!postedData.id || !me.getMeeting(postedData.id, me))
         {
             scope.updateMeetingId(postedData.id == null ? 0 : postedData.id, response.id, scope);
             postedData.id = response.id;        
@@ -1907,6 +1907,10 @@ Ext.define('AgendaBuilderObservable', {
             throw ("room night must be provided");
         if (meeting.room_block == undefined || meeting.room_block == null)
             throw ("room block must be provided");
+        if (meeting.start_time.length < 6)
+            meeting.start_time = meeting.start_time + ":00";
+        if (meeting.end_time.length < 6)
+            meeting.end_time = meeting.end_time + ":00";
         this.ajaxController.saveMeetingItem(meeting, this.onSaveMeetingItem, this);
     },
     getInstance: function(d, scope)
