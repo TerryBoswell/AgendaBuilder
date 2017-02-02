@@ -273,6 +273,8 @@ Ext.define('AgendaBuilderObservable', {
             //This methods assigns the row index to the meetings and returns the number
             //of rows we need
             agendaBuilderRow.rowCount = me.assignRowIndexes(instance);
+            if (agendaBuilderRow.rowCount < 2)
+                agendaBuilderRow.rowCount = 2; //We always need a minimum of 2 rows
             var topRow = Ext.create('AgendaRow', 
                 {
                     height: 50,
@@ -380,7 +382,6 @@ Ext.define('AgendaBuilderObservable', {
             datesCtr.insert(insertRowAt, row);
         }
         agendaBuilderRow.rows.push({id: row.id})
-        console.log(agendaBuilderRow);
         return row;
     },
     buildHourColumns: function(cnt){
