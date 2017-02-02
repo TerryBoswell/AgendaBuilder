@@ -380,6 +380,7 @@ Ext.define('AgendaBuilderObservable', {
             datesCtr.insert(insertRowAt, row);
         }
         agendaBuilderRow.rows.push({id: row.id})
+        console.log(agendaBuilderRow);
         return row;
     },
     buildHourColumns: function(cnt){
@@ -953,18 +954,32 @@ Ext.define('AgendaBuilderObservable', {
                                                         matchingEl = el;
                                                 })
                                                 var end = (matchingEl.dataset.hour);
+                                                var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
                                                 if (!end)
                                                 {
-                                                    end = "00:00:00";                            
+                                                    end = "00:00:00";
+                                                    var diff = Math.abs(mtg.start - mtg.end);
+                                                    var startBasedOnShift = new Date(new Date("1900/01/01 24:00:00") - diff);    
+                                                    if (startBasedOnShift.getHours() < 6)
+                                                    {
+                                                        start = mtg.start_time.replace('1900/01/01 ', '');
+                                                        end = mtg.end_time.replace('1900/01/01 ', '');
+                                                    }
+                                                    else
+                                                        start = Ext.Date.format(startBasedOnShift, 'H:i:s');  
+                                                                   
                                                 }
-                                                var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
+                                                if (start == end)
+                                                {
+                                                    start = mtg.start_time.replace('1900/01/01 ', '');
+                                                    end = mtg.end_time.replace('1900/01/01 ', '');
+                                                }
                                                 var dimensions = cmp.observer.getDimensionsByRowIndex(rowIndex, start, end);
                                                 if (!dimensions)
                                                 {
                                                     invalidDrop();
                                                     return;
                                                 }
-                                                console.log(start + " " + end );
                                                 var m_cmp = cmp.observer.findMeetingComponent(mtg.id);
                                                 m_cmp.setX(dimensions.xy[0]);
                                                 //m_cmp.setWidth(dimensions.width);
@@ -1781,7 +1796,6 @@ Ext.define('AgendaBuilderObservable', {
         if (startShift)
         {
             var rowsAbove = me.getTotalRowsInAboveDates(row.rowIndex, dates, me);
-            console.log(rowsAbove);
             Ext.each(meetings, function(mtg){
                 if ((mtg.rowIndex + me.getTotalRowsInAboveDates(row.rowIndex, dates, me) > savedAbsoluteRowIndex))
                     me.moveMeetingDownXRows(mtg.id, 1, me);
