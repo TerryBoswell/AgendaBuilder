@@ -85,7 +85,7 @@ Ext.define('AjaxController', {
         new Ext.util.DelayedTask(function(){
             var fakeResponse = {id: id, success: true};
             console.info('A mocked delete has occurred', id, fakeResponse);
-            callback(id, scope);
+            callback(id, fakeResponse, scope);
         }, me).delay(100);   
     },
     saveAlternateOption: function(){},

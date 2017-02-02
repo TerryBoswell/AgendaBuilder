@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.001',
+    version: '1.002',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -532,7 +532,6 @@ Ext.define('AgendaBuilderObservable', {
             else
                 dtel.classList.remove('shaded');
         })
-        
         if (startingHour && endingHour && endingRight)
             me.showDragDropHourPreview(endingRight - 50, mouseEvent.pageY + 40, 
                 me.convertTimeTo12Hrs(startingHour),me.convertTimeTo12Hrs(endingHour), me)
@@ -845,7 +844,6 @@ Ext.define('AgendaBuilderObservable', {
                         		var overrides = {
                                     // Called the instance the element is dragged.
                                         b4StartDrag : function() {
-                                            observer.currentDragMtg = cmp; //Used to track the cmp being dragged
                                             cmp.dragEnded = false;
                                             Ext.each(observer.meetingCallouts, function(callout){
                                                 callout.hide();
@@ -856,6 +854,7 @@ Ext.define('AgendaBuilderObservable', {
                                             }
                                             cmp.origX = cmp.getX();
                                             cmp.origY = cmp.getY();
+                                            observer.currentDragMtg = cmp; //Used to track the cmp being dragged
                                         },
                                         // Called when element is dropped in a spot without a dropzone, or in a dropzone without matching a ddgroup.
                                         onInvalidDrop : function(target) {
@@ -893,15 +892,17 @@ Ext.define('AgendaBuilderObservable', {
                                             
                                             var invalidDrop = function(){
                                                 cmp.el.removeCls('dropOK');
-                                                cmp.setX(cmp.origX);
-                                                cmp.setY(cmp.origY);
+                                                if (cmp.origX)
+                                                    cmp.setX(cmp.origX);
+                                                if (cmp.origY)
+                                                    cmp.setY(cmp.origY);
                                                 delete cmp.invalidDrop;
                                                 delete cmp.origX;
                                                 delete cmp.origY;
                                             }
                                             if (browserEvent == null || invalidate == true)
                                             {
-                                                throw("Cannot find browserEvent");									
+                                                return;
                                             }
                                             var x = browserEvent.clientX;
                                             var y = browserEvent.clientY;
@@ -945,8 +946,11 @@ Ext.define('AgendaBuilderObservable', {
                                                     start = '06:00:00';
                                                 var endingPoint = rect.right + 10;// - 1; //shifted one pixel to make sure we are on the ending point
                                                 Ext.each(document.elementsFromPoint(endingPoint, y), function(el){
-                                                if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
-                                                    matchingEl = el;
+                                                    var colIdx = 0;
+                                                    if (el && el.dataset && el.dataset.colindex)
+                                                        colIdx = el.dataset.colindex * 1;
+                                                    if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
+                                                        matchingEl = el;
                                                 })
                                                 var end = (matchingEl.dataset.hour);
                                                 if (!end)
@@ -960,6 +964,7 @@ Ext.define('AgendaBuilderObservable', {
                                                     invalidDrop();
                                                     return;
                                                 }
+                                                console.log(start + " " + end );
                                                 var m_cmp = cmp.observer.findMeetingComponent(mtg.id);
                                                 m_cmp.setX(dimensions.xy[0]);
                                                 //m_cmp.setWidth(dimensions.width);
@@ -1776,6 +1781,7 @@ Ext.define('AgendaBuilderObservable', {
         if (startShift)
         {
             var rowsAbove = me.getTotalRowsInAboveDates(row.rowIndex, dates, me);
+            console.log(rowsAbove);
             Ext.each(meetings, function(mtg){
                 if ((mtg.rowIndex + me.getTotalRowsInAboveDates(row.rowIndex, dates, me) > savedAbsoluteRowIndex))
                     me.moveMeetingDownXRows(mtg.id, 1, me);
@@ -1799,6 +1805,12 @@ Ext.define('AgendaBuilderObservable', {
         var rows = [];
         //loop through all the rowindexes and check for a gap between them
         Ext.each(me.dates, function(date){
+            if (!date.meetings || !date.meetings.length)
+            {
+                //We need this condition for the scenario in which the previous date is completely empty 
+                //easiest way to replicate is add a date prior
+                lastRow+=2; //Each agendarow has two rows
+            }
             Ext.each(date.meetings, function(meeting){
                 var m_cmp = me.findMeetingComponent(meeting.id);
                 if (m_cmp)
@@ -1873,7 +1885,7 @@ Ext.define('AgendaBuilderObservable', {
     onUpdateMeeting24Hours: function(postedData, response, scope){
         scope.fireEvent('meeting24HourUpdated', postedData);
     },
-    onDeleteMeetingItem: function(id, scope){
+    onDeleteMeetingItem: function(id, response, scope){
         var me = scope;
         scope.deleteMeeting(id, scope);
         scope.fireEvent('meetingItemDeleted', id);
