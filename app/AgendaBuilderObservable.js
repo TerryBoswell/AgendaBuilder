@@ -1650,6 +1650,8 @@ Ext.define('AgendaBuilderObservable', {
             throw "Row Not found";
         var newRows = [];
         var savedMeeting = {};
+        if (!me.getMeeting(postedData.id, me))
+            postedData.id = null;
         //Create a new meeting since it has not id
         if (!postedData.id || !me.getMeeting(postedData.id, me))
         {
@@ -1900,8 +1902,9 @@ Ext.define('AgendaBuilderObservable', {
     onUpdateMeeting24Hours: function(postedData, response, scope){
         scope.fireEvent('meeting24HourUpdated', postedData);
     },
-    onDeleteMeetingItem: function(id, response, scope){
+    onDeleteMeetingItem: function(data, response, scope){
         var me = scope;
+        var id = data.id;
         scope.deleteMeeting(id, scope);
         scope.fireEvent('meetingItemDeleted', id);
         me.removeEmptyRows();

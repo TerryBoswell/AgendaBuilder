@@ -46,6 +46,7 @@ Ext.define('AjaxController', {
             if (data.id)
                 fakeResponse.id = data.id;
             console.info('A mocked post has occurred', data, fakeResponse);
+            data.id = fakeResponse.id;
             callback(data, fakeResponse, me);
         }, me).delay(100);   
         // Ext.Ajax.request({
@@ -85,7 +86,7 @@ Ext.define('AjaxController', {
         new Ext.util.DelayedTask(function(){
             var fakeResponse = {id: id, success: true};
             console.info('A mocked delete has occurred', id, fakeResponse);
-            callback(id, fakeResponse, scope);
+            callback(fakeResponse, fakeResponse, scope);
         }, me).delay(100);   
     },
     saveAlternateOption: function(){},
