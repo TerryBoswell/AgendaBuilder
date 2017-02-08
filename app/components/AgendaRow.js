@@ -26,7 +26,7 @@ Ext.define('AgendaRow', {
 	        	'</tpl>',
         		'<tr>',
 		        	'<tpl for="columns">',
-		            	'<td {[this.getData(xindex)]} {[this.getId({xindex})]} class="{cls}" style="{style}">{parent.columnCount} {html}', 
+		            	'<td {[this.getData(xindex)]} {[this.getId(xindex)]} class="{cls}" style="{style}">{parent.columnCount} {html}', 
 		        		'</td>',
 		        	'</tpl>',
 		        '</tr>', 
@@ -60,8 +60,8 @@ Ext.define('AgendaRow', {
 					}
                     return data;
                 },
-			    getId: function(index){
-			    	return 'id="' + this.id + '-col-' + index.xindex + '"';
+			    getId: function(i){
+					return 'id="' + this.id + '-col-' + i + '"';
 			    },
                 getColumnWidth: function(i){
                 	var totalColumns = (this.leadColumns * 2) + this.hoursColumns + (this.trailingColumns * 2);
@@ -128,7 +128,7 @@ Ext.define('AgendaRow', {
         this.callParent(arguments);		
 		this.on({
 			delay: 100,
-			render: function(cmp){
+			afterrender: function(cmp){
 				
 				var hideShow = function(hCmp, parent, overlayCmp){
 						var mtgsToHide = [];
@@ -313,8 +313,12 @@ Ext.define('AgendaRow', {
 				Ext.each(Ext.query('.twentyfourhr-bubble'), onTwentyFourHourClick);
 				Ext.each(Ext.query('.lineThrough'), onTwentyFourHourClick)
 				Ext.each(Ext.query('.twentyfourhour-parent'), onTwentyFourHourClick)
-				
-				Ext.each(cmp.el.down('tr').el.dom.children, function(tr){
+				if (!cmp || !cmp.el ||	!cmp.el.down)
+					return;
+				var tr = cmp.el.down('tr');
+				if (!tr)
+					return;	
+				Ext.each(tr.el.dom.children, function(tr){
 					if (parent && parent.observer)
 						parent.observer.addDragOverListener(tr, parent.observer);
 				}, parent)

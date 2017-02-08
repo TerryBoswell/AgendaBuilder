@@ -480,7 +480,8 @@ Ext.define('AgendaBuilderObservable', {
         var endingCol = null;
         var endingRight = null;
         var endingHour = null;
-        var startingPoint = rect.left + 1; //shifted one pixel to make sure we are on the starting block                       
+        var startingPoint = rect.left + 1; //shifted one pixel to make sure we are on the starting block    
+        var elements = document.elementFromPoint(startingPoint, y);
         Ext.each(document.elementsFromPoint(startingPoint, y), function(el){
             if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
             {
@@ -2368,6 +2369,15 @@ Ext.define('AgendaBuilderObservable', {
             }
         })
         
+        //handling missing support for IE 11
+        if (Ext.isIE && document.msElementsFromPoint && !document.elementsFromPoint)
+        {
+            document.elementsFromPoint = function(x, y)
+            {
+                return document.msElementsFromPoint(x, y);
+            }
+        }   
+
     }
     
 });
