@@ -202,13 +202,13 @@ Ext.define('AgendaRow', {
 				var hideCmp = null;
 				var overlayCmp = null;
 				Ext.each(Ext.query('.row-overlay'), function(el){
-					if (el && el.dataset && el.dataset.date && el.dataset.date == cmp.dataField)
+					if (el && el.dataset && el.dataset.date && el.dataset.date.stripInvalidChars() == cmp.dataField)
 					{
 						overlayCmp = el;
 					}
 				})	
 				Ext.each(Ext.query('.hideARow'), function(el){
-					if (el && el.dataset && el.dataset.date && el.dataset.date == cmp.dataField)
+					if (el && el.dataset && el.dataset.date && el.dataset.date.stripInvalidChars() == cmp.dataField)
 					{
 						hideCmp = el;
 					}

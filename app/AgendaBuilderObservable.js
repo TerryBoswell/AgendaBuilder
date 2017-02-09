@@ -114,9 +114,24 @@ Ext.define('AgendaBuilderObservable', {
         var dateStr = Ext.Date.format(date, "m/d/Y");
         var offset = Ext.Date.format(date, 'P');
         var zone = Ext.Date.format(date, 'T');
+        var formatDate = function(date_time, dateStr, zone, offset)
+        {
+            //new Date("09/05/2017T07:00:00-0400")
+            if (Ext.isIE)
+            {
+                var theDateStr = date_time.replace('1900/01/01', dateStr.stripInvalidChars());
+                console.log(Ext.String.format("{0}T{1}", theDateStr, offset));
+                return new Date(Ext.String.format("{0}T{1}", theDateStr, offset))
+            }
+            else
+            {
+                var theDateStr = date_time.replace('1900/01/01', dateStr.stripInvalidChars());
+                return new Date(theDateStr + ' ' + zone + offset);
+            }
+        }
         Ext.each(instance.meetings, function(m){
-            m.start = new Date(m.start_time.replace('1900/01/01', dateStr) + ' ' + zone + offset);
-            m.end = new Date(m.end_time.replace('1900/01/01', dateStr) + ' ' + zone + offset);
+            m.start = formatDate(m.start_time, dateStr, zone, offset); // new Date(m.start_time.replace('1900/01/01', dateStr.stripInvalidChars()) + ' ' + zone + offset);
+            m.end = new Date(m.end_time.replace('1900/01/01', dateStr.stripInvalidChars()) + ' ' + zone + offset);
         })
        /*********************************/
 
@@ -916,7 +931,7 @@ Ext.define('AgendaBuilderObservable', {
                                             var instance = null;
                                             if (match && match.dataset && match.dataset.date)
                                             {
-                                                var instanceDate = new Date(match.dataset.date);
+                                                var instanceDate = new Date(match.dataset.date.stripInvalidChars());
                                                 instance = observer.getInstance(instanceDate, observer);
                                             }
                                             
@@ -928,7 +943,7 @@ Ext.define('AgendaBuilderObservable', {
                                                 invalidDrop();
                                             }
                                             else{
-                                                var d = new Date(match.dataset.date);
+                                                var d = new Date(match.dataset.date.stripInvalidChars());
                                                 var parentId = match.id.substring(0, match.id.indexOf('-col'));
                                                 var rowCmp = Ext.getCmp(parentId);
                                                 var rowIndex = rowCmp.getRowIndex();
@@ -1050,7 +1065,7 @@ Ext.define('AgendaBuilderObservable', {
                         }
                         var date = mtg.date;
                         if (!date)
-                            date = new Date(match.dataset.date);                            
+                            date = new Date(match.dataset.date.stripInvalidChars());                            
                         var dimensions = me.getDimensions(mtg.rowIndex -1, date, start, end);
                         var m_cmp = me.findMeetingComponent(mtg.id);
                         m_cmp.setX(dimensions.xy[0]);
@@ -1060,7 +1075,7 @@ Ext.define('AgendaBuilderObservable', {
                             return;
                         mtg.start_time = start;
                         mtg.end_time = end;
-                        mtg.date = new Date(match.dataset.date);
+                        mtg.date = new Date(match.dataset.date.stripInvalidChars());
                         cmp.observer.saveMeetingItem(mtg);
                     }
 
@@ -2377,7 +2392,65 @@ Ext.define('AgendaBuilderObservable', {
                 return document.msElementsFromPoint(x, y);
             }
         }   
+        //IE Work around for chars added to data attributes
+        String.prototype.stripInvalidChars = function() 
+        {
+            var str = this;
+            var out = "";
+            for (var step = 0; step < str.length; step++) {
+                if (str.charCodeAt(step) != 8206) 
+                    out = out + str.charAt(step);
+            }
+            return out;
+        }
+        //IE missing contains
+        if (!Array.prototype.includes) {
+            Object.defineProperty(Array.prototype, 'includes', {
+                value: function(searchElement, fromIndex) {
 
+                // 1. Let O be ? ToObject(this value).
+                if (this == null) {
+                    throw new TypeError('"this" is null or not defined');
+                }
+
+                var o = Object(this);
+
+                // 2. Let len be ? ToLength(? Get(O, "length")).
+                var len = o.length >>> 0;
+
+                // 3. If len is 0, return false.
+                if (len === 0) {
+                    return false;
+                }
+
+                // 4. Let n be ? ToInteger(fromIndex).
+                //    (If fromIndex is undefined, this step produces the value 0.)
+                var n = fromIndex | 0;
+
+                // 5. If n ≥ 0, then
+                //  a. Let k be n.
+                // 6. Else n < 0,
+                //  a. Let k be len + n.
+                //  b. If k < 0, let k be 0.
+                var k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
+
+                // 7. Repeat, while k < len
+                while (k < len) {
+                    // a. Let elementK be the result of ? Get(O, ! ToString(k)).
+                    // b. If SameValueZero(searchElement, elementK) is true, return true.
+                    // c. Increase k by 1.
+                    // NOTE: === provides the correct "SameValueZero" comparison needed here.
+                    if (o[k] === searchElement) {
+                    return true;
+                    }
+                    k++;
+                }
+
+                // 8. Return false
+                return false;
+                }
+            });
+        }
     }
     
 });
