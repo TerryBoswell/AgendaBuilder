@@ -116,12 +116,11 @@ Ext.define('AgendaBuilderObservable', {
         var zone = Ext.Date.format(date, 'T');
         var formatDate = function(date_time, dateStr, zone, offset)
         {
-            //new Date("09/05/2017T07:00:00-0400")
             if (Ext.isIE)
             {
                 var theDateStr = date_time.replace('1900/01/01', dateStr.stripInvalidChars());
-                console.log(Ext.String.format("{0}T{1}", theDateStr, offset));
-                return new Date(Ext.String.format("{0}T{1}", theDateStr, offset))
+                offset = offset.replace(":", "");
+                return new Date(Ext.String.format("{0}{1}", theDateStr, offset))
             }
             else
             {
@@ -131,7 +130,7 @@ Ext.define('AgendaBuilderObservable', {
         }
         Ext.each(instance.meetings, function(m){
             m.start = formatDate(m.start_time, dateStr, zone, offset); // new Date(m.start_time.replace('1900/01/01', dateStr.stripInvalidChars()) + ' ' + zone + offset);
-            m.end = new Date(m.end_time.replace('1900/01/01', dateStr.stripInvalidChars()) + ' ' + zone + offset);
+            m.end = formatDate(m.end_time, dateStr, zone, offset);
         })
        /*********************************/
 
@@ -1009,13 +1008,13 @@ Ext.define('AgendaBuilderObservable', {
                                                 mtg.end_time = end;
                                                 mtg.date = d;
                                                 cmp.observer.saveMeetingItem(mtg);
-                                                var listener = cmp.observer.on({
-                                                    meetingSaveComplete : function(){
-                                                        cmp.observer.removeEmptyRows();
-                                                        listener.destroy();
-                                                    },
-                                                    scope: cmp.observer
-                                                })
+                                                // var listener = cmp.observer.on({
+                                                //     meetingSaveComplete : function(){
+                                                //         cmp.observer.removeEmptyRows();
+                                                //         listener.destroy();
+                                                //     },
+                                                //     scope: cmp.observer
+                                                // })
                                             }
                                         }
 
@@ -1059,6 +1058,8 @@ Ext.define('AgendaBuilderObservable', {
                         })
                         var end = (match.dataset.hour);
                         var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
+                        if (!mtg)
+                            throw("Meeting not found");
                         if (!end)
                         {
                             end = "00:00:00";                            
@@ -1750,6 +1751,7 @@ Ext.define('AgendaBuilderObservable', {
         }
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
         scope.fireEvent('meetingSaveComplete', newRows);
+        console.log(scope.dates);
     },
     getTotalRowsInAboveDates : function(rowIndex, dates, observer)
     { 
