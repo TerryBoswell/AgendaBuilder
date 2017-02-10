@@ -4,8 +4,13 @@ var centerContainer = Ext.create('CenterContainer');
 
 var observer = Ext.create('AgendaBuilderObservable');
 
-
-
+var extVersion = Ext.getVersion('extjs');
+if (extVersion.major != 6 || extVersion.minor != 0)
+{
+    var msg = extVersion.version + " is not a supported extjs version";
+    alert(msg);
+    throw msg;
+}
 window.agendaBuilder = {};
 Ext.define('AgendaBuilder.MainContainer', {
     observer: observer,
