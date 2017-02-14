@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.004',
+    version: '1.005',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -802,6 +802,7 @@ Ext.define('AgendaBuilderObservable', {
             width: width,
             cls: 'mtg-instance',
             meetingId: id,
+            date: date,
             observer: observer,
             renderCallBack: renderCallBack,
             style: {
@@ -827,6 +828,16 @@ Ext.define('AgendaBuilderObservable', {
                 var rowOffset = 50;
                 var rowPosition = y - centerY;
                 return Math.round(rowPosition / rowOffset);
+            },
+            getRelativeRow: function(){
+                var me = cmp;
+                var y = me.getY();
+                var row = observer.getRow(me.date);
+                var cmpY = Ext.getCmp(row.rows[0].id).getY();
+                var centerY = Ext.getCmp(Ext.query('.centerCtr')[0].id).getY();
+                var rowOffset = 50;
+                var rowPosition = y - cmpY;
+                return Math.round(rowPosition / rowOffset) + 1;
             },
             listeners: {
                 delay: 100,
@@ -1017,13 +1028,7 @@ Ext.define('AgendaBuilderObservable', {
                                                 mtg.end_time = end;
                                                 mtg.date = d;
                                                 cmp.observer.saveMeetingItem(mtg);
-                                                var listener = cmp.observer.on({
-                                                    meetingSaveComplete : function(){
-                                                        cmp.observer.removeEmptyRows();
-                                                        listener.destroy();
-                                                    },
-                                                    scope: cmp.observer
-                                                })
+                                               
                                             }
                                         }
 
@@ -1760,6 +1765,7 @@ Ext.define('AgendaBuilderObservable', {
         }
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
         scope.fireEvent('meetingSaveComplete', newRows);
+        scope.removeEmptyRows();
     },
     getTotalRowsInAboveDates : function(rowIndex, dates, observer)
     { 
@@ -1845,6 +1851,7 @@ Ext.define('AgendaBuilderObservable', {
         var gap = null;
         var dateOfGap = null;
         var lastRow = 0;
+        var lastDate = null;
         var rows = [];
         //loop through all the rowindexes and check for a gap between them
         Ext.each(me.dates, function(date){
@@ -1860,12 +1867,14 @@ Ext.define('AgendaBuilderObservable', {
                 {
                     var currRow = m_cmp.getCurrentRow();
                     rows.push(currRow);
+                    //We are looking for a gap
                     if (currRow >= lastRow && ((currRow - lastRow) > 1))
                     {
                         gap = lastRow + 1;
-                        dateOfGap = date.date;
+                        dateOfGap = lastDate;
                     }
                     lastRow = m_cmp.getCurrentRow();
+                    lastDate = m_cmp.date;
                 }
             },me)
         }, me)
@@ -1918,7 +1927,9 @@ Ext.define('AgendaBuilderObservable', {
             {
                 cmpToRemove.hide();
                 cmpToRemove.destroy();
+                row.rows.splice(row.rows.length-1, 1)
             }
+            
         }
     },
     onUpdateMeetingItemPeople: function(postedData, response, scope){
