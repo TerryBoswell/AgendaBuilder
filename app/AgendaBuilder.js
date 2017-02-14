@@ -119,6 +119,13 @@ Ext.define('AgendaBuilder.MainContainer', {
         painted: {
             element: 'el', //bind to the underlying el property on the panel
             fn: function(cmp){
+                if (observer.isInitialized)
+                {
+                    observer.clearAllCmps();
+                    observer.destroy();
+                    observer = Ext.create('AgendaBuilderObservable');
+                }
+                observer.isInitialized = true;
                 observer.executeOverrides();
                 Ext.Date.dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
                 observer.setScrollingHandlers();

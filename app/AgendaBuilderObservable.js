@@ -17,12 +17,19 @@ Ext.define('AgendaBuilderObservable', {
     ajaxController: null,
     currentDragMtg: null, //This is used to target when item is current being dragged
     currentDragDrop: null, //This is the current drag drop manager
+    isInitialized: false, //flag to keep from repeating after initialize
     initAjaxController: function(url, scope){
         var me = scope;
         me.ajaxController = Ext.create('AjaxController', {
             rfpNumber: me.rfpNumber,
             ajaxUrlBase: url
         })
+    },
+    clearAllCmps: function(){
+        Ext.ComponentQuery.query('#datesCtr')[0].removeAll(true);
+        Ext.each(Ext.query('.mtg-instance'), function(mtg){Ext.fly(mtg).destroy()});
+        Ext.ComponentQuery.query("#northCtrMeal")[0].removeAll();
+        Ext.ComponentQuery.query("#northCtrMtg")[0].removeAll();
     },
     getHourForCol: function(col){
         var colBase = 3;
