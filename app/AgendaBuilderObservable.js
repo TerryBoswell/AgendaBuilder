@@ -147,7 +147,6 @@ Ext.define('AgendaBuilderObservable', {
         }
 
         var dataOrderedData = instance.meetings.sort(sortFn);
-
         var dict = {};
 
         Ext.each(dataOrderedData, function(d){
@@ -1614,17 +1613,17 @@ Ext.define('AgendaBuilderObservable', {
     getDisplayHours : function(time){
             if (!time)
                 return '';
-                var hours = time.getHours();
-                var minutes = time.getMinutes();
-                var amPm = "AM"
-                if (hours >= 12)
-                {
-                    amPm = "PM";                    
-                }
-                if (hours >= 13)
-                    hours-=12;
-                var minStr = minutes.toString().length < 2 ? "0" + minutes.toString() : minutes.toString();
-                return Ext.String.format("{0}:{1} {2}", hours, minStr, amPm)
+            var hours = time.getHours();
+            var minutes = time.getMinutes();
+            var amPm = "AM"
+            if (hours >= 12)
+            {
+                amPm = "PM";                    
+            }
+            if (hours >= 13)
+                hours-=12;
+            var minStr = minutes.toString().length < 2 ? "0" + minutes.toString() : minutes.toString();
+            return Ext.String.format("{0}:{1} {2}", hours, minStr, amPm)
     },
     getHourFor24Hrs: function(time){
         time = time.toUpperCase()
@@ -1763,6 +1762,10 @@ Ext.define('AgendaBuilderObservable', {
             savedAbsoluteRowIndex = results.savedAbsoluteRowIndex;  
             me.setAllRows24HourStatus();
         }
+        if (!postedData.start && postedData.date && postedData.start_time)
+            postedData.start = new Date(postedData.date.toString().replace('00:00:00', postedData.start_time));
+        if (!postedData.end && postedData.date && postedData.end_time)
+            postedData.end = new Date(postedData.date.toString().replace('00:00:00', postedData.end_time));
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
         scope.fireEvent('meetingSaveComplete', newRows);
         scope.removeEmptyRows();
@@ -1788,46 +1791,33 @@ Ext.define('AgendaBuilderObservable', {
         if (savedAbsoluteRowIndex == null)
             Ext.each(meetings, function(mtg){
                 var rowsAbove = me.getTotalRowsInAboveDates(row.rowIndex, dates, me);
-                if (mtg.id == savedMtgId)
+                var m_cmp = me.findMeetingComponent(mtg.id);
+                var relativeRow = m_cmp.getRelativeRow();
+                if (relativeRow != mtg.rowIndex)
                 {
-                    relativeIndex = row.rowIndex;
-                    totalRowsAbove =  me.getTotalRowsInAboveDates(row.rowIndex, dates, me);
-                    savedAbsoluteRowIndex = mtg.rowIndex + totalRowsAbove;
-                    var oldidx = (mtg.oldRowIndex ? mtg.oldRowIndex : 1); //if there is an old row index we use it, otherwise it is new and starts on row 1
-                    var shiftAmount = mtg.rowIndex - oldidx;
-                    var m_cmp = me.findMeetingComponent(mtg.id);
-                    if (shiftAmount == 0)
-                        shiftAmount = ((mtg.rowIndex - (m_cmp.getCurrentRow() - totalRowsAbove)));
-                    if (shiftAmount > 0)    
+                    var amountToShift = mtg.rowIndex - relativeRow;
+                    console.warn({ rowIndex: mtg.rowIndex, relative: m_cmp.getRelativeRow(), 
+                        amountToShift: amountToShift, rowCnt : row.rows.length, rowsAbove: rowsAbove});
+                    
+                    if (mtg.rowIndex > row.rows.length)   
                     {
-                        me.moveMeetingDownXRows(mtg.id, shiftAmount, me);
+                        me.addAdditionalRow(date, me, row, mtg.rowIndex - 1, row.rowIndex, rowsAbove);
+                        savedAbsoluteRowIndex = mtg.rowIndex + rowsAbove;
+                        startShift = true;
                     }
-                    else if (shiftAmount < 0)
+                    if (amountToShift < 0)
                     {
-                        savedAbsoluteRowIndex = null;
-                        shiftAmount = 0;
+                        me.moveMeetingUpXRows(mtg.id, Math.abs(amountToShift), me);
+                    }
+                    else if (amountToShift > 0)
+                    {
+                        me.moveMeetingDownXRows(mtg.id, amountToShift, me);
+                       
                     }
                 }
+                
         })
-        if (row.rowCount < rowsNeeded)
-        {
-            var insertRowAt = savedAbsoluteRowIndex - 1;
-            var rowCmp = me.getRowAt(insertRowAt);
-            //we can't insert at the first or second row of the date
-            if (rowCmp && (rowCmp.isFirstRow()))
-            {
-                insertRowAt = rowCmp.getRowIndex() + 1;  
-                rowCmp = me.getRowAt(insertRowAt);
-            }
-            if (rowCmp && (rowCmp.isSecondRow()))
-            {
-                insertRowAt = rowCmp.getRowIndex() + 1;
-            }
-            var x = me.addAdditionalRow(date, me, row, insertRowAt, relativeIndex, totalRowsAbove);   
-            row.rowCount +=1;
-            startShift = true;                      
-        } 
-
+        
         if (startShift)
         {
             var rowsAbove = me.getTotalRowsInAboveDates(row.rowIndex, dates, me);
@@ -1851,6 +1841,7 @@ Ext.define('AgendaBuilderObservable', {
         var gap = null;
         var dateOfGap = null;
         var lastRow = 0;
+        var lastRelativeRow = 0;
         var lastDate = null;
         var rows = [];
         //loop through all the rowindexes and check for a gap between them
@@ -1874,6 +1865,7 @@ Ext.define('AgendaBuilderObservable', {
                         dateOfGap = lastDate;
                     }
                     lastRow = m_cmp.getCurrentRow();
+                    lastRelativeRow = m_cmp.getRelativeRow();
                     lastDate = m_cmp.date;
                 }
             },me)
@@ -1892,6 +1884,7 @@ Ext.define('AgendaBuilderObservable', {
             if (agendaBuilderRow)
             {
                 var lastRowIndex = agendaBuilderRow.getRowIndex();
+                var lastRelativeRow = lastRowIndex;
                 dateOfGap = new Date(agendaBuilderRow.dataField);
                 if (lastRow != lastRowIndex)
                     gap = lastRowIndex;
@@ -1906,13 +1899,21 @@ Ext.define('AgendaBuilderObservable', {
         var emptyRow = me.findEmptyRow();
         if (emptyRow == null)
             return;
+        var hitRowWithTwo = false; //once we hit a row with only two, we stop
         Ext.each(me.dates, function(date){
             Ext.each(date.meetings, function(meeting){
                 var m_cmp = me.findMeetingComponent(meeting.id);
                 if (m_cmp)
                 {
                     var currRowIdx = m_cmp.getCurrentRow();
-                    if (currRowIdx > emptyRow.index)
+                    var agbRow = me.getRow(date.date);
+                    if (agbRow.rows.length <= 2 && agbRow.date == emptyRow.date)
+                    {
+                        console.log(emptyRow);
+                        console.log(agbRow);
+                        hitRowWithTwo = true;
+                    }
+                    if (currRowIdx > emptyRow.index && !hitRowWithTwo) //We cannot remove the first or second row
                         me.moveMeetingUpXRows(meeting.id, 1, me);
                 }
             },me)
