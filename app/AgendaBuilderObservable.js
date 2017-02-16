@@ -1909,8 +1909,6 @@ Ext.define('AgendaBuilderObservable', {
                     var agbRow = me.getRow(date.date);
                     if (agbRow.rows.length <= 2 && agbRow.date == emptyRow.date)
                     {
-                        console.log(emptyRow);
-                        console.log(agbRow);
                         hitRowWithTwo = true;
                     }
                     if (currRowIdx > emptyRow.index && !hitRowWithTwo) //We cannot remove the first or second row
@@ -1932,6 +1930,7 @@ Ext.define('AgendaBuilderObservable', {
             }
             
         }
+        me.setAllRows24HourStatus();
     },
     onUpdateMeetingItemPeople: function(postedData, response, scope){
         var me = scope;
