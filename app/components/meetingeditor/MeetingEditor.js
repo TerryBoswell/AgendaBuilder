@@ -519,7 +519,7 @@ Ext.define('MeetingEditor', {
             msg = "Please select a start time";
             isValid = false;
         }
-        if (!mtg.num_people)
+        if (!mtg.num_people || mtg.num_people < 0)
         {
             msg = "Please select the number of people greater than 0";
             isValid = false;

@@ -2,8 +2,9 @@
     Ext.onReady(function() {
             var mainCtr = Ext.create('AgendaBuilder.MainContainer', {
                  renderTo: Ext.getBody(),
-                 //rfpNumber: '11055'
+                 //rfpNumber: '12556',
                  rfpNumber: '12036',
+                 //apiUrl: 'https://etouches987.zentilaqa.com',
                  agendaMode: agendaMode.Planner
             });
 
