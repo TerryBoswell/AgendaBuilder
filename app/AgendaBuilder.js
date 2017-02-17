@@ -120,7 +120,23 @@ Ext.define('AgendaBuilder.MainContainer', {
         painted: {
             element: 'el', //bind to the underlying el property on the panel
             fn: function(cmp){
-                if (observer.isInitialized)
+                cmp.component.refresh();
+            }
+        }
+    },
+    addPreDays: function(count){
+        this.observer.addPreDays(count);
+    },
+    addPostDays: function(count){
+        this.observer.addPostDays(count);
+    },
+    setAgendaMode: function(mode){
+        this.agendaMode = mode;
+        this.observer.setAgendaMode(mode);
+    },
+    refresh: function(){
+        var cmp = Ext.ComponentQuery.query('#MainContainer')[0];
+         if (observer.isInitialized)
                 {
                     observer.clearAllCmps();
                     observer.destroy();
@@ -130,9 +146,9 @@ Ext.define('AgendaBuilder.MainContainer', {
                 observer.executeOverrides();
                 Ext.Date.dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
                 observer.setScrollingHandlers();
-                observer.setRfpNumber(cmp.component.rfpNumber);
-                observer.setAgendaMode(cmp.component.agendaMode);
-                observer.initAjaxController(cmp.component.apiUrl, observer);
+                observer.setRfpNumber(cmp.rfpNumber);
+                observer.setAgendaMode(cmp.agendaMode);
+                observer.initAjaxController(cmp.apiUrl, observer);
                 observer.getRoomSetups();
                 observer.on({
                     scope: this,
@@ -155,19 +171,7 @@ Ext.define('AgendaBuilder.MainContainer', {
                     })	
                 });
                 Ext.ComponentQuery.query('#versionbox')[0].update('<div style="padding-bottom:10px;">Version:' + observer.version + '</div>')
-                window.agendaBuilder.observer = observer;                
-            }
-        }
-    },
-    addPreDays: function(count){
-        this.observer.addPreDays(count);
-    },
-    addPostDays: function(count){
-        this.observer.addPostDays(count);
-    },
-    setAgendaMode: function(mode){
-        this.agendaMode = mode;
-        this.observer.setAgendaMode(mode);
+                window.agendaBuilder.observer = observer;  
     }
 })
 
