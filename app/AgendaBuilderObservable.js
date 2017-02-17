@@ -31,6 +31,45 @@ Ext.define('AgendaBuilderObservable', {
         Ext.ComponentQuery.query("#northCtrMeal")[0].removeAll();
         Ext.ComponentQuery.query("#northCtrMtg")[0].removeAll();
     },
+    showError: function(msg){
+        var toast = new Ext.toast({
+                        //html: '<div class="error-toast"><span class="error-toast;">' + msg + '</span><i style="float:right;" class="fa fa-times fa-2x error-close" aria-hidden="true"></i></div>', 
+                        width: 400, 
+                        align: 'bl', 
+                        style: 'border-radius: 5px; border-style: none;border-width: 0px; background-color: #BC4A46;', 
+                        bodyStyle: 'background-color: #BC4A46;', 
+                        border: false, 
+                        bodyBorder: false, 
+                        layout: {
+                            type: 'hbox',
+                            align:'stretch'
+                        },
+                        items: [
+                            {
+                                xtype: 'box',
+                                html: '<div>' + msg + '</div>',
+                                cls: 'error-toast',
+                                flex: 1
+                            },
+                            {
+                                xtype: 'box',
+                                html: '<i style="float:right;" class="fa fa-times fa-2x error-close" aria-hidden="true"></i>',
+                                cls: 'error-toast',
+                                width: 50
+                            }
+                        ],
+                        autoCloseDelay: 10000,
+						listeners: {
+							delay:100,
+							afterrender: function(el){
+								var cmp = Ext.query('.error-close')[0];
+								cmp.addEventListener('click', function(){
+										toast.hide();
+								});
+							}
+						}
+                    });
+    },
     getHourForCol: function(col){
         var colBase = 3;
         if (col < colBase)

@@ -421,3 +421,12 @@ div.meetingTip:before {
 {
     overflow-y: auto;
 }
+
+.error-toast
+{
+    color:white; 
+    font-weight: 550;
+    font-size:18px;
+    vertical-align: middle !important;
+    text-align: center;
+}

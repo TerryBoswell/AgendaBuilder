@@ -481,7 +481,7 @@ Ext.define('MeetingEditor', {
                                     }
                                 }
                             });
-                            if (!me.validate(me.meeting))
+                            if (!me.validate(me.meeting, me))
                                 return;
                             if (!me.meeting.date)
                                 me.meeting.date = me.date;
@@ -501,7 +501,7 @@ Ext.define('MeetingEditor', {
             }
         ];
     },    
-    validate: function(mtg){
+    validate: function(mtg, me){
         var isValid = true;
         var msg = "";
         if (!mtg.room_setup)
@@ -535,16 +535,7 @@ Ext.define('MeetingEditor', {
             isValid = false;
         }
         if (!isValid)
-            Ext.toast({
-                html: msg,
-                width: '100%',
-                align: 't',
-                border: false,
-                bodyBorder: false,
-                frame: false,
-                bodyCls: 'warn-toast',
-                cls: 'warn-toast-outer'
-            });
+            me.observer.showError(msg);
         return isValid;
     },
     getVal: function(itemId){
