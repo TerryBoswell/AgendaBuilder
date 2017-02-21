@@ -430,3 +430,15 @@ div.meetingTip:before {
     vertical-align: middle !important;
     text-align: center;
 }
+
+.copyDate
+{
+    overflow: hidden;
+    margin: 0px 5px;
+}
+
+.copyDate .x-box-inner
+{
+    overflow: hidden;
+    
+}

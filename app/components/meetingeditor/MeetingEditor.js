@@ -356,7 +356,7 @@ Ext.define('MeetingEditor', {
                                             var parent = me.parent;                                         
                                             items.push(Ext.create('Ext.Container', {
                                                 height: 25,
-                                                style: 'margin: 0px 5px;',
+                                                cls: 'copyDate',
                                                 layout: {
                                                     type: 'hbox',
                                                     align: 'stretch'

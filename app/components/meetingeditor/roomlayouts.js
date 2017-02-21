@@ -186,7 +186,12 @@ Ext.define('classroomlayout', Ext.apply({
             { boxLabel: '2 per 6ft', name: 'rb', inputValue: '6' , checked: true},
             { boxLabel: '3 per 6ft', name: 'rb', inputValue: '7'}
             ],
-        getValue: function(){return Ext.ComponentQuery.query('#extenderRadioGroup')[0].getValue().rb},
+        getValue: function(){
+            var cmp = Ext.ComponentQuery.query('#extenderRadioGroup')[0];
+            if (!cmp)
+                return null;
+            return cmp.getValue().rb
+        },
         values: function(){return ['6','7']}
     }, baseConfig)
 );
