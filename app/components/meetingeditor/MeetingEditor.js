@@ -590,6 +590,7 @@ Ext.define('MeetingEditor', {
             
             new Ext.util.DelayedTask(function(){
                 cmp.setRoomSetup(cmp.meeting.room_setup);
+                console.log(cmp.meeting);
                 var overLappingMeetings = cmp.observer.getOverlappingSimilarMeetings(cmp.meeting, cmp.observer);
                 cmp.addOverLappingRoomNumPeople(overLappingMeetings, cmp);
             }).delay(100);

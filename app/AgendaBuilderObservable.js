@@ -1271,15 +1271,35 @@ Ext.define('AgendaBuilderObservable', {
     },
     getOverlappingSimilarMeetings: function(source, scope){
         var mtgs = [];
-        var date = new Date(source.date)
+        var date = null;
+        var start = null;
+        var end = null;
+        if (source.date)
+            date = new Date(source.date);
+        else if (source.start)
+            date = source.start;
+
         var dateStr = Ext.Date.format(date, "m/d/Y");
-        var start = new Date(dateStr + " " + source.start_time.replace('1900/01/01 ', '') + ' GMT+0000');
-        var end = new Date(dateStr + " " + source.end_time.replace('1900/01/01 ', '') + ' GMT+0000');
+        if (source.start)
+            start = source.start;
+        else
+            start = new Date(dateStr + " " + source.start_time.replace('1900/01/01 ', '') + ' GMT+0000');
+        if (source.end)
+            end = source.end;
+        else
+            end = new Date(dateStr + " " + source.end_time.replace('1900/01/01 ', '') + ' GMT+0000');
+        
         Ext.each(scope.dates, function(instance){
-            if (instance.date && source.date && instance.date.getDate() == source.date.getDate() && instance.date.getMonth() == source.date.getMonth())
+            if (instance.date && date && instance.date.getDate() == date.getDate() && instance.date.getMonth() == date.getMonth())
             {
                 Ext.each(instance.meetings, function(meeting){
-                    var overLaps = end <= meeting.end && start >= meeting.start;
+                    var overLaps = false;
+                    //if the end happens in the range of the meeting
+                    if (end <= meeting.end && end >= meeting.start)
+                        overLaps = true;
+                    //if the start happens in the range of the meeting
+                    if (start >= meeting.start && start <= meeting.end)
+                        overLaps = true;
                     if (meeting.id != source.id && meeting.meeting_item_type.color == source.meeting_item_type.color && overLaps)
                     {
                         mtgs.push(meeting);
