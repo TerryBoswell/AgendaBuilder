@@ -405,12 +405,20 @@ Ext.define('AgendaBuilderObservable', {
         var currRow = me.getRowAt(insertRowAt);
         if (currRow != null && currRow.isFirstRow())
         {
-            insertRowAt++;
-            currRow = me.getRowAt(insertRowAt);
+            var rowDate = new Date(currRow.dataField);
+            if (rowDate.getDate() == date.getDate() && rowDate.getMonth() == date.getMonth())
+            {
+                insertRowAt++;
+                currRow = me.getRowAt(insertRowAt);
+            }
         }
         if (currRow != null && currRow.isSecondRow())
         {
-            insertRowAt++;
+            var rowDate = new Date(currRow.dataField);
+            if (rowDate.getDate() == date.getDate() && rowDate.getMonth() == date.getMonth())
+            {
+                insertRowAt++;
+            }
         }
 
         if (!agendaBuilderRow)
@@ -438,7 +446,8 @@ Ext.define('AgendaBuilderObservable', {
             datesCtr.add(row);
         else
         {
-            datesCtr.insert(insertRowAt, row);
+            console.log(agendaBuilderRow);
+            datesCtr.insert(insertRowAt-1, row);
         }
         agendaBuilderRow.rows.push({id: row.id})
         return row;
