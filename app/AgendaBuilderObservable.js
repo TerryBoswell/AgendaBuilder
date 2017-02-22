@@ -391,22 +391,22 @@ Ext.define('AgendaBuilderObservable', {
     },
     addAdditionalRow: function(date, context, agendaBuilderRow, insertRowAt, relativeIndex, rowsAbove){
         //We can not add a new row at index 0 or 1 because of the left hand items of dates and -Collapse
-        if (insertRowAt != undefined && (insertRowAt == 0 || insertRowAt == 1))
-            insertRowAt = 2;
-        else if (insertRowAt != undefined && relativeIndex != undefined && rowsAbove != undefined && rowsAbove != 0 && (
-            relativeIndex == 0 || relativeIndex == 1))
-            insertRowAt = rowsAbove + 3;
+        // if (insertRowAt != undefined && (insertRowAt == 0 || insertRowAt == 1))
+        //     insertRowAt = 2;
+        // else if (insertRowAt != undefined && relativeIndex != undefined && rowsAbove != undefined && rowsAbove != 0 && (
+        //     relativeIndex == 0 || relativeIndex == 1))
+        //     insertRowAt = rowsAbove + 3;
         if (context)
             var me = context;
         else
             var me = this;
         //The insert point is always one less than the row index ie... insert at 9 needs to check the row with the index of 8 (0-8)
         //we can't insert in the first two rows. They are reserved
-        var currRow = me.getRowAt(insertRowAt - 1);
+        var currRow = me.getRowAt(insertRowAt);
         if (currRow != null && currRow.isFirstRow())
         {
             insertRowAt++;
-            currRow = me.getRowAt(insertRowAt - 1);
+            currRow = me.getRowAt(insertRowAt);
         }
         if (currRow != null && currRow.isSecondRow())
         {
@@ -600,12 +600,28 @@ Ext.define('AgendaBuilderObservable', {
             me.showDragDropHourPreview(endingRight - 50, mouseEvent.pageY + 40, 
                 me.convertTimeTo12Hrs(startingHour),me.convertTimeTo12Hrs(endingHour), me)
     },
+    getUnAccountAttendees: function(date, context){
+        if (context)
+            var me = context;
+        else
+            var me = this;
+        var instance = observer.getInstance(date, me);
+        var mtgTotal = instance.room_block;
+        
+        if (!instance || !instance.meetings || !instance.meetings.length)
+            return mtgTotal;
+        Ext.each(instance.meetings, function(mtg){
+            mtgTotal -= mtg.num_people;
+        })
+        if (mtgTotal < 0)
+            return 0;
+        return mtgTotal;
+    },
     createMeeting: function(id, date, startHour, endHour, text, fontColor, color, rowIdx, context, MeetingTemplate, renderCallBack){
         if (context)
             var me = context;
         else
             var me = this;
-
         var m = {
             booths: 0,
             start_time: startHour,
@@ -1855,12 +1871,14 @@ Ext.define('AgendaBuilderObservable', {
                 if (relativeRow != mtg.rowIndex)
                 {
                     var amountToShift = mtg.rowIndex - relativeRow;
-                    console.warn({ rowIndex: mtg.rowIndex, relative: m_cmp.getRelativeRow(), 
+                    console.warn({ rowIndex: mtg.rowIndex, relative: m_cmp.getRelativeRow(), //m_cmp.getRelativeRow(), 
                         amountToShift: amountToShift, rowCnt : row.rows.length, rowsAbove: rowsAbove});
                     
                     if (mtg.rowIndex > row.rows.length)   
                     {
-                        me.addAdditionalRow(date, me, row, mtg.rowIndex - 1, row.rowIndex, rowsAbove);
+                        
+                        //date, context, agendaBuilderRow, insertRowAt, relativeIndex, rowsAbove
+                        me.addAdditionalRow(date, me, row, mtg.rowIndex, row.rowIndex, rowsAbove);
                         savedAbsoluteRowIndex = mtg.rowIndex + rowsAbove;
                         startShift = true;
                     }
@@ -1956,7 +1974,17 @@ Ext.define('AgendaBuilderObservable', {
     removeEmptyRows: function(){
         var me = this;
         var emptyRow = me.findEmptyRow();
+        console.log(emptyRow);
         if (emptyRow == null)
+            return;
+        var rowCount = 0;
+        Ext.each(Ext.query('.agendaRowClass'), function(rowEl){
+            var data = new Date(Ext.getCmp(rowEl.id).dataField);
+            var emptyRowDate = new Date(Ext.Date.format(emptyRow.date, "m/d/Y"));
+            if (data.getDate() == emptyRowDate.getDate() && data.getMonth() == emptyRowDate.getMonth())
+                rowCount ++;
+        });   
+        if (rowCount >= 2)
             return;
         var hitRowWithTwo = false; //once we hit a row with only two, we stop
         Ext.each(me.dates, function(date){

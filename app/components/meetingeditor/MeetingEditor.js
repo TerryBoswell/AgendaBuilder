@@ -590,9 +590,14 @@ Ext.define('MeetingEditor', {
             
             new Ext.util.DelayedTask(function(){
                 cmp.setRoomSetup(cmp.meeting.room_setup);
-                console.log(cmp.meeting);
                 var overLappingMeetings = cmp.observer.getOverlappingSimilarMeetings(cmp.meeting, cmp.observer);
                 cmp.addOverLappingRoomNumPeople(overLappingMeetings, cmp);
+                if (cmp.meeting.num_people == 0)
+                {
+                    var npepsCmp = Ext.ComponentQuery.query('#peopleInMeeting1')[0];
+                    npepsCmp.setValue(cmp.observer.getUnAccountAttendees(cmp.date, cmp.observer));
+                }
+    
             }).delay(100);
 
             cmp.observer.on({
