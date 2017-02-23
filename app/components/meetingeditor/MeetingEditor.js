@@ -58,7 +58,11 @@ Ext.define('MeetingEditor', {
                             itemId      : 'peopleInMeeting1',
                             value       : meeting.num_people,
                             cls         : 'numpeoplefield',
-                            meetingId   : meeting.id
+                            meetingId   : meeting.id,
+                            msgTarget   : 'none',
+                            validator: function (value) {
+                                return true;
+                            }
                         }
                     ]
                 },
@@ -584,7 +588,11 @@ Ext.define('MeetingEditor', {
                         itemId      : Ext.String.format('peopleInMeeting{0}', i),
                         value       : mtg.num_people,
                         meetingId   : mtg.id,
-                        origValue   : mtg.num_people
+                        origValue   : mtg.num_people,
+                        msgTarget   : 'none',
+                        validator: function (value) {
+                                return true;
+                            }
                     })
                 );
 
