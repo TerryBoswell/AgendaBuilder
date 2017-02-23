@@ -131,7 +131,7 @@ Ext.define('MeetingTemplate',
 									Ext.each(Ext.query('.meeting-item-type'), function(e){
 										Ext.fly(e).el.unmask();
 									});
-									observer.showMeetingEditor(meeting, observer, meetingTemplate, d);
+									observer.showMeetingEditor(meeting, observer, meetingTemplate, d, newCmp.getY());
 									newCmp.destroy();
 								}
 					        }

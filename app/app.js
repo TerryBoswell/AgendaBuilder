@@ -2,7 +2,7 @@
     Ext.onReady(function() {
             var mainCtr = Ext.create('AgendaBuilder.MainContainer', {
                  renderTo: Ext.getBody(),
-                 //rfpNumber: '12556',
+                // rfpNumber: '12676',
                  //rfpNumber: '12532',
                  rfpNumber: '10807',
                  //rfpNumber: '12036',

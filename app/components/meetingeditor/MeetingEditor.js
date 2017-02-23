@@ -14,6 +14,7 @@ Ext.define('MeetingEditor', {
     roomLayouts: [],
     observer: null,        
     copyToDates: [],
+    ycoord: null,
     items: [
         {
             xtype   : 'container',
@@ -583,6 +584,8 @@ Ext.define('MeetingEditor', {
         beforeshow: function(cmp){
             cmp.title = cmp.meeting.title;
             cmp.add(cmp.buildNorthContainer(cmp.meeting, cmp.observer));
+            if (cmp.ycoord)
+                cmp.y = cmp.ycoord;
             Ext.ComponentQuery.query('#centerctr')[0].add(cmp.buildCenterComponents(cmp.meeting, cmp.meetingTemplate));
             
         },
@@ -597,7 +600,8 @@ Ext.define('MeetingEditor', {
                     var npepsCmp = Ext.ComponentQuery.query('#peopleInMeeting1')[0];
                     npepsCmp.setValue(cmp.observer.getUnAccountAttendees(cmp.date, cmp.observer));
                 }
-    
+                if (cmp.ycoord)
+                    cmp.setY(cmp.ycoord);
             }).delay(100);
 
             cmp.observer.on({

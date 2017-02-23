@@ -788,7 +788,7 @@ Ext.define('AgendaBuilderObservable', {
                                                         Ext.each(targetCmp.observer.meetingCallouts, function(callout){
                                                             callout.hide();
                                                         })
-                                                        targetCmp.observer.showMeetingEditor(mtg, targetCmp.observer, mtg.meeting_item_type, mtg.date);
+                                                        targetCmp.observer.showMeetingEditor(mtg, targetCmp.observer, mtg.meeting_item_type, mtg.date, targetCmp.getY());
                                                     })
                                                 }
                                             }
@@ -929,7 +929,8 @@ Ext.define('AgendaBuilderObservable', {
                         Ext.each(cmp.observer.meetingCallouts, function(callout){
                             callout.hide();
                         })
-                        cmp.observer.showMeetingEditor(mtg, cmp.observer, mtg.meeting_item_type, mtg.date);
+                        //zzz
+                        cmp.observer.showMeetingEditor(mtg, cmp.observer, mtg.meeting_item_type, mtg.date, cmp.getY());
                     })
 
                     cmp.mon(cmp.el, 'mousedown', function(e){
@@ -1517,7 +1518,7 @@ Ext.define('AgendaBuilderObservable', {
         }
         return null;
     },
-    showMeetingEditor: function(meeting, observer, meetingTemplate, date){
+    showMeetingEditor: function(meeting, observer, meetingTemplate, date, ycoord){
         var me = this;
         var datesCtr = Ext.ComponentQuery.query('#MainContainer')[0];
         Ext.create('MeetingEditor', {
@@ -1525,7 +1526,8 @@ Ext.define('AgendaBuilderObservable', {
             alignTarget: datesCtr,
             observer: observer,
             meetingTemplate: meetingTemplate,
-            date: date
+            date: date,
+            ycoord: ycoord
         }).show();
 
     },
