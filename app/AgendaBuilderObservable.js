@@ -958,10 +958,6 @@ Ext.define('AgendaBuilderObservable', {
                                             if (cmp.dragEnded)
                                                 return;
                                         }, 
-                                        // onDragEnter: function(e, id) { 
-                                        //     //Leaving the reference here so devs know. OnDragEnter will not fireEvent
-                                        //     //when resizing
-                                        // },
                                         // Called when the drag operation completes
                                         endDrag : function(dropTarget, invalidate, mtgCmp) {
                                             if (mtgCmp)
@@ -1074,7 +1070,6 @@ Ext.define('AgendaBuilderObservable', {
                                                 }
                                                 var m_cmp = cmp.observer.findMeetingComponent(mtg.id);
                                                 m_cmp.setX(dimensions.xy[0]);
-                                                //m_cmp.setWidth(dimensions.width);
                                                 m_cmp.setY(dimensions.xy[1] + 3);
                                                 
                                                 if (mtg.start_time.replace('1900/01/01 ', '') == start &&
@@ -1883,7 +1878,33 @@ Ext.define('AgendaBuilderObservable', {
                 if (relativeRow != mtg.rowIndex)
                 {
                     var amountToShift = mtg.rowIndex - relativeRow;
-                    
+                    //We need to detect if the mis-match is due to switching dates
+                    //This condition is only true if a item was dragged from one date to another
+                    //zzz
+                    if (savedMtgId == mtg.id && me.getRowAt(mtg.rowIndex).dataField != me.getRowAt(m_cmp.getCurrentRow()).dataField)
+                    {
+                        // var instanceDate = new Date(me.getRowAt(m_cmp.getCurrentRow()).dataField);
+                        // var oldInstance = me.getInstance(date, me);
+                        // var mtgsAfterRemovingOld = [];
+                        // Ext.each(oldInstance.meetings, function(oldMtg){
+                        //     if (oldMtg.id != mtg.id)
+                        //         mtgsAfterRemovingOld.push(mtg);
+                        // });
+                        // oldInstance.meetings = mtgsAfterRemovingOld;
+                        // var newInstance = me.getInstance(instanceDate, me);
+                        // //me.assignRowIndexes(newInstance);
+                        
+                        //We've switchedRows, so we need to change rows rowsAbove
+                        // row = me.getRow(instanceDate);
+                        // rowsAbove = me.getTotalRowsInAboveDates(row, row.rowIndex, dates, me);
+                        
+                        // console.log('*************************');
+                        // console.log(rowsAbove);
+                        // console.log();
+                        //console.log(me.getRowAt(mtg.rowIndex).dataField);
+                        //console.log(me.getRowAt(m_cmp.getCurrentRow()).dataField);
+                        //console.log(mtg);
+                    }
                     if (mtg.rowIndex > row.rows.length)   
                     {
                         
@@ -1939,7 +1960,7 @@ Ext.define('AgendaBuilderObservable', {
 
             })
         });
-
+        console.warn(usedRows);
         var index = 1;
         var emtpyRows = [];
         var removeNextRowOnDate = null;
@@ -1969,7 +1990,7 @@ Ext.define('AgendaBuilderObservable', {
                             removeNextRowOnDate = new Date(dataField);
                         }
                     }
-                    else if (removeNextRowOnDate.getDate() == new Date(dataField).getDate() && removeNextRowOnDate.getMonth() == new Date(dataField).getMonth())
+                    else if (removeNextRowOnDate != null && removeNextRowOnDate.getDate && removeNextRowOnDate.getDate() == new Date(dataField).getDate() && removeNextRowOnDate.getMonth() == new Date(dataField).getMonth())
                     {
                         emtpyRows.push({
                                 id: rowEl.id, 
@@ -1981,6 +2002,7 @@ Ext.define('AgendaBuilderObservable', {
                     index++;
                 }
         });
+        console.warn(emtpyRows);
         return emtpyRows;
     },
     removeEmptyRows: function(){

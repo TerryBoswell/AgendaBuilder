@@ -376,7 +376,7 @@ Ext.define('AgendaRow', {
 		var meetings = me.getMeetingsCurrentlyOnRow();
 		var hasAllDayItem = false;
 		Ext.each(meetings, function(mtg){
-			if (mtg.all_day)
+			if (mtg && mtg.all_day)
 				hasAllDayItem = true;
 		})
 		me.toggleTwentyFourHour(hasAllDayItem);
