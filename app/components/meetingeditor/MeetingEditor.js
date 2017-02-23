@@ -465,10 +465,20 @@ Ext.define('MeetingEditor', {
                             me.meeting.room_setup = '11'//Default to none. We'll set the selected one below
                             var endTime = me.getVal('end_time');
                             me.meeting.end_time = me.observer.convertTimeTo24Hrs(endTime);
+                            if (!me.meeting.end_time)
+                            {
+                                me.observer.showError("Please enter a valid end time");
+                                return;
+                            }
                             me.meeting.note = me.getVal('note');
                             me.meeting.num_people = me.getVal('peopleInMeeting1');
                             var startTime = me.getVal('start_time');
                             me.meeting.start_time = me.observer.convertTimeTo24Hrs(startTime);
+                            if (!me.meeting.start_time)
+                            {
+                                me.observer.showError("Please enter a valid start time");
+                                return;
+                            }
                             me.meeting.title = me.getVal('meetingTitle');
                             Ext.each(me.roomLayouts, function(rl){
                                 

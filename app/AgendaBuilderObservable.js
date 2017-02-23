@@ -1678,16 +1678,23 @@ Ext.define('AgendaBuilderObservable', {
         return v;
     },
     convertTimeTo24Hrs: function(time){
-        time = time.toUpperCase()
-        var hours = Number(time.match(/^(\d+)/)[1]);
-        var minutes = Number(time.match(/:(\d+)/)[1]);
-        if(time.indexOf('PM') != -1 && hours<12) hours = hours+12;
-        if(time.indexOf('AM') != -1 && hours==12) hours = hours-12;
-        var sHours = hours.toString();
-        var sMinutes = minutes.toString();
-        if(hours<10) sHours = "0" + sHours;
-        if(minutes<10) sMinutes = "0" + sMinutes;
-        return sHours + ":" + sMinutes;
+        try
+        {
+            time = time.toUpperCase()
+            var hours = Number(time.match(/^(\d+)/)[1]);
+            var minutes = Number(time.match(/:(\d+)/)[1]);
+            if(time.indexOf('PM') != -1 && hours<12) hours = hours+12;
+            if(time.indexOf('AM') != -1 && hours==12) hours = hours-12;
+            var sHours = hours.toString();
+            var sMinutes = minutes.toString();
+            if(hours<10) sHours = "0" + sHours;
+            if(minutes<10) sMinutes = "0" + sMinutes;
+            return sHours + ":" + sMinutes;
+        }
+        catch(e)
+        {
+            return null;
+        }
     },
     getDisplayHours : function(time){
             if (!time)
