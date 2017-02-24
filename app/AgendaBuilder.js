@@ -134,6 +134,9 @@ Ext.define('AgendaBuilder.MainContainer', {
         this.agendaMode = mode;
         this.observer.setAgendaMode(mode);
     },
+    pushBackFocus: function(){
+        observer.pushBackFocus(observer);
+    },
     refresh: function(){
         var cmp = Ext.ComponentQuery.query('#MainContainer')[0];
          if (observer.isInitialized)

@@ -1426,6 +1426,16 @@ Ext.define('AgendaBuilderObservable', {
 
         
     },
+    pushBackFocus: function(scope){
+        var me = !scope ? this : scope;
+        Ext.each(me.meetingCallouts, function(callout){
+                callout.hide();
+            })
+        Ext.each(Ext.query('.mtg-instance'), function(el){
+            if (el && el.style && el.style.zIndex)
+                el.style.zIndex = 1000;
+        });
+    },
     updateMeetingId: function(meetingId, newId, scope){
         var me = scope;
         var mtg = me.findMeetingComponent(meetingId);
