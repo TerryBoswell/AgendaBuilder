@@ -1874,7 +1874,7 @@ Ext.define('AgendaBuilderObservable', {
                 var rowsAbove = me.getTotalRowsInAboveDates(row, row.rowIndex, dates, me);
                 var m_cmp = me.findMeetingComponent(mtg.id);
                 var relativeRow = m_cmp.getRelativeRow();
-                if (relativeRow != mtg.rowIndex)
+                if (relativeRow != mtg.rowIndex || (mtg && mtg.start && mtg.start.getDate && mtg.start.getDate() != date.getDate() && mtg.start.getMonth() != date.getMonth()))
                 {
                     var amountToShift = mtg.rowIndex - relativeRow;
                     //We need to detect if the mis-match is due to switching dates
@@ -1899,14 +1899,13 @@ Ext.define('AgendaBuilderObservable', {
                         rowsAbove = me.getTotalRowsInAboveDates(row, row.rowIndex, dates, me);
                         var newRowCount = (newInstance.meetings[newInstance.meetings.length-1].rowIndex);
                         amountToShift = mtg.rowIndex - m_cmp.getRelativeRow();
-                        console.log(mtg.rowIndex);
-                        console.log(m_cmp.getRelativeRow());
                         if (newRowCount > row.rows.length)
                         {
                             var shiftedMeetingIndex = m_cmp.getCurrentRow();
                             savedAbsoluteRowIndex = mtg.rowIndex + rowsAbove;
                             var insertNewRowAt = rowsAbove + newRowCount - 1;
                             me.addAdditionalRow(instanceDate, me, row, insertNewRowAt);
+                            
                             
                             //we are handling the shift here since the loop below needs to compare them
                             if (amountToShift < 0)
@@ -1925,18 +1924,18 @@ Ext.define('AgendaBuilderObservable', {
                                         {
                                             me.moveMeetingDownXRows(meeting.id, 1, me);
                                         }
-                                        //We need to handle overlap here that are on the same row
-                                        else if (existingMeetingIndex == shiftedMeetingIndex && mtg.id != meeting.id)
-                                        {
-                                            console.log(meeting)
-                                            console.log(mtg);
-                                        }
                                     }
 
                                 })
                             });   
+                            // Ext.each(newInstance.meetings, function(ml){
+                            //     console.log(ml.title);
+                            //     console.log(ml.rowIndex);
+                            //     console.log(me.findMeetingComponent(ml.id).getRelativeRow());
+
+                            // })
+                        
                         }
-                        mtg.rowIndex = m_cmp.getRelativeRow();
                     }
                     else if (mtg.rowIndex > row.rows.length)   
                     {
