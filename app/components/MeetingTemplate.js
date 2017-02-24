@@ -81,8 +81,7 @@ Ext.define('MeetingTemplate',
 								}
 								var x = browserEvent.clientX;
 								var y = browserEvent.clientY;
-								//console.dir(document.elementsFromPoint(newCmp.getX(), y));								
-					        	Ext.each(document.elementsFromPoint(x, y), function(el){
+								Ext.each(document.elementsFromPoint(x, y), function(el){
 									if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
 										match = el;
 								})

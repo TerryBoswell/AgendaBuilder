@@ -1928,12 +1928,7 @@ Ext.define('AgendaBuilderObservable', {
 
                                 })
                             });   
-                            // Ext.each(newInstance.meetings, function(ml){
-                            //     console.log(ml.title);
-                            //     console.log(ml.rowIndex);
-                            //     console.log(me.findMeetingComponent(ml.id).getRelativeRow());
-
-                            // })
+                            
                         
                         }
                     }
