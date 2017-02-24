@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.007',
+    version: '1.008',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -69,6 +69,20 @@ Ext.define('AgendaBuilderObservable', {
 							}
 						}
                     });
+    },
+    areTwoDateStringsEqual: function(str1, str2)
+    {
+        if (!str1 || !str2)
+            return false;
+        var date1 = new Date(str1);
+        var date2 = new Date(str2);
+        return this.areTwoDatesEqual(date1, date2);
+    },
+    areTwoDatesEqual: function(date1, date2)
+    {
+        if (!date1 || !date2 || !date1.getDate || !date2.getDate)
+            return false;
+        return date1.getDate() == date2.getDate() && date1.getMonth() == date2.getMonth();
     },
     getHourForCol: function(col){
         var colBase = 3;

@@ -132,7 +132,7 @@ Ext.define('AgendaRow', {
 				
 				var hideShow = function(hCmp, parent, overlayCmp){
 						var mtgsToHide = [];
-						var date = new Date(parent.dataField);
+						var date = new Date(parent.dataField.stripInvalidChars());
 						var instance = parent.observer.getInstance(date, parent.observer);
 						var row = parent.observer.getRow(date)
 						var topMostCmp = Ext.ComponentQuery.query('#datesCtr')[0];
@@ -201,14 +201,16 @@ Ext.define('AgendaRow', {
 
 				var hideCmp = null;
 				var overlayCmp = null;
+				var observer = cmp.observer;
 				Ext.each(Ext.query('.row-overlay'), function(el){
-					if (el && el.dataset && el.dataset.date && el.dataset.date.stripInvalidChars() == cmp.dataField)
+					if (el && el.dataset && el.dataset.date && observer && observer.areTwoDateStringsEqual(el.dataset.date.stripInvalidChars(), cmp.dataField.stripInvalidChars()))
 					{
 						overlayCmp = el;
 					}
 				})	
 				Ext.each(Ext.query('.hideARow'), function(el){
-					if (el && el.dataset && el.dataset.date && el.dataset.date.stripInvalidChars() == cmp.dataField)
+					
+					if (el && el.dataset && el.dataset.date && observer && observer.areTwoDateStringsEqual(el.dataset.date.stripInvalidChars(), cmp.dataField.stripInvalidChars()))
 					{
 						hideCmp = el;
 					}
