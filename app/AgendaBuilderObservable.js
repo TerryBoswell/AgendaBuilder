@@ -30,6 +30,9 @@ Ext.define('AgendaBuilderObservable', {
         Ext.each(Ext.query('.mtg-instance'), function(mtg){Ext.fly(mtg).destroy()});
         Ext.ComponentQuery.query("#northCtrMeal")[0].removeAll();
         Ext.ComponentQuery.query("#northCtrMtg")[0].removeAll();
+        Ext.each(this.meetingCallouts, function(callout){
+            callout.hide();
+        })
     },
     showError: function(msg){
         var toast = new Ext.toast({
