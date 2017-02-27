@@ -182,6 +182,12 @@ Ext.define('AgendaBuilderObservable', {
                 offset = offset.replace(":", "");
                 return new Date(Ext.String.format("{0}{1}", theDateStr, offset))
             }
+            else if (Ext.isFirefox)
+            {
+                var theDateStr = date_time.replace('1900/01/01', dateStr.stripInvalidChars());
+                offset = offset.replace(":", "");
+                return new Date(Date.parse(Ext.String.format("{0}{1}", theDateStr, offset)));
+            }
             else
             {
                 var theDateStr = date_time.replace('1900/01/01', dateStr.stripInvalidChars());
