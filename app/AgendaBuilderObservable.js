@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.009',
+    version: '1.010',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -35,43 +35,58 @@ Ext.define('AgendaBuilderObservable', {
         })
     },
     showError: function(msg){
-        var toast = new Ext.toast({
-                        //html: '<div class="error-toast"><span class="error-toast;">' + msg + '</span><i style="float:right;" class="fa fa-times fa-2x error-close" aria-hidden="true"></i></div>', 
-                        width: 400, 
-                        align: 'bl', 
-                        style: 'border-radius: 5px; border-style: none;border-width: 0px; background-color: #BC4A46;', 
-                        bodyStyle: 'background-color: #BC4A46;', 
-                        border: false, 
-                        bodyBorder: false, 
-                        layout: {
-                            type: 'hbox',
-                            align:'stretch'
-                        },
-                        items: [
-                            {
-                                xtype: 'box',
-                                html: '<div>' + msg + '</div>',
-                                cls: 'error-toast',
-                                flex: 1
+        var hasErrorNotification = false;
+        try
+        {
+            hasErrorNotification = errorNotification !== undefined && Ext.isFunction(errorNotification);
+        }
+        catch(e){
+            hasErrorNotification = false;
+        }
+
+        if (hasErrorNotification)
+        {
+            errorNotification(msg);
+        }
+        else
+        {
+            var toast = new Ext.toast({
+                            width: 400, 
+                            align: 'bl', 
+                            style: 'border-radius: 5px; border-style: none;border-width: 0px; background-color: #BC4A46;', 
+                            bodyStyle: 'background-color: #BC4A46;', 
+                            border: false, 
+                            bodyBorder: false, 
+                            layout: {
+                                type: 'hbox',
+                                align:'stretch'
                             },
-                            {
-                                xtype: 'box',
-                                html: '<i style="float:right;" class="fa fa-times fa-2x error-close" aria-hidden="true"></i>',
-                                cls: 'error-toast',
-                                width: 50
+                            items: [
+                                {
+                                    xtype: 'box',
+                                    html: '<div>' + msg + '</div>',
+                                    cls: 'error-toast',
+                                    flex: 1
+                                },
+                                {
+                                    xtype: 'box',
+                                    html: '<i style="float:right;" class="fa fa-times fa-2x error-close" aria-hidden="true"></i>',
+                                    cls: 'error-toast',
+                                    width: 50
+                                }
+                            ],
+                            autoCloseDelay: 10000,
+                            listeners: {
+                                delay:100,
+                                afterrender: function(el){
+                                    var cmp = Ext.query('.error-close')[0];
+                                    cmp.addEventListener('click', function(){
+                                            toast.hide();
+                                    });
+                                }
                             }
-                        ],
-                        autoCloseDelay: 10000,
-						listeners: {
-							delay:100,
-							afterrender: function(el){
-								var cmp = Ext.query('.error-close')[0];
-								cmp.addEventListener('click', function(){
-										toast.hide();
-								});
-							}
-						}
-                    });
+                        });
+        }
     },
     areTwoDateStringsEqual: function(str1, str2)
     {
