@@ -1126,9 +1126,9 @@ Ext.define('AgendaBuilderObservable', {
                                                 m_cmp.setX(dimensions.xy[0]);
                                                 m_cmp.setY(dimensions.xy[1] + 3);
                                                 
-                                                // if (mtg.start_time.replace('1900/01/01 ', '') == start &&
-                                                //     mtg.end_time.replace('1900/01/01 ', '') == end)
-                                                //     return;
+                                                if (me.areTwoDatesEqual(d, m_cmp.date) && mtg.start_time.replace('1900/01/01 ', '') == start &&
+                                                     mtg.end_time.replace('1900/01/01 ', '') == end)
+                                                     return;
                                                 mtg.start_time = start;
                                                 mtg.end_time = end;
                                                 mtg.date = d;
@@ -1861,6 +1861,8 @@ Ext.define('AgendaBuilderObservable', {
             if (postedData.start_time.indexOf('1900/01/01 ') == -1)
                 postedData.start_time = '1900/01/01 ' + postedData.start_time;
             savedMeeting = me.getMeeting(postedData.id, scope);  
+            postedData.meeting_item_type = scope.getMeetingType(postedData.type),
+            postedData.room_setup_type = scope.getRoomSetup(postedData.room_setup),
             Ext.apply(savedMeeting, postedData);              
         }
         //update the meeting data with the saved info or create  a new entry
