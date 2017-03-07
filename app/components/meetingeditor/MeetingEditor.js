@@ -48,7 +48,8 @@ Ext.define('MeetingEditor', {
                             xtype       : 'textfield',
                             fieldLabel  : 'Meeting Title',
                             itemId      : 'meetingTitle',
-                            value       : meeting.title
+                            value       : meeting.title,
+                            msgTarget   : 'none'
 
                         },
                         {
@@ -524,14 +525,14 @@ Ext.define('MeetingEditor', {
             msg = "Please select a rooom setup";
             isValid = false;
         }
-        if (!mtg.end_time)
+        if (!mtg.end_time || me.observer.isAfterHour(mtg.end_time, 24))
         {
-            msg = "Please select an end time";
+            msg = "Please enter a valid end time";
             isValid = false;
         }
-        if (!mtg.start_time)
+        if (!mtg.start_time || me.observer.isBeforeHour(mtg.start_time, 6))
         {
-            msg = "Please select a start time";
+            msg = "Please enter a valid start time";
             isValid = false;
         }
         if (!mtg.num_people || mtg.num_people < 0)
@@ -544,9 +545,10 @@ Ext.define('MeetingEditor', {
             msg = "Please provide a valid title";
             isValid = false;
         }
+        console.log(mtg.end_time);
         if (mtg.start_time >= mtg.end_time && mtg.end_time != '00:00')
         {
-            msg = "Please select a valid time range";
+            msg = "Please enter a valid time range";
             isValid = false;
         }
         if (!isValid)

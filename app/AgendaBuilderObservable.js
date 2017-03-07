@@ -119,6 +119,22 @@ Ext.define('AgendaBuilderObservable', {
             return false;
         return date1.getDate() == date2.getDate() && date1.getMonth() == date2.getMonth();
     },
+    isAfterHour: function(timeStr, hour){        
+        return this.getHourFromTime(timeStr) > hour;
+    },
+    isBeforeHour: function(timeStr, hour){
+        return this.getHourFromTime(timeStr) < hour;
+    },
+    getHourFromTime: function(timeStr){
+        if (!timeStr)
+            throw "Invalid time";
+        if (timeStr == "00:00")
+            return 24;
+        if (timeStr == "00:00:00")
+            return 24;
+        var date = new Date(Ext.String.format("1/1/2016 {0}", timeStr));
+        return date.getHours();        
+    },
     getHourForCol: function(col){
         var colBase = 3;
         if (col < colBase)
@@ -1735,7 +1751,7 @@ Ext.define('AgendaBuilderObservable', {
             min = '00';
             slice = "AM";
         }
-        if (hr == 12 && min == '00')
+        if (hr == 12 && (min == '00' || min == '30'))
             slice = 'PM';
         var v  = Ext.String.format("{0}:{1} {2}", hr, min, slice);
         return v;
