@@ -535,17 +535,36 @@ Ext.define('MeetingEditor', {
             msg = "Please enter a valid start time";
             isValid = false;
         }
+        
         if (!mtg.num_people || mtg.num_people < 0)
         {
             msg = "Please select the number of people greater than 0";
             isValid = false;
+            Ext.each(Ext.query('.numpeoplefield'), function(el){ 
+                var cmp = Ext.getCmp(el.id);
+                var value = cmp.getValue();
+                if (!value || value < 0 < 1)
+                    cmp.markInvalid(' ');
+            })
         }
+        else
+        {
+            Ext.each(Ext.query('.numpeoplefield'), function(el){ 
+                Ext.getCmp(el.id).clearInvalid(' ');
+            })
+
+        }
+
         if (!mtg.title)
         {
             msg = "Please provide a valid title";
             isValid = false;
+            Ext.ComponentQuery.query('#meetingTitle')[0].markInvalid(' ');
         }
-        console.log(mtg.end_time);
+        else
+        {
+            Ext.ComponentQuery.query('#meetingTitle')[0].clearInvalid();
+        }
         if (mtg.start_time >= mtg.end_time && mtg.end_time != '00:00')
         {
             msg = "Please enter a valid time range";
