@@ -334,7 +334,7 @@ Ext.define('AgendaBuilderObservable', {
         me.removeAllMeetings();
         var firstDate = me.dates[0].date;
         var newRows = [];
-        for(i = 1; i <= count; i++)
+        for(var i = 1; i <= count; i++)
         {
             newRows.push({
                 date : Ext.Date.add(firstDate, Ext.Date.DAY, -i),
@@ -346,9 +346,13 @@ Ext.define('AgendaBuilderObservable', {
         Ext.each(me.dates, function(d){
             newRows.push(d);
         })
+        var sortFn = function(itemA, itemB){
+            return itemA.date - itemB.date;
+        }
+
         me.agendaBuilderRows = [];
         me.dates = [];
-        me.buildDates(newRows);
+        me.buildDates(newRows.sort(sortFn));
     },
     addPostDays: function(count){
         var me = this;

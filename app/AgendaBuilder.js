@@ -125,14 +125,14 @@ Ext.define('AgendaBuilder.MainContainer', {
         }
     },
     addPreDays: function(count){
-        this.observer.addPreDays(count);
+        observer.addPreDays(count);
     },
     addPostDays: function(count){
-        this.observer.addPostDays(count);
+        observer.addPostDays(count);
     },
     setAgendaMode: function(mode){
         this.agendaMode = mode;
-        this.observer.setAgendaMode(mode);
+        observer.setAgendaMode(mode);
     },
     pushBackFocus: function(){
         observer.pushBackFocus(observer);

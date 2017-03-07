@@ -13,23 +13,23 @@
             }).delay(100);      
             
             
-            // Ext.create('Ext.Button',{
-            //     text: 'Add One Day Before',
-            //     renderTo: Ext.getBody(),
-            //     scope: this,
-            //     handler: function(){
-            //         mainCtr.addPreDays(1);
-            //     }
-            // })
+            Ext.create('Ext.Button',{
+                text: 'Add One Day Before',
+                renderTo: Ext.getBody(),
+                scope: this,
+                handler: function(){
+                    window.ab.addPreDays(1);
+                }
+            })
 
-            // Ext.create('Ext.Button',{
-            //     text: 'Add One Day After',
-            //     renderTo: Ext.getBody(),
-            //     scope: this,
-            //     handler: function(){
-            //         mainCtr.addPostDays(1);
-            //     }
-            // })
+            Ext.create('Ext.Button',{
+                text: 'Add One Day After',
+                renderTo: Ext.getBody(),
+                scope: this,
+                handler: function(){
+                    window.ab.addPostDays(1);
+                }
+            })
 
             // Ext.create('Ext.Button',{
             //     text: '<div style="background-color:white; color:blue;">Planner</div>',

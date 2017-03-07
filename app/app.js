@@ -10,7 +10,9 @@
                 });
                 return {
                     pushBackFocus : mainCtr.pushBackFocus,
-                    refresh: mainCtr.refresh
+                    refresh: mainCtr.refresh, 
+                    addPreDays : mainCtr.addPreDays,
+                    addPostDays: mainCtr.addPostDays
                 };
             }
             
