@@ -9,7 +9,9 @@
 
 
             new Ext.util.DelayedTask(function(){
-                window.ab = createAgendaBuilder(Ext.getBody(), '12745');
+                var target = Ext.getBody();
+                var rfpNumber = '12745';
+                window.ab = createAgendaBuilder(target, rfpNumber);
             }).delay(100);      
             
             
@@ -28,6 +30,15 @@
                 scope: this,
                 handler: function(){
                     window.ab.addPostDays(1);
+                }
+            })
+
+            Ext.create('Ext.Button',{
+                text: 'Refresh',
+                renderTo: Ext.getBody(),
+                scope: this,
+                handler: function(){
+                    window.ab.refresh();
                 }
             })
 
