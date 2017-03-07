@@ -2054,12 +2054,15 @@ Ext.define('AgendaBuilderObservable', {
                     }
                     else if (removeNextRowOnDate != null && removeNextRowOnDate.getDate && removeNextRowOnDate.getDate() == new Date(dataField).getDate() && removeNextRowOnDate.getMonth() == new Date(dataField).getMonth())
                     {
-                        emtpyRows.push({
-                                id: rowEl.id, 
-                                index: index,
-                                date : new Date(dataField)
-                        });
-                        removeNextRowOnDate = null;
+                        if (!cmp.isFirstRow() && !cmp.isSecondRow())
+                        {
+                            emtpyRows.push({
+                                    id: rowEl.id, 
+                                    index: index,
+                                    date : new Date(dataField)
+                            });
+                            removeNextRowOnDate = null;
+                        }
                     }
                     index++;
                 }
