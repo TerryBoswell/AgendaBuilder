@@ -43,6 +43,7 @@ Ext.define('MeetingEditor', {
                     itemId  : 'fldctr',
                     flex    : 1,
                     layout  : 'form',
+                    labelWidth:300,
                     items   : [
                         {
                             xtype       : 'textfield',
@@ -55,6 +56,7 @@ Ext.define('MeetingEditor', {
                         {
                             xtype       : 'numberfield',
                             fieldLabel  : '# People in Meeting 1',
+                            index       : 1,
                             minValue    : 0,
                             itemId      : 'peopleInMeeting1',
                             value       : meeting.num_people,
@@ -604,6 +606,7 @@ Ext.define('MeetingEditor', {
                 i++;
                 fldctr.add(Ext.create('Ext.form.field.Number',{
                         fieldLabel  : Ext.String.format('# People in Meeting {0}', i),
+                        index       : i,
                         minValue    : 0,
                         cls         : 'numpeoplefield',
                         itemId      : Ext.String.format('peopleInMeeting{0}', i),
@@ -652,7 +655,16 @@ Ext.define('MeetingEditor', {
             })
             Ext.query('.x-window-header')[0].style.backgroundColor = '#' + cmp.meeting.meeting_item_type.color;
             Ext.query('.x-title-text')[0].style.color = 'white';
-            
+            Ext.each(Ext.query('.numpeoplefield'), function(nEl){
+                var nCmp = Ext.getCmp(nEl.id);
+                var width = "140px";
+                if (cmp.meeting.meeting_item_type.title.length >= 10)
+                    width = "140px";
+                if (cmp.meeting.meeting_item_type.title.length >= 20)
+                    width = "190px"; 
+                var str = Ext.String.format('<div style="width:{0};"># People in {1} {2}</div>', width, cmp.meeting.meeting_item_type.title, nCmp.index);
+                nCmp.labelEl.update(str);
+            });
             //x-title-text
         },
         beforehide: function(cmp){
