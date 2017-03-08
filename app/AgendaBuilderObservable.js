@@ -1033,7 +1033,7 @@ Ext.define('AgendaBuilderObservable', {
                                                 return;
                                         }, 
                                         // Called when the drag operation completes
-                                        endDrag : function(dropTarget, invalidate, mtgCmp) {
+                                        endDrag : function(dropTarget, invalidate, mtgCmp, forceCallInvalidate) {
                                             if (mtgCmp)
                                                 cmp=mtgCmp;
                                             observer.currentDragMtg = null; //Drag is over, so don't track it.
@@ -1062,6 +1062,12 @@ Ext.define('AgendaBuilderObservable', {
                                                 delete cmp.invalidDrop;
                                                 delete cmp.origX;
                                                 delete cmp.origY;
+                                            }
+                                            if (forceCallInvalidate)
+                                            {
+                                                invalidDrop();
+                                                observer.currentDragDrop.DDMInstance.stopDrag()
+                                                return;
                                             }
                                             if (browserEvent == null || invalidate == true)
                                             {

@@ -175,6 +175,9 @@ Ext.define('AgendaBuilder.MainContainer', {
                 });
                 Ext.ComponentQuery.query('#versionbox')[0].update('<div style="padding-bottom:10px;">Version:' + observer.version + '</div>')
                 window.agendaBuilder.observer = observer;  
+                window.onblur = function(evt) {
+	                observer.currentDragDrop.endDrag(evt, true, observer.currentDragMtg, true);
+	            };
     }
 })
 
