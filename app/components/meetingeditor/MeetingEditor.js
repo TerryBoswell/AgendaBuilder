@@ -39,11 +39,11 @@ Ext.define('MeetingEditor', {
             items   : [
                 {
                     xtype   : 'container',
-                    style   : 'background-color: white; padding-right: 10px;',
+                    style   : 'background-color: white; padding-right: 30px; ',
                     itemId  : 'fldctr',
-                    flex    : 1,
+                    width   : 380,
                     layout  : 'form',
-                    labelWidth:300,
+                    labelWidth: '200px',
                     items   : [
                         {
                             xtype       : 'textfield',
@@ -55,13 +55,14 @@ Ext.define('MeetingEditor', {
                         },
                         {
                             xtype       : 'numberfield',
-                            fieldLabel  : '# People in Meeting 1',
+                            fieldLabel  : this.getNumPepText(meeting.meeting_item_type.title, 1, true),
                             index       : 1,
                             minValue    : 0,
                             itemId      : 'peopleInMeeting1',
                             value       : meeting.num_people,
                             cls         : 'numpeoplefield',
                             meetingId   : meeting.id,
+                            meeting     : meeting,
                             msgTarget   : 'none',
                             validator: function (value) {
                                 return true;
@@ -605,12 +606,13 @@ Ext.define('MeetingEditor', {
         Ext.each(overLappingMeetings, function(mtg){
                 i++;
                 fldctr.add(Ext.create('Ext.form.field.Number',{
-                        fieldLabel  : Ext.String.format('# People in Meeting {0}', i),
+                        fieldLabel  : scope.getNumPepText(mtg.meeting_item_type.title, i),
                         index       : i,
                         minValue    : 0,
                         cls         : 'numpeoplefield',
                         itemId      : Ext.String.format('peopleInMeeting{0}', i),
                         value       : mtg.num_people,
+                        meeting     : mtg,
                         meetingId   : mtg.id,
                         origValue   : mtg.num_people,
                         msgTarget   : 'none',
@@ -621,6 +623,18 @@ Ext.define('MeetingEditor', {
                 );
 
         })
+    },
+    getNumPepText: function(title, index, bold){
+        var width = "140px";
+        var boldstyle = "";
+        if (bold == true)
+            boldstyle = "font-weight: bold;"
+        if (title.length >= 10)
+            width = "140px";
+        if (title.length >= 15)
+            width = "210px"; 
+        return Ext.String.format('<a style="width:{0};{1}"># People in {2} {3}</a>', width, boldstyle, title, index);
+                
     },
     listeners: {
         beforeshow: function(cmp){
@@ -655,17 +669,7 @@ Ext.define('MeetingEditor', {
             })
             Ext.query('.x-window-header')[0].style.backgroundColor = '#' + cmp.meeting.meeting_item_type.color;
             Ext.query('.x-title-text')[0].style.color = 'white';
-            Ext.each(Ext.query('.numpeoplefield'), function(nEl){
-                var nCmp = Ext.getCmp(nEl.id);
-                var width = "140px";
-                if (cmp.meeting.meeting_item_type.title.length >= 10)
-                    width = "140px";
-                if (cmp.meeting.meeting_item_type.title.length >= 20)
-                    width = "190px"; 
-                var str = Ext.String.format('<div style="width:{0};"># People in {1} {2}</div>', width, cmp.meeting.meeting_item_type.title, nCmp.index);
-                nCmp.labelEl.update(str);
-            });
-            //x-title-text
+            
         },
         beforehide: function(cmp){
             Ext.each(cmp.roomLayouts, function(c){
