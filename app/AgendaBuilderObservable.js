@@ -1855,6 +1855,7 @@ Ext.define('AgendaBuilderObservable', {
             throw "Row Not found";
         var newRows = [];
         var savedMeeting = {};
+        me.fireEvent('meetingSaveStart', {newId:response.id, postedData: postedData});
         if (!me.getMeeting(postedData.id, me))
             postedData.id = null;
         //Create a new meeting since it has not id
@@ -2046,7 +2047,6 @@ Ext.define('AgendaBuilderObservable', {
         });
     },
     setAllRowCommentStatus: function(){
-        //zzz
         var me = this;
         for(var i = 0; i < me.dates.length; i++)
         {
@@ -2234,6 +2234,7 @@ Ext.define('AgendaBuilderObservable', {
         var listener = null;
         var fn = function(){
             var d = dates.pop();
+
             if (!d)
             {
                 //I think we need to add an additionalrow here
@@ -2258,7 +2259,7 @@ Ext.define('AgendaBuilderObservable', {
                 tabletops: meeting.tabletops,
                 title   : meeting.title,
                 type    : meeting.type,
-                id      : 0,
+                id      : null,
                 oldRowIndex: 1
             };
             var start = meeting.start_time.replace('1900/01/01 ', '');
@@ -2273,18 +2274,29 @@ Ext.define('AgendaBuilderObservable', {
                 end = end + ':00';
             newMtg.start_time =  start;
             newMtg.end_time =  end;
-            instance.meetings.push(newMtg);
-            me.assignRowIndexes(instance);
-            var color = "#" + meeting.meeting_item_type.color;
-            var idx = me.calculateRowIndex(newMtg, instance);
+           
+            scope.saveMeetingItem(newMtg);         
+
+            var localListener = this.on('meetingSaveStart', function(result)
+            {
+                //zzz
+                newMtg = result.postedData;
+                newMtg.id = result.newId;
+                instance.meetings.push(newMtg);
+                me.assignRowIndexes(instance);
+                var color = "#" + meeting.meeting_item_type.color;
+                var idx = me.calculateRowIndex(newMtg, instance);
             
-            var agendaBuilderRow = me.getRow(d);
-            //We need to add a row if this is true
-            if (agendaBuilderRow.rows.length <= idx)
-                me.addAdditionalRow(d, me, agendaBuilderRow);
-            me.createMeeting(newMtg.id, d, start, end, meeting.title, 'white', 
-                    color, idx, me, meeting.meeting_item_type);
-            scope.saveMeetingItem(newMtg);           
+                var agendaBuilderRow = me.getRow(d);
+                //We need to add a row if this is true
+                if (agendaBuilderRow.rows.length <= idx)
+                    me.addAdditionalRow(d, me, agendaBuilderRow);
+                me.createMeeting(null, d, start, end, meeting.title, 'white', 
+                        color, idx, me, meeting.meeting_item_type);
+                localListener.destroy();
+            }, scope);
+
+
         };
         listener = this.on('meetingSaveComplete', fn , scope)
     },
