@@ -278,6 +278,11 @@ div.meetingTip:before {
     z-index: 2
 }
 
+.mtg-instance-comment
+{
+    border: 2px solid black !important;
+}
+
 .twentyfourhr-bubble
 {
     /*float:right;*/
