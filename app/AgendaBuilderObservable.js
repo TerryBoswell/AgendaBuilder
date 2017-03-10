@@ -225,6 +225,9 @@ Ext.define('AgendaBuilderObservable', {
         var dateStr = Ext.Date.format(date, "m/d/Y");
         var offset = Ext.Date.format(date, 'P');
         var zone = Ext.Date.format(date, 'T');
+        if (offset.indexOf("+") != -1)
+            zone = "GMT";
+        
         var formatDate = function(date_time, dateStr, zone, offset)
         {
             if (Ext.isIE)
