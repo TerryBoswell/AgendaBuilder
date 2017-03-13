@@ -476,13 +476,14 @@ Ext.define('AgendaBuilderObservable', {
         //The insert point is always one less than the row index ie... insert at 9 needs to check the row with the index of 8 (0-8)
         //we can't insert in the first two rows. They are reserved
         var currRow = me.getRowAt(insertRowAt);
+        console.log("at" + insertRowAt);
         if (currRow != null && currRow.isFirstRow())
         {
             var rowDate = new Date(currRow.dataField);
             if (rowDate.getDate() == date.getDate() && rowDate.getMonth() == date.getMonth())
             {
                 insertRowAt++;
-                currRow = me.getRowAt(insertRowAt);
+                currRow = me.getRowAt(insertRowAt);                
             }
         }
         if (currRow != null && currRow.isSecondRow())
@@ -491,7 +492,7 @@ Ext.define('AgendaBuilderObservable', {
             if (rowDate.getDate() == date.getDate() && rowDate.getMonth() == date.getMonth())
             {
                 insertRowAt++;
-            }
+            }            
         }
         if (!agendaBuilderRow)
             agendaBuilderRow = me.getRow(date);
@@ -514,6 +515,7 @@ Ext.define('AgendaBuilderObservable', {
                         {html: '', style : 'background-color:grey !important;', Index: 38  }
                         ]
                 });
+        console.log(insertRowAt);
         if (insertRowAt == null || insertRowAt == undefined)
             datesCtr.add(row);
         else
@@ -1977,16 +1979,36 @@ Ext.define('AgendaBuilderObservable', {
         me.fireEvent('meetingSaveComplete', newRows);
         me.unmask();
     },
-    getTotalRowsInAboveDates : function(row, rowIndex, dates, observer)
+    getTotalRowsInAboveDates : function(date)
     { 
         var me = this;
         var rowCount = 0;  
-        for(var i = 0; i < rowIndex; i++)
+        for(var i = 0; i < me.agendaBuilderRows.length; i++)
         {  
-            var maxRow = me.agendaBuilderRows[i].rows.length + 1; //+ one for the divider
-            rowCount += maxRow;
+            if (me.agendaBuilderRows[i].date < date)
+            {
+                var maxRow = me.agendaBuilderRows[i].rows.length + 1; //+ one for the divider
+                rowCount += maxRow;
+            }
         }
         return rowCount;
+    },
+    getCmpsAboveDateFirstRow : function(date)
+    { 
+        var me = this;
+        var row = me.getRow(date);
+        var firstRowId = row.rows[0].id;
+        var index = 0;  
+        var rowCnt = 0;
+        var items = Ext.ComponentQuery.query('#datesCtr')[0].items.items;
+
+        Ext.each(items, function(item){
+            if (item.id == firstRowId)
+                index = rowCnt
+            rowCnt +=1;
+        });
+        
+        return index;
     },
     /*
         instance represents the date with all the row structure in it
@@ -2287,11 +2309,23 @@ Ext.define('AgendaBuilderObservable', {
                 var color = "#" + meeting.meeting_item_type.color;
                 var idx = me.calculateRowIndex(newMtg, instance);
             
-                var agendaBuilderRow = me.getRow(d);
+                var agendaBuilderRow = me.getRow(instance.date);
+                var rowsAbove = me.getCmpsAboveDateFirstRow(instance.date);
+                var lastIdx = idx;
+                Ext.each(instance.meetings, function(Imtg){
+                    if (Imtg.rowIndex > lastIdx)
+                        lastIdx = Imtg.rowIndex;
+                })
+                
+                if (idx < 2) //We can't add to the first two rows
+                    idx = 2;
+
+                var insertAt = rowsAbove + idx;
+                
                 //We need to add a row if this is true
                 if (agendaBuilderRow.rows.length <= idx)
-                    me.addAdditionalRow(d, me, agendaBuilderRow);
-                me.createMeeting(newMtg.id, d, start, end, meeting.title, 'white', 
+                    me.addAdditionalRow(instance.date, me, agendaBuilderRow, insertAt);
+                me.createMeeting(newMtg.id, instance.date, start, end, meeting.title, 'white', 
                         color, idx, me, meeting.meeting_item_type);
                 localListener.destroy();
             }, scope);
