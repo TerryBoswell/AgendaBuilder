@@ -2291,7 +2291,7 @@ Ext.define('AgendaBuilderObservable', {
                 //We need to add a row if this is true
                 if (agendaBuilderRow.rows.length <= idx)
                     me.addAdditionalRow(d, me, agendaBuilderRow);
-                me.createMeeting(null, d, start, end, meeting.title, 'white', 
+                me.createMeeting(newMtg.id, d, start, end, meeting.title, 'white', 
                         color, idx, me, meeting.meeting_item_type);
                 localListener.destroy();
             }, scope);
