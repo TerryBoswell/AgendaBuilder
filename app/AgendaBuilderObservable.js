@@ -1080,7 +1080,8 @@ Ext.define('AgendaBuilderObservable', {
                                             }
                                             
                                             var invalidDrop = function(){
-                                                cmp.el.removeCls('dropOK');
+                                                if (cmp && cmp.el && cmp.el.removeCls)
+                                                    cmp.el.removeCls('dropOK');
                                                 if (cmp.origX)
                                                     cmp.setX(cmp.origX);
                                                 if (cmp.origY)
