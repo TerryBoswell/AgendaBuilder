@@ -88,7 +88,7 @@ Ext.define('MeetingTemplate',
 								var instance = null;
 								if (match && match.dataset && match.dataset.date)
 								{
-									var instanceDate = new Date(match.dataset.date.stripInvalidChars());
+									var instanceDate = observer.createDate(match.dataset.date.stripInvalidChars());
 									instance = observer.getInstance(instanceDate, observer);
 								}
 								// Invoke the animation if the invalidDrop flag is set to true
@@ -121,7 +121,7 @@ Ext.define('MeetingTemplate',
 									var d = new Date(match.dataset.date.stripInvalidChars() + ' ' + match.dataset.hour.stripInvalidChars());
 									var end = Ext.Date.add(d, Ext.Date.MINUTE, meetingTemplate.default_duration);
 									var color = "#" + meetingTemplate.color;
-									var meeting = observer.createMeeting(0, new Date(match.dataset.date.stripInvalidChars()), match.dataset.hour, Ext.Date.format(end, 'H:i:s'), 
+									var meeting = observer.createMeeting(0, observer.createDate(match.dataset.date.stripInvalidChars()), match.dataset.hour, Ext.Date.format(end, 'H:i:s'), 
 										meetingTemplate.title, 'white', 
 										color, 0, observer, meetingTemplate);
 									Ext.ComponentQuery.query('#MainContainer')[0].el.unmask();

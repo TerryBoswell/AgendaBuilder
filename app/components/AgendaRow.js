@@ -132,7 +132,7 @@ Ext.define('AgendaRow', {
 				
 				var hideShow = function(hCmp, parent, overlayCmp){
 						var mtgsToHide = [];
-						var date = new Date(parent.dataField.stripInvalidChars());
+						var date = parent.observer.createDate(parent.dataField.stripInvalidChars());
 						var instance = parent.observer.getInstance(date, parent.observer);
 						var row = parent.observer.getRow(date)
 						var topMostCmp = Ext.ComponentQuery.query('#datesCtr')[0];

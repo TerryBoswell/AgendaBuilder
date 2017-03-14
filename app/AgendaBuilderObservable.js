@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.013',
+    version: '1.014',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -109,10 +109,11 @@ Ext.define('AgendaBuilderObservable', {
     },
     areTwoDateStringsEqual: function(str1, str2)
     {
+        var me = this;
         if (!str1 || !str2)
             return false;
-        var date1 = new Date(str1);
-        var date2 = new Date(str2);
+        var date1 = me.createDate(str1);
+        var date2 = me.createDate(str2);
         return this.areTwoDatesEqual(date1, date2);
     },
     areTwoDatesEqual: function(date1, date2)
@@ -121,6 +122,60 @@ Ext.define('AgendaBuilderObservable', {
             return false;
         return date1.getDate() == date2.getDate() && date1.getMonth() == date2.getMonth();
     },
+    parseDateStringToUTC: function(str){
+        if (!str || !str.slice)
+            return null;
+        var dateStr = str.slice(0,10);
+        var segments = dateStr.split("/");
+        var year = segments[0] * 1;
+        var month = (segments[1] * 1) - 1;
+        var day = (segments[2] * 1);
+        return new Date(Date.UTC(year, month, day));
+    },
+    createDate: function(str){
+         if (Ext.isFirefox)
+         {
+             if (!str || !str.length)
+             {
+                 console.log(str);
+                 return null;
+             }
+             str = str.substr(0, 10);
+             var segments = [];
+             if (str.indexOf("/") != -1)
+                segments = str.split("/");
+             else if (str.indexOf("-") != -1)
+                segments = str.split("-");
+             else
+                throw("Unknown date format");
+
+            var year = "";
+            var month = "";
+            var date = "";
+             if (segments.length < 3)
+                throw("Unknown date format");
+             //year is first
+             if (segments[0].length == 4)
+             {
+                 year = segments[0];
+                 month = segments[1];
+                 date = segments[2];
+             }
+             else
+             {
+                 year = segments[2];
+                 month = segments[0];
+                 date = segments[1];
+             }
+             if (month.length == 1)
+                month = "0" + month;
+             if (date.length == 1)
+                date = "0" + date;
+            
+            return new Date(year + '-' + month + '-' + date);
+         }
+         return new Date(str);
+    },
     isAfterHour: function(timeStr, hour){        
         return this.getHourFromTime(timeStr) > hour;
     },
@@ -128,6 +183,7 @@ Ext.define('AgendaBuilderObservable', {
         return this.getHourFromTime(timeStr) < hour;
     },
     getHourFromTime: function(timeStr){
+        var me = this;
         if (!timeStr)
             throw "Invalid time";
         if (timeStr == "00:00")
@@ -223,8 +279,10 @@ Ext.define('AgendaBuilderObservable', {
             });
     },
     assignRowIndexes: function(instance){
-        
-        var date = new Date(instance.date)
+        var me = this;
+        var date = instance.date;
+        if (Object.prototype.toString.call(date) != '[object Date]')
+            date = me.createDate(instance.date)
         var dateStr = Ext.Date.format(date, "m/d/Y");
         var offset = Ext.Date.format(date, 'P');
         var zone = Ext.Date.format(date, 'T');
@@ -243,7 +301,7 @@ Ext.define('AgendaBuilderObservable', {
             {
                 var theDateStr = date_time.replace('1900/01/01', dateStr.stripInvalidChars());
                 offset = offset.replace(":", "");
-                return new Date(Date.parse(Ext.String.format("{0}{1}", theDateStr, offset)));
+                return new Date(theDateStr);
             }
             else
             {
@@ -461,7 +519,7 @@ Ext.define('AgendaBuilderObservable', {
             var dvdr = Ext.create('AgendaRow', 
                 {
                     height: 1,
-                    date: new Date(data),
+                    date: me.createDate(data),
                     isDividerRow: true,
                     defaultColStyle:'border-bottom: 1px solid black !important;'
                 });
@@ -496,7 +554,7 @@ Ext.define('AgendaBuilderObservable', {
         var currRow = me.getRowAt(insertRowAt);
         if (currRow != null && currRow.isFirstRow())
         {
-            var rowDate = new Date(currRow.dataField);
+            var rowDate = me.createDate(currRow.dataField);
             if (me.areTwoDatesEqual(rowDate, date))
             {
                 insertRowAt++;
@@ -505,7 +563,7 @@ Ext.define('AgendaBuilderObservable', {
         }
         if (currRow != null && currRow.isSecondRow())
         {
-            var rowDate = new Date(currRow.dataField);
+            var rowDate = me.createDate(currRow.dataField);
             if (me.areTwoDatesEqual(rowDate, date))
             {
                 insertRowAt++;
@@ -1112,7 +1170,7 @@ Ext.define('AgendaBuilderObservable', {
                                             var instance = null;
                                             if (match && match.dataset && match.dataset.date)
                                             {
-                                                var instanceDate = new Date(match.dataset.date.stripInvalidChars());
+                                                var instanceDate = observer.createDate(match.dataset.date.stripInvalidChars());
                                                 instance = observer.getInstance(instanceDate, observer);
                                             }
                                             
@@ -1124,7 +1182,7 @@ Ext.define('AgendaBuilderObservable', {
                                                 invalidDrop();
                                             }
                                             else{
-                                                var d = new Date(match.dataset.date.stripInvalidChars());
+                                                var d = observer.createDate(match.dataset.date.stripInvalidChars());
                                                 var parentId = match.id.substring(0, match.id.indexOf('-col'));
                                                 var rowCmp = Ext.getCmp(parentId);
                                                 var rowIndex = rowCmp.getRowIndex();
@@ -1241,7 +1299,7 @@ Ext.define('AgendaBuilderObservable', {
                         }
                         var date = mtg.date;
                         if (!date)
-                            date = new Date(match.dataset.date.stripInvalidChars());                            
+                            date = me.createDate(match.dataset.date.stripInvalidChars());                            
                         var dimensions = me.getDimensions(mtg.rowIndex -1, date, start, end);
                         var m_cmp = me.findMeetingComponent(mtg.id);
                         m_cmp.setX(dimensions.xy[0]);
@@ -1251,7 +1309,7 @@ Ext.define('AgendaBuilderObservable', {
                             return;
                         mtg.start_time = start;
                         mtg.end_time = end;
-                        mtg.date = new Date(match.dataset.date.stripInvalidChars());
+                        mtg.date = me.createDate(match.dataset.date.stripInvalidChars());
                         cmp.observer.saveMeetingItem(mtg);
                     }
 
@@ -1398,7 +1456,7 @@ Ext.define('AgendaBuilderObservable', {
         var start = null;
         var end = null;
         if (source.date)
-            date = new Date(source.date);
+            date = scope.createDate(source.date);
         else if (source.start)
             date = source.start;
 
@@ -1859,8 +1917,8 @@ Ext.define('AgendaBuilderObservable', {
         var convertedData = [];
         Ext.each(obj, function(data)
         {
-            var d = {
-                date: new Date(data.date),
+            var d = {            
+                date: scope.createDate(data.date),
                 room_block: data.room_block,
                 room_night: data.room_night,
                 meetings: data.meeting_items,
@@ -2157,7 +2215,7 @@ Ext.define('AgendaBuilderObservable', {
                 var dataField = cmp.dataField;
                 if(dataField)
                 {
-                    var dateFromDataField = new Date(dataField);
+                    var dateFromDataField = me.createDate(dataField);
                     //This row does not have an item on it
                     if (!usedRows.includes(index))
                     {
@@ -2167,7 +2225,7 @@ Ext.define('AgendaBuilderObservable', {
                             emtpyRows.push({
                                 id: rowEl.id, 
                                 index: index,
-                                date : new Date(dataField)
+                                date : me.createDate(dataField)
                             });
                             removeNextRowOnDate = null;
                         }
@@ -2175,7 +2233,7 @@ Ext.define('AgendaBuilderObservable', {
                         //so lets flag it
                         else
                         {
-                            removeNextRowOnDate = new Date(dataField);
+                            removeNextRowOnDate = me.createDate(dataField);
                         }
                     }
                     else if (removeNextRowOnDate != null && removeNextRowOnDate.getDate && me.areTwoDatesEqual(removeNextRowOnDate, dateFromDataField))
@@ -2185,7 +2243,7 @@ Ext.define('AgendaBuilderObservable', {
                             emtpyRows.push({
                                     id: rowEl.id, 
                                     index: index,
-                                    date : new Date(dataField)
+                                    date : me.createDate(dataField)
                             });
                             removeNextRowOnDate = null;
                         }
@@ -2797,4 +2855,6 @@ Ext.define('AgendaBuilderObservable', {
     }
     
 });
+
+
 
