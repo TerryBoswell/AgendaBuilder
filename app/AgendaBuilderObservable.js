@@ -442,7 +442,7 @@ Ext.define('AgendaBuilderObservable', {
                     show24Hr: true,
                     columns: [
                         //{cls: '', Index: 0},
-                        {html: '-Collapse', cls: 'hideARow link-color ltFont', style : 'text-align: center !important;height: 42px; float:left !important; padding-left:3px;', Index: 0},
+                        {html: 'Collapse', cls: 'hideARow link-color ltFont', style : 'text-align: center !important;height: 42px; float:left !important; padding-left:3px;', Index: 0},
                         {html: '', style: '', cls: '', Index: 1},
                         {html: '', style : 'background-color:grey !important;', Index: 38  }
                         ]

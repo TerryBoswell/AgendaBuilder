@@ -168,7 +168,7 @@ Ext.define('AgendaRow', {
 						}
 						else
 						{
-							hCmp.innerText = '-Collapse';
+							hCmp.innerText = 'Collapse';
 							Ext.fly(overlayCmp).setHeight(0);
 							Ext.each(instance.meetings, function(mtg){
 								var mtgCmp = parent.observer.findMeetingComponent(mtg.id);
