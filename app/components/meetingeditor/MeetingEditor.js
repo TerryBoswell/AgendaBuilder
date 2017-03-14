@@ -312,7 +312,7 @@ Ext.define('MeetingEditor', {
                         items: [
                             {
                                 xtype: 'container',
-                                html : '<div style="font-size: large">Additional Comments</div>'
+                                html : '<div style="font-size: large">Comments</div>'
                             },
                             {
                                 xtype: 'textarea',
