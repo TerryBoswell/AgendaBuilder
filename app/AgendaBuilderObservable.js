@@ -497,7 +497,7 @@ Ext.define('AgendaBuilderObservable', {
         if (currRow != null && currRow.isFirstRow())
         {
             var rowDate = new Date(currRow.dataField);
-            if (rowDate.getDate() == date.getDate() && rowDate.getMonth() == date.getMonth())
+            if (me.areTwoDatesEqual(rowDate, date))
             {
                 insertRowAt++;
                 currRow = me.getRowAt(insertRowAt);                
@@ -506,7 +506,7 @@ Ext.define('AgendaBuilderObservable', {
         if (currRow != null && currRow.isSecondRow())
         {
             var rowDate = new Date(currRow.dataField);
-            if (rowDate.getDate() == date.getDate() && rowDate.getMonth() == date.getMonth())
+            if (me.areTwoDatesEqual(rowDate, date))
             {
                 insertRowAt++;
             }            
@@ -1413,7 +1413,7 @@ Ext.define('AgendaBuilderObservable', {
             end = new Date(dateStr + " " + source.end_time.replace('1900/01/01 ', '') + ' GMT+0000');
         
         Ext.each(scope.dates, function(instance){
-            if (instance.date && date && instance.date.getDate() == date.getDate() && instance.date.getMonth() == date.getMonth())
+            if (instance.date && date && scope.areTwoDatesEqual(instance.date, date))
             {
                 Ext.each(instance.meetings, function(meeting){
                     var overLaps = false;
@@ -1933,7 +1933,7 @@ Ext.define('AgendaBuilderObservable', {
         //yyy
         //update the meeting data with the saved info or create  a new entry
         Ext.each(scope.dates, function(instance){
-            if (postedData.date.getDate() == instance.date.getDate() && postedData.date.getMonth() == instance.date.getMonth())
+            if (me.areTwoDatesEqual(postedData.date, instance.date))
             {
                 var match = false;
                 Ext.each(instance.meetings, function(meeting){
@@ -2157,6 +2157,7 @@ Ext.define('AgendaBuilderObservable', {
                 var dataField = cmp.dataField;
                 if(dataField)
                 {
+                    var dateFromDataField = new Date(dataField);
                     //This row does not have an item on it
                     if (!usedRows.includes(index))
                     {
@@ -2177,7 +2178,7 @@ Ext.define('AgendaBuilderObservable', {
                             removeNextRowOnDate = new Date(dataField);
                         }
                     }
-                    else if (removeNextRowOnDate != null && removeNextRowOnDate.getDate && removeNextRowOnDate.getDate() == new Date(dataField).getDate() && removeNextRowOnDate.getMonth() == new Date(dataField).getMonth())
+                    else if (removeNextRowOnDate != null && removeNextRowOnDate.getDate && me.areTwoDatesEqual(removeNextRowOnDate, dateFromDataField))
                     {
                         if (!cmp.isFirstRow() && !cmp.isSecondRow())
                         {
@@ -2284,7 +2285,7 @@ Ext.define('AgendaBuilderObservable', {
         var me = scope;
         var instance = null;
         Ext.each(me.dates, function(i){
-            if (i.date && d && i.date.getDate() == d.getDate() && i.date.getMonth() == d.getMonth())
+            if (i.date && d && me.areTwoDatesEqual(i.date, d))
             {
                 instance = i;                    
             }
