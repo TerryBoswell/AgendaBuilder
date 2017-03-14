@@ -1560,40 +1560,47 @@ Ext.define('AgendaBuilderObservable', {
         });
     },
     updateMeetingText: function(meetingId, title, start, end, room_setup_type, num_people, scope){
-        var me = scope;
-        var tip = me.findMeetingTip(meetingId);
-        if (tip == null)
-            return;
-        
-        var titleText = Ext.String.format('{0}<i id="closemtg{1}" style="margin-top: 3px; margin-right: 2px; float: right;" class="fa fa-times-circle fa-lg close-tip" aria-hidden="true"></i>',
-        title, meetingId);
-        tip.el.down('.callout-title').down('.title-text').el.dom.innerHTML = titleText;
-        var html = '<div class="callout-time" style="text-align:center;">' + me.getDisplayHours(start) + " - " + me.getDisplayHours(end)  + "<div>" + 
-                                            '<div class="callout-room" style="text-align:center;">' + room_setup_type.title + " | " + num_people +"pp</div>";
-        Ext.fly(tip.el.down('.thinBorderBottom')).update(html);
+        try
+        {
+            var me = scope;
+            var tip = me.findMeetingTip(meetingId);
+            if (tip == null)
+                return;
+            
+            var titleText = Ext.String.format('{0}<i id="closemtg{1}" style="margin-top: 3px; margin-right: 2px; float: right;" class="fa fa-times-circle fa-lg close-tip" aria-hidden="true"></i>',
+            title, meetingId);
+            tip.el.down('.callout-title').down('.title-text').el.dom.innerHTML = titleText;
+            var html = '<div class="callout-time" style="text-align:center;">' + me.getDisplayHours(start) + " - " + me.getDisplayHours(end)  + "<div>" + 
+                                                '<div class="callout-room" style="text-align:center;">' + room_setup_type.title + " | " + num_people +"pp</div>";
+            Ext.fly(tip.el.down('.thinBorderBottom')).update(html);
 
-        var mtg = me.findMeetingComponent(meetingId, me);
-        if (mtg == null)
-            return;
-        var mtgHtml = '<div class="truncate">' + 
-                        '<span>' + title  + "<span><div>" + 
-                        '<span>' + room_setup_type.title + " | " + num_people +"pp</span>"
-                       '</div>';
-        mtg.el.down('.mtg-instance-text').el.dom.innerText = title;
-        mtg.el.down('.mtg-instance-title').el.dom.innerText = room_setup_type.title + " | " + num_people +"pp";
-        var titleCmpRatio = {
-                        mtgCmpWidth : mtg.getWidth(),
-                        titleWidth : Ext.fly(mtg.el.query('.mtg-instance-title')[0]).getWidth()
-        };
-        if (titleCmpRatio.titleWidth > titleCmpRatio.mtgCmpWidth)
-        {
-            mtg.removeCls('inRatioMtg');
+            var mtg = me.findMeetingComponent(meetingId, me);
+            if (mtg == null)
+                return;
+            var mtgHtml = '<div class="truncate">' + 
+                            '<span>' + title  + "<span><div>" + 
+                            '<span>' + room_setup_type.title + " | " + num_people +"pp</span>"
+                        '</div>';
+            mtg.el.down('.mtg-instance-text').el.dom.innerText = title;
+            mtg.el.down('.mtg-instance-title').el.dom.innerText = room_setup_type.title + " | " + num_people +"pp";
+            var titleCmpRatio = {
+                            mtgCmpWidth : mtg.getWidth(),
+                            titleWidth : Ext.fly(mtg.el.query('.mtg-instance-title')[0]).getWidth()
+            };
+            if (titleCmpRatio.titleWidth > titleCmpRatio.mtgCmpWidth)
+            {
+                mtg.removeCls('inRatioMtg');
+            }
+            else
+            {
+                mtg.addCls('inRatioMtg');
+            }
+            scope.subScribeOnMtgClick(meetingId, scope);
         }
-        else
+        catch(e)
         {
-            mtg.addCls('inRatioMtg');
+            console.warn(e);
         }
-        scope.subScribeOnMtgClick(meetingId, scope);
     },
     getRow: function(date){
         var row = null;
@@ -2005,8 +2012,9 @@ Ext.define('AgendaBuilderObservable', {
         me.fireEvent('meetingSaveComplete', postedData);
         if (me.queuedDates && me.queuedDates.length)
         {
-            var d = me.queuedDates.shift();
-            me.saveQueueDate(d, postedData);
+            var dateInfo = me.queuedDates.shift();
+            var baseMtg = me.getMeeting(dateInfo.meetingId, me);
+            me.saveQueueDate(dateInfo.date, baseMtg);
         }
         me.unmask();
     },
@@ -2353,7 +2361,13 @@ Ext.define('AgendaBuilderObservable', {
     queueAdditionalDatesToSave: function(copyToDates, meeting, scope)
     {
         var me = scope;
-        me.queuedDates = copyToDates;        
+        me.queuedDates = [];
+        Ext.each(copyToDates, function(d){
+            me.queuedDates.push({
+                date: d,
+                meetingId: meeting.id
+            })
+        })
     },
     updateMeetingItemPeople: function(meetingId, numPeople, scope){
         var me = scope;
