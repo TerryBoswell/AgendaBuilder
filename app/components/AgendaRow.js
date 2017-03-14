@@ -164,7 +164,7 @@ Ext.define('AgendaRow', {
 									})
 								}
 							}
-							overlayCmp.innerHTML = Ext.String.format("You have <span class='numberCircle room-block'>{0}</span> events on this day. <span class='link-color expand-view'>Expand view ></span>", instance.meetings.length);																
+							overlayCmp.innerHTML = Ext.String.format("You have <span class='numberCircle room-block'>{0}</span> events on this day. <span class='link-color expand-view'>Expand ></span>", instance.meetings.length);																
 						}
 						else
 						{
