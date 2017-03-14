@@ -14,6 +14,8 @@ Ext.define('AgendaBuilderObservable', {
     dates: null,
     totalRowCount: 0,
     meetingCallouts: [],
+    dividerRows: [],
+    queuedDates: [],
     ajaxController: null,
     currentDragMtg: null, //This is used to target when item is current being dragged
     currentDragDrop: null, //This is the current drag drop manager
@@ -451,7 +453,7 @@ Ext.define('AgendaBuilderObservable', {
             agendaBuilderRow.rows.push({id: topRow.id});
             agendaBuilderRow.rows.push({id: bottomRow.id});
             this.agendaBuilderRows.push(agendaBuilderRow);
-            for(j = 2; j < agendaBuilderRow.rowCount; j++)
+            for(var j = 2; j < agendaBuilderRow.rowCount; j++)
             {
                 me.addAdditionalRow(instance.date, me, agendaBuilderRow);
             }
@@ -459,14 +461,30 @@ Ext.define('AgendaBuilderObservable', {
             var dvdr = Ext.create('AgendaRow', 
                 {
                     height: 1,
+                    date: new Date(data),
+                    isDividerRow: true,
                     defaultColStyle:'border-bottom: 1px solid black !important;'
                 });
             parentCtr.add(dvdr);
+            me.dividerRows.push(dvdr);
     },
     removeAllMeetings: function(){
         Ext.each(Ext.query('.mtg-instance'), function(el){
             Ext.fly(el).destroy()
         })
+    },
+    getDividerRowIndex: function(date){
+        var me = this;
+        var index = null;  
+        var items = Ext.ComponentQuery.query('#datesCtr')[0].items.items;
+        for(var z = 0; z < items.length; z++)
+        {
+            var item = items[z];
+            if (me.areTwoDatesEqual(item.date, date) && item.isDividerRow)
+                index = z;
+        };
+        
+        return index;
     },
     addAdditionalRow: function(date, context, agendaBuilderRow, insertRowAt){
         if (context)
@@ -476,7 +494,6 @@ Ext.define('AgendaBuilderObservable', {
         //The insert point is always one less than the row index ie... insert at 9 needs to check the row with the index of 8 (0-8)
         //we can't insert in the first two rows. They are reserved
         var currRow = me.getRowAt(insertRowAt);
-        console.log("at" + insertRowAt);
         if (currRow != null && currRow.isFirstRow())
         {
             var rowDate = new Date(currRow.dataField);
@@ -494,6 +511,9 @@ Ext.define('AgendaBuilderObservable', {
                 insertRowAt++;
             }            
         }
+        var dividerRowIndex =  me.getDividerRowIndex(date);
+        if (dividerRowIndex && dividerRowIndex < insertRowAt)
+            insertRowAt = dividerRowIndex;
         if (!agendaBuilderRow)
             agendaBuilderRow = me.getRow(date);
         var data = date.toLocaleDateString();
@@ -515,7 +535,6 @@ Ext.define('AgendaBuilderObservable', {
                         {html: '', style : 'background-color:grey !important;', Index: 38  }
                         ]
                 });
-        console.log(insertRowAt);
         if (insertRowAt == null || insertRowAt == undefined)
             datesCtr.add(row);
         else
@@ -1043,6 +1062,7 @@ Ext.define('AgendaBuilderObservable', {
                                             if (mtgCmp)
                                                 cmp=mtgCmp;
                                             observer.currentDragMtg = null; //Drag is over, so don't track it.
+                                            observer.currentDragDrop = null;
                                             observer.hideDragDropHourPreview(observer);
                                             cmp.dragEnded = true;
                                             Ext.each(Ext.query('td'), function(dtel){
@@ -1072,7 +1092,10 @@ Ext.define('AgendaBuilderObservable', {
                                             if (forceCallInvalidate)
                                             {
                                                 invalidDrop();
-                                                observer.currentDragDrop.DDMInstance.stopDrag()
+                                                if (observer.currentDragDrop &&
+                                                    observer.currentDragDrop.DDMInstance &&
+                                                    observer.currentDragDrop.DDMInstance.stopDrag)
+                                                    observer.currentDragDrop.DDMInstance.stopDrag()
                                                 return;
                                             }
                                             if (browserEvent == null || invalidate == true)
@@ -1852,6 +1875,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     onSaveMeetingItem: function(postedData, response, scope){
         var me = scope;
+        me.currentDragDrop = null;
         var agendaBuilderRow = me.getRow(postedData.date);
         if (agendaBuilderRow == null)
             throw "Row Not found";
@@ -1976,7 +2000,13 @@ Ext.define('AgendaBuilderObservable', {
         me.removeEmptyRows();
         
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
-        me.fireEvent('meetingSaveComplete', newRows);
+        //console.warn(postedData);
+        me.fireEvent('meetingSaveComplete', postedData);
+        if (me.queuedDates && me.queuedDates.length)
+        {
+            var d = me.queuedDates.shift();
+            me.saveQueueDate(d, postedData);
+        }
         me.unmask();
     },
     getTotalRowsInAboveDates : function(date)
@@ -2031,8 +2061,10 @@ Ext.define('AgendaBuilderObservable', {
             {
                 //for every row we add, we need to shift one down
                 rowsAdded+=1;
+                var rowsCountAbove = me.getCmpsAboveDateFirstRow(instance.date);
+                var insertRowIndex = rowsCountAbove + row.rows.length;
                 //Row count will be one more than the last index
-                me.addAdditionalRow(instance.date, me, row, last_cmp.getCurrentRow());       
+                me.addAdditionalRow(instance.date, me, row, insertRowIndex);       
             }
         }
 
@@ -2163,26 +2195,27 @@ Ext.define('AgendaBuilderObservable', {
             return;
         }
         var hitRowWithTwo = false; //once we hit a row with only two, we stop
-        var emptyRow = emptyRows[0];
-        Ext.each(me.dates, function(date){
-            Ext.each(date.meetings, function(meeting){
-                var m_cmp = me.findMeetingComponent(meeting.id);
-                if (m_cmp)
-                {
-                    var currRowIdx = m_cmp.getCurrentRow();
-                    if (currRowIdx >= emptyRow.index)
-                        me.moveMeetingUpXRows(meeting.id, 1, me);
-                }
-            },me)
-        }, me)
-        var row = me.getRow(emptyRow.date);
-        var cmpToRemove = Ext.getCmp(emptyRow.id);
-        if (cmpToRemove)
-        {
-            cmpToRemove.hide();
-            cmpToRemove.destroy();
-            row.rows.splice(row.rows.length-1, 1)
-        }
+        Ext.each(emptyRows, function(emptyRow){
+            Ext.each(me.dates, function(date){
+                Ext.each(date.meetings, function(meeting){
+                    var m_cmp = me.findMeetingComponent(meeting.id);
+                    if (m_cmp)
+                    {
+                        var currRowIdx = m_cmp.getCurrentRow();
+                        if (currRowIdx >= emptyRow.index)
+                            me.moveMeetingUpXRows(meeting.id, 1, me);
+                    }
+                },me)
+            }, me)
+            var row = me.getRow(emptyRow.date);
+            var cmpToRemove = Ext.getCmp(emptyRow.id);
+            if (cmpToRemove)
+            {
+                cmpToRemove.hide();
+                cmpToRemove.destroy();
+                row.rows.splice(row.rows.length-1, 1)
+            }
+        });
             
         me.setAllRows24HourStatus();
         me.setAllRowCommentStatus();
@@ -2249,21 +2282,8 @@ Ext.define('AgendaBuilderObservable', {
         });
         return instance;
     },
-    queueAdditionalDatesToSave: function(copyToDates, meeting, scope)
-    {
-        var me = scope;
-        var dates = copyToDates;
-        var listener = null;
-        var fn = function(){
-            var d = dates.pop();
-
-            if (!d)
-            {
-                //I think we need to add an additionalrow here
-                //need to kill the listener so it isn't called on all future saves
-                listener.destroy();
-                return;
-            }
+    saveQueueDate: function(d, meeting){
+        var me = this;
             var instance = me.getInstance(d, me);
             var newMtg = {
                 all_day : meeting.all_day,
@@ -2279,7 +2299,7 @@ Ext.define('AgendaBuilderObservable', {
                 square_feet: meeting.square_feet,
                 start_time: meeting.start_time,
                 tabletops: meeting.tabletops,
-                title   : meeting.title,
+                title   : meeting.title + " xxx",
                 type    : meeting.type,
                 id      : null,
                 oldRowIndex: 1
@@ -2297,11 +2317,10 @@ Ext.define('AgendaBuilderObservable', {
             newMtg.start_time =  start;
             newMtg.end_time =  end;
            
-            scope.saveMeetingItem(newMtg);         
+            me.saveMeetingItem(newMtg);         
 
-            var localListener = this.on('meetingSaveStart', function(result)
+            var localListener = me.on('meetingSaveStart', function(result)
             {
-                //zzz
                 newMtg = result.postedData;
                 newMtg.id = result.newId;
                 instance.meetings.push(newMtg);
@@ -2327,12 +2346,13 @@ Ext.define('AgendaBuilderObservable', {
                     me.addAdditionalRow(instance.date, me, agendaBuilderRow, insertAt);
                 me.createMeeting(newMtg.id, instance.date, start, end, meeting.title, 'white', 
                         color, idx, me, meeting.meeting_item_type);
-                localListener.destroy();
-            }, scope);
-
-
-        };
-        listener = this.on('meetingSaveComplete', fn , scope)
+                localListener.destroy();                
+            }, me);   
+    },
+    queueAdditionalDatesToSave: function(copyToDates, meeting, scope)
+    {
+        var me = scope;
+        me.queuedDates = copyToDates;        
     },
     updateMeetingItemPeople: function(meetingId, numPeople, scope){
         var me = scope;
