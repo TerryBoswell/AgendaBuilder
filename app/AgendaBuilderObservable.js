@@ -2300,7 +2300,7 @@ Ext.define('AgendaBuilderObservable', {
                 square_feet: meeting.square_feet,
                 start_time: meeting.start_time,
                 tabletops: meeting.tabletops,
-                title   : meeting.title + " xxx",
+                title   : meeting.title,
                 type    : meeting.type,
                 id      : null,
                 oldRowIndex: 1
