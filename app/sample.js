@@ -11,7 +11,7 @@
                     //12839
             new Ext.util.DelayedTask(function(){
                 var target = Ext.getBody();
-                var rfpNumber = '12799';
+                var rfpNumber = '12839';
                 window.ab = createAgendaBuilder(target, rfpNumber);
             }).delay(100);      
             

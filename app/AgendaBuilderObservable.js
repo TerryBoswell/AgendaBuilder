@@ -133,6 +133,17 @@ Ext.define('AgendaBuilderObservable', {
         var day = (segments[2] * 1);
         return new Date(Date.UTC(year, month, day));
     },
+    createDateWithTime: function(date, time){
+        if (Ext.isFirefox)
+         {
+            var dateStr = Ext.Date.format(date, 'Y-m-d') + " " + time;   
+            
+            return new Date(dateStr);
+         }
+         var dateAndTime = date.toString().replace('00:00:00', time);
+         return new Date(dateAndTime);
+         //zzz
+    },
     createDate: function(str){
          if (Ext.isFirefox)
          {
@@ -2058,9 +2069,11 @@ Ext.define('AgendaBuilderObservable', {
         }
         
         if (!postedData.start && postedData.date && postedData.start_time)
-            postedData.start = new Date(postedData.date.toString().replace('00:00:00', postedData.start_time));
+        {
+            postedData.start = me.createDateWithTime(postedData.date, postedData.start_time);
+        }
         if (!postedData.end && postedData.date && postedData.end_time)
-            postedData.end = new Date(postedData.date.toString().replace('00:00:00', postedData.end_time));
+            postedData.end = me.createDateWithTime(postedData.date, postedData.end_time);
         me.setAllRows24HourStatus();
         me.setAllRowCommentStatus();
         me.removeEmptyRows();
