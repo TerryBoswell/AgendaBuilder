@@ -2395,7 +2395,6 @@ Ext.define('AgendaBuilderObservable', {
                     if (!myListener || myListener.fired)
                         return;
                     myListener.fired = true;
-                    console.log(listenerid);
                     newMtg = result.postedData;
                     newMtg.id = result.newId;
                     instance.meetings.push(newMtg);
