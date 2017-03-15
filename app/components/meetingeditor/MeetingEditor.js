@@ -646,7 +646,7 @@ Ext.define('MeetingEditor', {
             
         },
         afterrender: function(cmp){
-            
+            cmp.copyToDates = [];
             new Ext.util.DelayedTask(function(){
                 cmp.setRoomSetup(cmp.meeting.room_setup);
                 var overLappingMeetings = cmp.observer.getOverlappingSimilarMeetings(cmp.meeting, cmp.observer);

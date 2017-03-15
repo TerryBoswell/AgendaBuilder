@@ -16,6 +16,7 @@ Ext.define('AgendaBuilderObservable', {
     meetingCallouts: [],
     dividerRows: [],
     queuedDates: [],
+    localListeners: [],
     ajaxController: null,
     currentDragMtg: null, //This is used to target when item is current being dragged
     currentDragDrop: null, //This is the current drag drop manager
@@ -137,7 +138,6 @@ Ext.define('AgendaBuilderObservable', {
          {
              if (!str || !str.length)
              {
-                 console.log(str);
                  return null;
              }
              str = str.substr(0, 10);
@@ -2064,9 +2064,7 @@ Ext.define('AgendaBuilderObservable', {
         me.setAllRows24HourStatus();
         me.setAllRowCommentStatus();
         me.removeEmptyRows();
-        
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
-        //console.warn(postedData);
         me.fireEvent('meetingSaveComplete', postedData);
         if (me.queuedDates && me.queuedDates.length)
         {
@@ -2387,35 +2385,43 @@ Ext.define('AgendaBuilderObservable', {
            
             me.saveMeetingItem(newMtg);         
 
-            var localListener = me.on('meetingSaveStart', function(result)
-            {
-                newMtg = result.postedData;
-                newMtg.id = result.newId;
-                instance.meetings.push(newMtg);
-                me.assignRowIndexes(instance);
-                var color = "#" + meeting.meeting_item_type.color;
-                var idx = me.calculateRowIndex(newMtg, instance);
-            
-                var agendaBuilderRow = me.getRow(instance.date);
-                var rowsAbove = me.getCmpsAboveDateFirstRow(instance.date);
-                var lastIdx = idx;
-                Ext.each(instance.meetings, function(Imtg){
-                    if (Imtg.rowIndex > lastIdx)
-                        lastIdx = Imtg.rowIndex;
-                })
+            var listenerid = me.localListeners.length;
+            me.localListeners.push({
+                id      : listenerid,
+                fired   : false,
+                listener:  me.on('meetingSaveStart', function(result)
+                {
+                    var myListener = me.localListeners[listenerid];
+                    if (!myListener || myListener.fired)
+                        return;
+                    myListener.fired = true;
+                    console.log(listenerid);
+                    newMtg = result.postedData;
+                    newMtg.id = result.newId;
+                    instance.meetings.push(newMtg);
+                    me.assignRowIndexes(instance);
+                    var color = "#" + meeting.meeting_item_type.color;
+                    var idx = me.calculateRowIndex(newMtg, instance);
                 
-                if (idx < 2) //We can't add to the first two rows
-                    idx = 2;
+                    var agendaBuilderRow = me.getRow(instance.date);
+                    var rowsAbove = me.getCmpsAboveDateFirstRow(instance.date);
+                    var lastIdx = idx;
+                    Ext.each(instance.meetings, function(Imtg){
+                        if (Imtg.rowIndex > lastIdx)
+                            lastIdx = Imtg.rowIndex;
+                    })
+                    
+                    if (idx < 2) //We can't add to the first two rows
+                        idx = 2;
 
-                var insertAt = rowsAbove + idx;
-                
-                //We need to add a row if this is true
-                if (agendaBuilderRow.rows.length <= idx)
-                    me.addAdditionalRow(instance.date, me, agendaBuilderRow, insertAt);
-                me.createMeeting(newMtg.id, instance.date, start, end, meeting.title, 'white', 
-                        color, idx, me, meeting.meeting_item_type);
-                localListener.destroy();                
-            }, me);   
+                    var insertAt = rowsAbove + idx;
+                    //We need to add a row if this is true
+                    if (agendaBuilderRow.rows.length <= idx)
+                        me.addAdditionalRow(instance.date, me, agendaBuilderRow, insertAt);
+                    me.createMeeting(newMtg.id, instance.date, start, end, meeting.title, 'white', 
+                            color, idx, me, meeting.meeting_item_type);
+                }, me)});   
+            
     },
     queueAdditionalDatesToSave: function(copyToDates, meeting, scope)
     {
