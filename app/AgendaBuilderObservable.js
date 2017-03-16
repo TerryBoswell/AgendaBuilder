@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.014',
+    version: '1.015',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -142,7 +142,6 @@ Ext.define('AgendaBuilderObservable', {
          }
          var dateAndTime = date.toString().replace('00:00:00', time);
          return new Date(dateAndTime);
-         //zzz
     },
     createDate: function(str){
          if (Ext.isFirefox)
@@ -197,9 +196,9 @@ Ext.define('AgendaBuilderObservable', {
         var me = this;
         if (!timeStr)
             throw "Invalid time";
-        if (timeStr == "00:00")
+        if (timeStr == "00:00" || timeStr == "23:59") 
             return 24;
-        if (timeStr == "00:00:00")
+        if (timeStr == "00:00:00" || timeStr == "23:59:00")
             return 24;
         var date = new Date(Ext.String.format("1/1/2016 {0}", timeStr));
         return date.getHours();        
@@ -1063,9 +1062,127 @@ Ext.define('AgendaBuilderObservable', {
                 var rowPosition = y - cmpY;
                 return Math.round(rowPosition / rowOffset) + 1;
             },
+            saveHrChange: function(cmp, target){
+                var match = null;
+                var rect = cmp.el.dom.getBoundingClientRect();
+                var y = (rect.top + rect.bottom) / 2; //We'll get the center
+                var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
+                if (!mtg)
+                    throw("Meeting not found");
+                
+                var date = mtg.date;
+                var start = null;
+                var end = null;
+                //***********Start Time */
+                //If the drag target is the east --> then we aren't changing the start time
+                if (target == 'east')
+                {
+                    start = mtg.start_time.replace('1900/01/01 ', '');
+                }
+                else
+                {
+                    //Now let's  find the starting timeslot
+                    var startingPoint = rect.left + 1; //shifted one pixel to make sure we are on the starting block                       
+                    Ext.each(document.elementsFromPoint(startingPoint, y), function(el){
+                    if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
+                        match = el;
+                    })
+                    
+                    if (match == null)
+                    {
+                        if (target != 'west')
+                            throw('error finding match in date');
+                        else
+                            start = '06:00:00';
+                    }
+                    else
+                        start = (match.dataset.hour)
+                    
+                    if (!start)
+                        start = '06:00:00';
+
+                    if (!date && match && match.dataset && match.dataset.date)
+                        date = me.createDate(match.dataset.date.stripInvalidChars());                            
+                
+                }
+                //*****************End Time ***********/
+                if (target == 'west') //<-- we don't need to touch the end
+                {
+                    end = mtg.end_time.replace('1900/01/01 ', '');
+                }
+                else
+                {
+                    var endingPoint = rect.right + 10;// - 1; //shifted one pixel to make sure we are on the ending point
+                    Ext.each(document.elementsFromPoint(endingPoint, y), function(el){
+                    if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
+                        match = el;
+                    })
+                    if (match)
+                        end = (match.dataset.hour);
+                    if (!end)
+                    {
+                        end = "23:59:00";                            
+                    }
+                    if (!date && match && match.dataset && match.dataset.date)
+                        date = me.createDate(match.dataset.date.stripInvalidChars());                            
+                }
+                
+                /********************Done End */
+
+                console.log(start);
+                console.log(end);
+
+                if (!date)
+                {
+                    Ext.each(me.dates, function(myDate)
+                    {
+                        Ext.each(myDate.meetings, function(myMtg){
+                            if (myMtg.id == mtg.id)
+                                date = myDate.date;
+                        })
+                    });
+                }
+
+                var dimensions = me.getDimensions(mtg.rowIndex -1, date, start, end);
+                var m_cmp = me.findMeetingComponent(mtg.id);
+                new Ext.util.DelayedTask(function(){
+                    m_cmp.setX(dimensions.xy[0]);
+                    m_cmp.setWidth(dimensions.width);
+                }, me).delay(500); 
+                if (mtg.start_time.replace('1900/01/01 ', '') == start &&
+                    mtg.end_time.replace('1900/01/01 ', '') == end)
+                {
+                    cmp.observer.unmask();
+                    return;
+                }
+                mtg.start_time = start;
+                mtg.end_time = end;
+                mtg.date = me.createDate(match.dataset.date.stripInvalidChars());
+                cmp.observer.saveMeetingItem(mtg);
+            },
             listeners: {
                 delay: 100,
                 afterrender: function(cmp) {
+                    var resizer = cmp.resizer;
+                    if( resizer && resizer.resizeTracker ) {
+                        resizer.resizeTracker.on('mouseup', function( resizeTracker, e ) {
+                            cmp.observer.mask();
+                            var target = null;
+                            if (resizeTracker && resizeTracker.dragTarget 
+                                && resizeTracker.dragTarget.className 
+                                && resizeTracker.dragTarget.className.indexOf)
+                            {
+                                if (resizeTracker.dragTarget.className.indexOf('x-resizable-handle-east') > -1)
+                                    target = 'east';
+                                else if (resizeTracker.dragTarget.className.indexOf('x-resizable-handle-west') > -1)
+                                    target = 'west';
+                            }
+                            cmp.saveHrChange(cmp, target);
+                            Ext.each(cmp.observer.meetingCallouts, function(callout){
+                                callout.hide();
+                            })
+                        })
+                    }
                     cmp.mon(cmp.el, 'click', function(){
                         var xCenter = null;
                         var yCenter = null;
@@ -1224,9 +1341,9 @@ Ext.define('AgendaBuilderObservable', {
                                                 var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
                                                 if (!end)
                                                 {
-                                                    end = "00:00:00";
+                                                    end = "23:59:00";
                                                     var diff = Math.abs(mtg.start - mtg.end);
-                                                    var startBasedOnShift = new Date(new Date("1900/01/01 24:00:00") - diff);    
+                                                    var startBasedOnShift = new Date(new Date("1900/01/01 23:59:00") - diff);    
                                                     if (startBasedOnShift.getHours() < 6)
                                                     {
                                                         start = mtg.start_time.replace('1900/01/01 ', '');
@@ -1277,75 +1394,8 @@ Ext.define('AgendaBuilderObservable', {
                                     cmp.observer.currentDragDrop = dd;
                     });
                     cmp.observer.monitorMeetingHandle(cmp);
-                    //This is the function to save the hour changes via a resize event
-                    cmp.saveHourChange = function(){
-                        cmp.resizeRunner.stop();
-                        var match = null;
-                        var rect = cmp.el.dom.getBoundingClientRect();
-                        var y = (rect.top + rect.bottom) / 2; //We'll get the center
-
-                        //Now let's  find the starting timeslot
-                        var startingPoint = rect.left + 1; //shifted one pixel to make sure we are on the starting block                       
-                        Ext.each(document.elementsFromPoint(startingPoint, y), function(el){
-                        if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
-                            match = el;
-                        })
-                        if (match == null)
-                            throw('error finding match in date');
-                        var start = (match.dataset.hour)
-                        if (!start)
-                            start = '06:00:00';
-                        var endingPoint = rect.right + 10;// - 1; //shifted one pixel to make sure we are on the ending point
-                        Ext.each(document.elementsFromPoint(endingPoint, y), function(el){
-                        if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
-                            match = el;
-                        })
-                        var end = (match.dataset.hour);
-                        var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
-                        if (!mtg)
-                            throw("Meeting not found");
-                        if (!end)
-                        {
-                            end = "00:00:00";                            
-                        }
-                        var date = mtg.date;
-                        if (!date)
-                            date = me.createDate(match.dataset.date.stripInvalidChars());                            
-                        var dimensions = me.getDimensions(mtg.rowIndex -1, date, start, end);
-                        var m_cmp = me.findMeetingComponent(mtg.id);
-                        m_cmp.setX(dimensions.xy[0]);
-                        m_cmp.setWidth(dimensions.width);
-                        if (mtg.start_time.replace('1900/01/01 ', '') == start &&
-                            mtg.end_time.replace('1900/01/01 ', '') == end)
-                            return;
-                        mtg.start_time = start;
-                        mtg.end_time = end;
-                        mtg.date = me.createDate(match.dataset.date.stripInvalidChars());
-                        cmp.observer.saveMeetingItem(mtg);
-                    }
-
-                    var runner = new Ext.util.TaskRunner();
-                    cmp.resizeRunner = runner.newTask({
-                        run: function() {
-                            cmp.saveHourChange();
-                        },
-                        interval: 1000 // 1-minute interval
-                    });
-                    cmp.on({
-                        resize: function(cmp, width, height, oldwidth, oldheight, opts){
-                            //we'll reset the task each time so while a drag is still going on
-                            //we won't start the save. more than a second will be detected as a save change end
-                            cmp.resizeRunner.stop();
-                            cmp.resizeRunner.start();
-                            if (!width || !oldwidth)
-                                return;
-                            Ext.each(cmp.observer.meetingCallouts, function(callout){
-                                callout.hide();
-                            })
-                        }
-                    });
                     cmp.mon(cmp.el, 'mouseup', function(){
-                        cmp.saveHourChange();
+                        cmp.saveHrChange(cmp);
                     })
                    cmp.observer.addDragOverListener(cmp.el.dom, cmp.observer);
                     if (cmp.renderCallBack && Ext.isFunction(cmp.renderCallBack))
