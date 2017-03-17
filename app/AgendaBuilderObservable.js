@@ -1367,7 +1367,10 @@ Ext.define('AgendaBuilderObservable', {
                                                 
                                                 if (me.areTwoDatesEqual(d, m_cmp.date) && mtg.start_time.replace('1900/01/01 ', '') == start &&
                                                      mtg.end_time.replace('1900/01/01 ', '') == end)
-                                                     return;
+                                                     {
+                                                        invalidDrop();
+                                                        return;
+                                                     }
                                                 mtg.start_time = start;
                                                 mtg.end_time = end;
                                                 mtg.date = d;
