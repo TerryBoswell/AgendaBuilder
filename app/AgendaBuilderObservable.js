@@ -1154,7 +1154,7 @@ Ext.define('AgendaBuilderObservable', {
                 }
                 mtg.start_time = start;
                 mtg.end_time = end;
-                mtg.date = me.createDate(match.dataset.date.stripInvalidChars());
+                mtg.date = date;
                 cmp.observer.saveMeetingItem(mtg);
             },
             listeners: {
