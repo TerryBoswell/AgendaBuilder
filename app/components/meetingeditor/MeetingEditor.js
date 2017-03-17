@@ -27,6 +27,41 @@ Ext.define('MeetingEditor', {
             }            
         }
     ],
+    createNumPeopleCmp: function(meeting, index, bold, scope){
+        var me = scope;
+        return new Ext.container.Container({
+            width       : 380,
+            height      : 25,
+            style       : 'padding-top: 3px;',
+            layout      : {
+                type        : 'hbox',
+                align       : 'stretch'
+            },
+            items       : [
+                {
+                    xtype       : 'label',
+                    html        : me.getNumPepText(meeting.meeting_item_type.title, index, bold),
+                    flex        : 1
+                },
+                {
+                    xtype       : 'numberfield',
+                    hideLabel   : true,
+                    index       : index,
+                    minValue    : 0,
+                    itemId      :  Ext.String.format('peopleInMeeting{0}', index),
+                    value       : meeting.num_people,
+                    cls         : 'numpeoplefield',
+                    meetingId   : meeting.id,
+                    meeting     : meeting,
+                    msgTarget   : 'none',
+                    validator: function (value) {
+                        return true;
+                    },
+                    width       : 75
+                }
+            ]
+        })
+    },
     buildNorthContainer: function(meeting, observer){
         return {
             xtype   : 'container',
@@ -42,32 +77,22 @@ Ext.define('MeetingEditor', {
                     style   : 'background-color: white; padding-right: 30px; ',
                     itemId  : 'fldctr',
                     width   : 380,
-                    layout  : 'form',
-                    labelWidth: '200px',
+                    layout  : {
+                        type    : 'vbox',
+                        align   : 'stretch'
+                    },
+                    //labelWidth: '200px',
                     items   : [
                         {
                             xtype       : 'textfield',
                             fieldLabel  : 'Meeting Title',
                             itemId      : 'meetingTitle',
                             value       : meeting.title,
-                            msgTarget   : 'none'
+                            msgTarget   : 'none',
+                            width       : 380
 
                         },
-                        {
-                            xtype       : 'numberfield',
-                            fieldLabel  : this.getNumPepText(meeting.meeting_item_type.title, 1, true),
-                            index       : 1,
-                            minValue    : 0,
-                            itemId      : 'peopleInMeeting1',
-                            value       : meeting.num_people,
-                            cls         : 'numpeoplefield',
-                            meetingId   : meeting.id,
-                            meeting     : meeting,
-                            msgTarget   : 'none',
-                            validator: function (value) {
-                                return true;
-                            }
-                        }
+                        this.createNumPeopleCmp(meeting, 1, true, this)
                     ]
                 },
                 {
@@ -472,7 +497,6 @@ Ext.define('MeetingEditor', {
                             var me = this;
                             me.meeting.room_setup = '11'//Default to none. We'll set the selected one below
                             var endTime = me.getVal('end_time');
-                            console.log(endTime);
                             me.meeting.end_time = me.observer.convertTimeTo24Hrs(endTime);
                             if (!me.meeting.end_time)
                             {
@@ -606,23 +630,7 @@ Ext.define('MeetingEditor', {
         var i = 1;
         Ext.each(overLappingMeetings, function(mtg){
                 i++;
-                fldctr.add(Ext.create('Ext.form.field.Number',{
-                        fieldLabel  : scope.getNumPepText(mtg.meeting_item_type.title, i),
-                        index       : i,
-                        minValue    : 0,
-                        cls         : 'numpeoplefield',
-                        itemId      : Ext.String.format('peopleInMeeting{0}', i),
-                        value       : mtg.num_people,
-                        meeting     : mtg,
-                        meetingId   : mtg.id,
-                        origValue   : mtg.num_people,
-                        msgTarget   : 'none',
-                        validator: function (value) {
-                                return true;
-                            }
-                    })
-                );
-
+                fldctr.add(scope.createNumPeopleCmp(mtg, i, false, scope));
         })
     },
     getNumPepText: function(title, index, bold){

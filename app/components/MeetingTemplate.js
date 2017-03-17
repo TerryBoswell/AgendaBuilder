@@ -119,7 +119,6 @@ Ext.define('MeetingTemplate',
 								else{
 									var meetingTemplate = (cmp.meeting);
 									var d = new Date(match.dataset.date.stripInvalidChars() + ' ' + match.dataset.hour.stripInvalidChars());
-									console.log(d);
 									var end = Ext.Date.add(d, Ext.Date.MINUTE, meetingTemplate.default_duration);
 									var start = match.dataset.hour;
 									if (!observer.areTwoDatesEqual(d, end))
@@ -127,7 +126,6 @@ Ext.define('MeetingTemplate',
 										end = new Date(match.dataset.date.stripInvalidChars() + ' 23:59:00');
 										var calcStart = Ext.Date.subtract(end, Ext.Date.MINUTE, meetingTemplate.default_duration - 1); //subtract one min so we offset the minute before Midnight
 										start = Ext.Date.format(calcStart, "H:i:00")
-										console.log(calcStart);
 									}
 									var color = "#" + meetingTemplate.color;
 									var meeting = observer.createMeeting(0, observer.createDate(match.dataset.date.stripInvalidChars()), start, Ext.Date.format(end, 'H:i:s'), 

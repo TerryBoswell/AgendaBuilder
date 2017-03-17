@@ -1129,9 +1129,6 @@ Ext.define('AgendaBuilderObservable', {
                 
                 /********************Done End */
 
-                console.log(start);
-                console.log(end);
-
                 if (!date)
                 {
                     Ext.each(me.dates, function(myDate)
