@@ -472,6 +472,7 @@ Ext.define('MeetingEditor', {
                             var me = this;
                             me.meeting.room_setup = '11'//Default to none. We'll set the selected one below
                             var endTime = me.getVal('end_time');
+                            console.log(endTime);
                             me.meeting.end_time = me.observer.convertTimeTo24Hrs(endTime);
                             if (!me.meeting.end_time)
                             {

@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.015',
+    version: '1.016',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -1897,6 +1897,7 @@ Ext.define('AgendaBuilderObservable', {
                 
     },
     convertTimeTo12Hrs: function(time, minHour){
+        time.adjustMidnight(); //midnight is the next day
         time = time.replace('1900/01/01 ', '');
         var hr = time.substring(0,2) * 1;
         var slice = "AM"
@@ -1921,7 +1922,8 @@ Ext.define('AgendaBuilderObservable', {
     convertTimeTo24Hrs: function(time){
         try
         {
-            time = time.toUpperCase()
+            time = time.toUpperCase();
+            time.adjustMidnight();
             var hours = Number(time.match(/^(\d+)/)[1]);
             var minutes = Number(time.match(/:(\d+)/)[1]);
             if(time.indexOf('PM') != -1 && hours<12) hours = hours+12;
@@ -1941,8 +1943,15 @@ Ext.define('AgendaBuilderObservable', {
             if (!time)
                 return '';
             var hours = time.getHours();
-            var minutes = time.getMinutes();
             var amPm = "AM"
+            if (hours == 0)
+            {
+                time.setHours(23);
+                time.setMinutes(59);
+                hours = 11;
+                amPm = "PM";
+            }
+            var minutes = time.getMinutes();
             if (hours >= 12)
             {
                 amPm = "PM";                    
@@ -1954,6 +1963,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     getHourFor24Hrs: function(time){
         time = time.toUpperCase()
+        time.adjustMidnight();
         var hours = Number(time.match(/^(\d+)/)[1]);
         var minutes = Number(time.match(/:(\d+)/)[1]);
         if(time.indexOf('PM') != -1) hours = hours+12;
@@ -2872,6 +2882,14 @@ Ext.define('AgendaBuilderObservable', {
             }
             return out;
         }
+
+        String.prototype.adjustMidnight = function()
+        {
+            var str = this;
+            str = str.replace('00:00:00', '23:59:00');
+            return str;
+        }
+
         //IE missing contains
         if (!Array.prototype.includes) {
             Object.defineProperty(Array.prototype, 'includes', {
