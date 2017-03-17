@@ -1517,16 +1517,15 @@ Ext.define('AgendaBuilderObservable', {
             date = scope.createDate(source.date);
         else if (source.start)
             date = source.start;
-
-        var dateStr = Ext.Date.format(date, "m/d/Y");
+//zzz
         if (source.start)
             start = source.start;
         else
-            start = new Date(dateStr + " " + source.start_time.replace('1900/01/01 ', '') + ' GMT+0000');
+            start = scope.createDateWithTime(date, source.start_time.replace('1900/01/01 ', ''));
         if (source.end)
             end = source.end;
         else
-            end = new Date(dateStr + " " + source.end_time.replace('1900/01/01 ', '') + ' GMT+0000');
+            end = scope.createDateWithTime(date, source.end_time.replace('1900/01/01 ', ''));
         
         Ext.each(scope.dates, function(instance){
             if (instance.date && date && scope.areTwoDatesEqual(instance.date, date))
@@ -1539,6 +1538,7 @@ Ext.define('AgendaBuilderObservable', {
                     //if the start happens in the range of the meeting
                     if (start >= meeting.start && start <= meeting.end)
                         overLaps = true;
+                    
                     if (meeting.id != source.id && meeting.meeting_item_type.color == source.meeting_item_type.color && overLaps)
                     {
                         mtgs.push(meeting);

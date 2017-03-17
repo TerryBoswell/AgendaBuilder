@@ -30,7 +30,7 @@ Ext.define('MeetingEditor', {
     createNumPeopleCmp: function(meeting, index, bold, scope){
         var me = scope;
         return new Ext.container.Container({
-            width       : 380,
+            width       : 315,
             height      : 25,
             style       : 'padding-top: 3px;',
             layout      : {
@@ -74,13 +74,11 @@ Ext.define('MeetingEditor', {
             items   : [
                 {
                     xtype   : 'container',
-                    style   : 'background-color: white; padding-right: 30px; ',
+                    style   : 'background-color: white; padding-right: 30px; overflow-y:none; overflow-y: auto !important; ',
+                    bodyStyle: 'backgroundColor: red;',
                     itemId  : 'fldctr',
                     width   : 380,
-                    layout  : {
-                        type    : 'vbox',
-                        align   : 'stretch'
-                    },
+                    flex    : 1,
                     //labelWidth: '200px',
                     items   : [
                         {
@@ -89,7 +87,7 @@ Ext.define('MeetingEditor', {
                             itemId      : 'meetingTitle',
                             value       : meeting.title,
                             msgTarget   : 'none',
-                            width       : 380
+                            width       : 317
 
                         },
                         this.createNumPeopleCmp(meeting, 1, true, this)
@@ -97,6 +95,7 @@ Ext.define('MeetingEditor', {
                 },
                 {
                     xtype   : 'container',
+                    height  : 140,
                     style   : 'background-color: white;',
                     cls     : 'thinBorder',                    
                     flex    : 1,
