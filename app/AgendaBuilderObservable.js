@@ -21,6 +21,7 @@ Ext.define('AgendaBuilderObservable', {
     currentDragMtg: null, //This is used to target when item is current being dragged
     currentDragDrop: null, //This is the current drag drop manager
     isInitialized: false, //flag to keep from repeating after initialize
+    lastRecordedY: 0,
     initAjaxController: function(url, scope){
         var me = scope;
         me.ajaxController = Ext.create('AjaxController', {
@@ -214,6 +215,15 @@ Ext.define('AgendaBuilderObservable', {
         var d = Ext.Date.add(new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate(), 6,0,0) , Ext.Date.MINUTE, minutes);
 
         return  Ext.Date.format(d, 'H:i:s');
+    },
+    recordCurrentY: function(){
+        var me = this;
+        me.lastRecordedY = window.pageYOffset;
+    },
+    restoreLastY: function(){
+        var me = this;
+        console.log(me.lastRecordedY);
+        window.scrollTo(0, me.lastRecordedY);        
     },
     createMeetingTemplateComponent: function(m){
             var t = new Ext.Template(
@@ -2148,6 +2158,7 @@ Ext.define('AgendaBuilderObservable', {
             var baseMtg = me.getMeeting(id, me);
             me.saveQueueDate(dateInfo.date, baseMtg);
         }
+        me.restoreLastY();
         me.unmask();
     },
     getTotalRowsInAboveDates : function(date)
@@ -2410,6 +2421,7 @@ Ext.define('AgendaBuilderObservable', {
         if (meeting.end_time.length < 6)
             meeting.end_time = meeting.end_time + ":00";
         me.mask();
+        me.recordCurrentY();
         me.ajaxController.saveMeetingItem(meeting, me.onSaveMeetingItem, me);
     },
     getInstance: function(d, scope)
