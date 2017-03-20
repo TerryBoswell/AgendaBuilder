@@ -15,7 +15,7 @@ window.agendaBuilder = {};
 Ext.define('AgendaBuilder.MainContainer', {
     observer: observer,
 	extend: 'Ext.Container',
-	width: 900,
+	width: 960,
 	style:  'margin:20px;',
     title:'Month Browser',
     itemId: 'MainContainer',

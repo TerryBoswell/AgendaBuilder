@@ -20,7 +20,7 @@ Ext.define('AgendaRow', {
 	show24Hr: false,
     initComponent: function() {
         this.tpl = new Ext.XTemplate(
-			'<table style="width:100%;height:100%;" border="0" cellspacing="0">',
+			'<table style="width:900px;height:100%;" border="0" cellspacing="0">',
         		'<tpl for="columns">',
 		            '<col width="{[this.getColumnWidth(xindex)]} max-width="{[this.getColumnWidth(xindex)]}">',
 	        	'</tpl>',
@@ -29,7 +29,7 @@ Ext.define('AgendaRow', {
 		            	'<td {[this.getData(xindex)]} {[this.getId(xindex)]} class="{cls}" style="{style}">{parent.columnCount} {html}', 
 		        		'</td>',
 		        	'</tpl>',
-		        '</tr>', 
+		        '</tr>', 				
 				' {[this.getHasOverLay()]}',				
         	'</table>',			
 			'{[this.getShow24Hr()]}',
@@ -94,7 +94,7 @@ Ext.define('AgendaRow', {
 				},
 				getShow24Hr: function(){
 					if (this.show24Hr)
-						return Ext.String.format('<img id="agenda-row-hr-{0}" data-hasListner=false class="lineThrough" src="app/images/24line.png">', this.id);
+						return Ext.String.format('<img id="agenda-row-hr-{0}" style="margin-right:60px;" data-hasListner=false class="lineThrough" src="app/images/24line.png">', this.id);
 					return '';
 				}
             }

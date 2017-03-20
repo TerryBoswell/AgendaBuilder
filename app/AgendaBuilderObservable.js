@@ -1152,6 +1152,7 @@ Ext.define('AgendaBuilderObservable', {
                     cmp.observer.unmask();
                     return;
                 }
+                console.log(start);
                 mtg.start_time = start;
                 mtg.end_time = end;
                 mtg.date = date;
