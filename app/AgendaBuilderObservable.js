@@ -2866,6 +2866,24 @@ Ext.define('AgendaBuilderObservable', {
             }
         })
         
+        Ext.override(Ext.layout.Layout, {
+            getItemLayoutEl: function(item) {
+                var dom = item.el ? item.el.dom : Ext.getDom(item);
+                if (!dom)
+                    return;
+                var parentNode = dom.parentNode;
+                var className = null;
+                if (parentNode) {
+                    className = parentNode.className;
+                    if (className && className.indexOf(Ext.baseCSSPrefix + 'resizable-wrap') !== -1) {
+                        dom = dom.parentNode;
+                    }
+                }
+                return dom;
+            }
+
+        });
+
         //handling missing support for IE 11
         if (Ext.isIE && document.msElementsFromPoint && !document.elementsFromPoint)
         {

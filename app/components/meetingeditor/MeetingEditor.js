@@ -31,17 +31,17 @@ Ext.define('MeetingEditor', {
         var me = scope;
         return new Ext.container.Container({
             width       : 315,
-            height      : 25,
+            height      : 30,
             style       : 'padding-top: 3px;',
             layout      : {
-                type        : 'hbox',
-                align       : 'stretch'
+                type        : 'hbox'
             },
             items       : [
                 {
                     xtype       : 'label',
                     html        : me.getNumPepText(meeting.meeting_item_type.title, index, bold),
-                    flex        : 1
+                    flex        : 1,
+                    height      : 25
                 },
                 {
                     xtype       : 'numberfield',
@@ -54,6 +54,7 @@ Ext.define('MeetingEditor', {
                     meetingId   : meeting.id,
                     meeting     : meeting,
                     msgTarget   : 'none',
+                    height      : 18,
                     validator: function (value) {
                         return true;
                     },
