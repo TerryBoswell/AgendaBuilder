@@ -530,6 +530,27 @@ Ext.define('MeetingEditor', {
                                 me.meeting.date = me.date;
                             if (me.copyToDates.length)
                                 me.observer.queueAdditionalDatesToSave(me.copyToDates, me.meeting, me.observer);
+                            
+                            var id = me.meeting.id;
+                            if (id ==  null)
+                                id = 0;
+                            var m_cmp = me.observer.findMeetingComponent(id);
+                            if (m_cmp)
+                            {
+                                var rx = m_cmp.getCurrentRow();
+                                var start = me.meeting.start_time;
+                                if (start.length == 5)
+                                    start = start + ":00";
+                                var end = me.meeting.end_time;
+                                if (end.length == 5)
+                                    end = end + ":00";
+                                var dimensions = me.observer.getDimensions(rx, me.meeting.date, start, end);
+                                new Ext.util.DelayedTask(function(){
+                                    m_cmp.setX(dimensions.xy[0]);
+                                    m_cmp.setWidth(dimensions.width);
+                                }, me).delay(500); 
+                            }
+                            //getCurrentRow
                             me.observer.saveMeetingItem(me.meeting);
                             Ext.each(Ext.query('.numpeoplefield'), function(el){
                                 var nMtgCmp = Ext.getCmp(Ext.fly(el).id);

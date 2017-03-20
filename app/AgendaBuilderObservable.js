@@ -1151,8 +1151,7 @@ Ext.define('AgendaBuilderObservable', {
                 {
                     cmp.observer.unmask();
                     return;
-                }
-                console.log(start);
+                }                
                 mtg.start_time = start;
                 mtg.end_time = end;
                 mtg.date = date;
@@ -2143,7 +2142,10 @@ Ext.define('AgendaBuilderObservable', {
         if (me.queuedDates && me.queuedDates.length)
         {
             var dateInfo = me.queuedDates.shift();
-            var baseMtg = me.getMeeting(dateInfo.meetingId, me);
+            var id = dateInfo.meetingId;
+            if (id == null)
+                id = response.id;
+            var baseMtg = me.getMeeting(id, me);
             me.saveQueueDate(dateInfo.date, baseMtg);
         }
         me.unmask();
