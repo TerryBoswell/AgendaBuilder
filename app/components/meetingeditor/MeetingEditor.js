@@ -525,6 +525,7 @@ Ext.define('MeetingEditor', {
                                     }
                                 }
                             });
+                            me.room_setup_type = me.observer.getRoomSetup(me.meeting.room_setup)
                             if (!me.validate(me.meeting, me))
                                 return;
                             if (!me.meeting.date)
@@ -546,10 +547,11 @@ Ext.define('MeetingEditor', {
                                 if (end.length == 5)
                                     end = end + ":00";
                                 var dimensions = me.observer.getDimensions(rx, me.meeting.date, start, end);
-                                new Ext.util.DelayedTask(function(){
-                                    m_cmp.setX(dimensions.xy[0]);
-                                    m_cmp.setWidth(dimensions.width);
-                                }, me).delay(500); 
+                                if (dimensions && dimensions.xy)
+                                    new Ext.util.DelayedTask(function(){
+                                        m_cmp.setX(dimensions.xy[0]);
+                                        m_cmp.setWidth(dimensions.width);
+                                    }, me).delay(500); 
                             }
                             //getCurrentRow
                             me.observer.saveMeetingItem(me.meeting);

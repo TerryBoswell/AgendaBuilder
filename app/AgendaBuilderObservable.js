@@ -222,7 +222,6 @@ Ext.define('AgendaBuilderObservable', {
     },
     restoreLastY: function(){
         var me = this;
-        console.log(me.lastRecordedY);
         window.scrollTo(0, me.lastRecordedY);        
     },
     createMeetingTemplateComponent: function(m){
@@ -941,6 +940,14 @@ Ext.define('AgendaBuilderObservable', {
                                                         var copyMtg = targetCmp.observer.createMeeting(0, mtg.date, start, end, mtg.title, 'white', 
                                                             color, 0, targetCmp.observer, mtg.meeting_item_type, function(_m){
                                                                new Ext.util.DelayedTask(function(){
+                                                                    _m.num_people = mtg.num_people;
+                                                                    _m.room_setup = mtg.room_setup;
+                                                                    _m.room_setup_type = mtg.room_setup_type;
+                                                                    _m.booths = mtg.booths;
+                                                                    _m.all_day = mtg.all_day;
+                                                                    _m.posters = mtg.posters;
+                                                                    _m.square_feet = mtg.square_feet;
+                                                                    _m.tabletops = mtg.tabletops;
                                                                     targetCmp.observer.saveMeetingItem(_m);
                                                                 }, this).delay(100); 
                                                                 
@@ -2147,6 +2154,8 @@ Ext.define('AgendaBuilderObservable', {
         me.setAllRows24HourStatus();
         me.setAllRowCommentStatus();
         me.removeEmptyRows();
+        postedData.meeting_item_type = scope.getMeetingType(postedData.type);
+        postedData.room_setup_type = scope.getRoomSetup(postedData.room_setup);
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
         me.fireEvent('meetingSaveComplete', postedData);
         if (me.queuedDates && me.queuedDates.length)
