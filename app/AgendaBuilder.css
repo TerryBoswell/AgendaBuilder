@@ -8,8 +8,8 @@
 }
 .evenRowBackGroundA{
     background: #a3a7a9;
-    border-bottom: 1px solid black;
-    border-top: 1px solid black;
+    /*border-bottom: 1px solid black;
+    border-top: 1px solid black;*/
 }
 
 .evenRowBackGroundB{
@@ -18,17 +18,27 @@
 
 .evenRowBackGroundC{
     background: #a3a7a9;
-    border-top: 1px solid black;
+    /*border-top: 1px solid black;*/
+}
+
+.evenRowBackGroundC{
+    background: #a3a7a9;
+    /*border-top: 1px solid black;*/
+}
+
+.rowDivider
+{
+    border-top: 1px solid black !important;
 }
 
 .oddRowBackGround{
-    border-bottom: 1px solid black;
+    /*border-bottom: 1px solid black;*/
     background: #e7e7e7 ;
-    border-top: 1px solid black;
+    /*border-top: 1px solid black;*/
 }
 
 .oddRowBackGroundB{
-    border-top: 1px solid black;
+    /*border-top: 1px solid black;*/
     background: #e7e7e7 ;
 }
 

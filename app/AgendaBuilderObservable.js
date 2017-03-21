@@ -540,7 +540,8 @@ Ext.define('AgendaBuilderObservable', {
                     height: 1,
                     date: me.createDate(data),
                     isDividerRow: true,
-                    defaultColStyle:'border-bottom: 1px solid black !important;'
+                    defaultColClass: 'rowDivider'//,
+                    //defaultColStyle:'border-bottom: 1px solid black !important;'
                 });
             parentCtr.add(dvdr);
             me.dividerRows.push(dvdr);
