@@ -148,7 +148,9 @@ Ext.define('AgendaBuilder.MainContainer', {
                 observer.isInitialized = true;
                 observer.executeOverrides();
                 Ext.Date.dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-                observer.setScrollingHandlers();
+                new Ext.util.DelayedTask(function(){
+                    observer.setScrollingHandlers();
+                }).delay(500); 
                 observer.setRfpNumber(cmp.rfpNumber);
                 observer.setAgendaMode(cmp.agendaMode);
                 observer.initAjaxController(cmp.apiUrl, observer);
