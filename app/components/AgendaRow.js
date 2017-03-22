@@ -328,7 +328,7 @@ Ext.define('AgendaRow', {
 			scope: this
 		})
     },
-	toggleTwentyFourHour: function(isAllDay){
+	toggleTwentyFourHour: function(isAllDay, isEmpty){
 		var me = this;
 		var toggleRow = function(rows, clsName){
 			Ext.each(rows, function(rowEl){
@@ -351,7 +351,12 @@ Ext.define('AgendaRow', {
 		 var twentyFourHrCmp = (Ext.fly(Ext.query('#agenda-row-hr-' + this.id)[0]));
 		 if (twentyFourHrCmp)
 		 {
-			if (isAllDay)
+			 twentyFourHrCmp.show();
+			if (isEmpty == true)
+			{
+				twentyFourHrCmp.hide();
+			}
+			else if (isAllDay)
 			{
 				twentyFourHrCmp.dom.src = twentyFourHrCmp.dom.src.replace('24line.png', '24.png');
 			}
@@ -381,7 +386,8 @@ Ext.define('AgendaRow', {
 			if (mtg && mtg.all_day)
 				hasAllDayItem = true;
 		})
-		me.toggleTwentyFourHour(hasAllDayItem);
+		var isEmpty = !meetings || !meetings.length;
+		me.toggleTwentyFourHour(hasAllDayItem, isEmpty);
 	},
 	isFirstRow: function(){
 		return this.el.down('.row-overlay') != null;
