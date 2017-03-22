@@ -7,22 +7,22 @@
     background-color: #e7e7e7 !important;
 }
 .evenRowBackGroundA{
-    background: #a3a7a9;
+    background: white;
     /*border-bottom: 1px solid black;
     border-top: 1px solid black;*/
 }
 
 .evenRowBackGroundB{
-    background: #a3a7a9;
+    background:  white;
 }
 
 .evenRowBackGroundC{
-    background: #a3a7a9;
+    background:  white;
     /*border-top: 1px solid black;*/
 }
 
 .evenRowBackGroundC{
-    background: #a3a7a9;
+    background:  white;
     /*border-top: 1px solid black;*/
 }
 
@@ -33,17 +33,17 @@
 
 .oddRowBackGround{
     /*border-bottom: 1px solid black;*/
-    background: #e7e7e7 ;
+    background:  white ;
     /*border-top: 1px solid black;*/
 }
 
 .oddRowBackGroundB{
     /*border-top: 1px solid black;*/
-    background: #e7e7e7 ;
+    background:  white ;
 }
 
 .oddRowBackGroundC{
-    background: #e7e7e7 ;
+    background:  white ;
 }
 
 
@@ -52,7 +52,7 @@
     
 }
 .evenRowBackGround-allday{
-    background: #a3b6c5 !important;
+    background: #c8dceb !important;
     
 }
 
@@ -355,23 +355,57 @@ div.meetingTip:before {
     top: 10px;
 }
 
-.amPMFirst
+.amFirst
 {
-    color: white;
-    font-size:14px;
+    color: rgb(255, 255, 0);
+    font:12pt arial;
     position: absolute;
     top: 2px;
     text-align: right;
     width: 20px;
     padding-right:2px;
 }
-.amPMSecond
+.amSecond
 {
-    color: white;
-    font-size:14px;
+    color: rgb(255, 255, 0);
+    font:12pt arial;
     position: absolute;
     top: 2px;
 }
+.pmFirst
+{
+    color: white;
+    font:12pt arial;
+    position: absolute;
+    top: 2px;
+    text-align: right;
+    width: 20px;
+    padding-right:2px;
+}
+.pmSecond
+{
+    color: white;
+    font:12pt arial;
+    position: absolute;
+    top: 2px;
+}
+
+.amhourText
+{
+    color: rgb(255, 255, 0);
+    font:12pt arial;
+    position: absolute;
+    bottom: 5px;
+}
+
+.pmhourText
+{
+    color: white;
+    font:12pt arial;
+    position: absolute;
+    bottom: 5px;
+}
+
 .hourText
 {
     color: white;
