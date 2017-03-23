@@ -493,14 +493,16 @@ Ext.define('MeetingEditor', {
                         xtype   : 'button',
                         text    : '<div class="btn">Save</div>',
                         scope   : this,
-                        handler : function(){
+                        handler : function(btn){
                             var me = this;
+                            btn.disable();
                             me.meeting.room_setup = '11'//Default to none. We'll set the selected one below
                             var endTime = me.getVal('end_time');
                             me.meeting.end_time = me.observer.convertTimeTo24Hrs(endTime);
                             if (!me.meeting.end_time)
                             {
                                 me.observer.showError("Please enter a valid end time");
+                                btn.enable();
                                 return;
                             }
                             me.meeting.note = me.getVal('note');
@@ -510,6 +512,7 @@ Ext.define('MeetingEditor', {
                             if (!me.meeting.start_time)
                             {
                                 me.observer.showError("Please enter a valid start time");
+                                btn.enable();
                                 return;
                             }
                             me.meeting.title = me.getVal('meetingTitle');
@@ -527,7 +530,10 @@ Ext.define('MeetingEditor', {
                             });
                             me.room_setup_type = me.observer.getRoomSetup(me.meeting.room_setup)
                             if (!me.validate(me.meeting, me))
+                            {
+                                btn.enable();
                                 return;
+                            }
                             if (!me.meeting.date)
                                 me.meeting.date = me.date;
                             if (me.copyToDates.length)
@@ -660,7 +666,9 @@ Ext.define('MeetingEditor', {
         var width = "140px";
         var boldstyle = "";
         if (bold == true)
-            boldstyle = "font-weight: bold;"
+            boldstyle = "font-weight: bold !important;"
+        else
+            boldstyle = "font-weight: normal !important;"
         if (title.length >= 10)
             width = "140px";
         if (title.length >= 15)
