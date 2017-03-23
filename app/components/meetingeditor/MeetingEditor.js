@@ -594,7 +594,7 @@ Ext.define('MeetingEditor', {
             Ext.each(Ext.query('.numpeoplefield'), function(el){ 
                 var cmp = Ext.getCmp(el.id);
                 var value = cmp.getValue();
-                if (!value || value < 0 < 1)
+                if (!value || value < 1)
                     cmp.markInvalid(' ');
             })
         }
