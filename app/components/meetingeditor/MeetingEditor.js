@@ -665,7 +665,7 @@ Ext.define('MeetingEditor', {
             width = "140px";
         if (title.length >= 15)
             width = "210px"; 
-        return Ext.String.format('<a style="width:{0};{1}"># People in {2} {3}</a>', width, boldstyle, title, index);
+        return Ext.String.format('<span style="width:{0};{1}"># People in {2} {3}</span>', width, boldstyle, title, index);
                 
     },
     listeners: {
