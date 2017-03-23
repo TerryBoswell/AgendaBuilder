@@ -867,47 +867,10 @@ Ext.define('AgendaBuilderObservable', {
                 ],
                 listeners: {
                     afterrender: function(tEl) {
-                        tEl.container = Ext.create('Ext.Container', {
-                            renderTo: tEl.el.down('.meetingTip').el,
-                            style: 'padding: 1px 1px;',
-                            height: 125,
-                            width: 230,
-                            layout: {
-                                type: 'vbox'
-                            },
-                            defaults: {
-                                width: 222
-                            },
-                            items: [
-                                {
+                        var buildTipLinks = function(o, mId){
+                               return Ext.create('Ext.Container',{
                                     xtype: 'container',
-                                    meetingId: meetingId,
-                                    observer: tEl.observer,
-                                    html: tEl.observer.getMeetingHtml(tEl.titleText, tEl.meetingId),
-                                    height: 25,
-                                    style: {
-                                        color: tEl.titleFontColor,
-                                        backgroundColor: tEl.titleColor
-                                    },
-                                    cls: 'callout-title',
-                                    listeners: {
-                                                delay: 10,
-                                                scope: this,
-                                                afterrender: function(targetCmp) {
-                                                    targetCmp.observer.subScribeOnMtgClick(targetCmp.meetingId, targetCmp.observer);
-                                                }
-                                    } 
-                                },
-                                {
-                                    xtype: 'container',
-                                    flex: 1, 
-                                    style: 'padding: 10px;',
-                                    cls: 'thinBorderBottom',
-                                    html : '<div class="callout-time" style="text-align:center;">' + observer.getDisplayHours(mtg.start) + " - " + observer.getDisplayHours(mtg.end)  + "<div>" + 
-                                            '<div class="callout-room" style="text-align:center;">' + mtg.room_setup_type.title + " | " + mtg.num_people +"pp</div>"
-                                },
-                                {
-                                    xtype: 'container',
+                                    cls: 'tipshortcutcontainer',
                                     height: 40,
                                     layout: {
                                         type: 'hbox'
@@ -925,9 +888,9 @@ Ext.define('AgendaBuilderObservable', {
                                         {
                                             html: 'Copy',                                            
                                             width: 70,
-                                            observer: observer,
+                                            observer: o,
                                             cls: 'tipshortcut',
-                                            meetingId: meetingId,
+                                            meetingId: mId,
                                             listeners: {
                                                 delay: 1000,
                                                 scope: this,
@@ -965,8 +928,8 @@ Ext.define('AgendaBuilderObservable', {
                                             html: 'Edit',
                                             cls: 'thinBorder tipshortcut',
                                             width: 70,
-                                            observer: observer,
-                                            meetingId: meetingId,
+                                            observer: o,
+                                            meetingId: mId,
                                             listeners: {
                                                 delay: 1000,
                                                 scope: this,
@@ -986,8 +949,8 @@ Ext.define('AgendaBuilderObservable', {
                                             html: 'Delete',
                                             cls: 'thinBorder tipshortcut',
                                             width: 70,
-                                            observer: observer,
-                                            meetingId: meetingId,
+                                            observer: o,
+                                            meetingId: mId,
                                             listeners: {
                                                 delay: 1000,
                                                 scope: this,
@@ -1005,7 +968,62 @@ Ext.define('AgendaBuilderObservable', {
                                             flex: 1
                                         }
                                     ]
+                                });
+                        };
+                        tEl.container = Ext.create('Ext.Container', {
+                            renderTo: tEl.el.down('.meetingTip').el,
+                            style: 'padding: 1px 1px;',
+                            height: 125,
+                            width: 230,
+                            meetingId: meetingId,
+                            observer: tEl.observer,
+                            layout: {
+                                type: 'vbox'
+                            },
+                            defaults: {
+                                width: 222
+                            },
+                            listeners: {
+                                delay: 1000,
+                                afterrender: function(){
+                                    if (!Ext.isIE)
+                                        return;
+                                    if (tEl.container.el.dom.querySelector('.tipshortcut') == null)
+                                    {
+                                        tEl.container.items.items[tEl.container.items.items.length - 1].destroy();  
+                                        tEl.container.add(buildTipLinks(tEl.observer, tEl.meetingId));                                      
+                                    }
                                 }
+                            },
+                            items: [
+                                {
+                                    xtype: 'container',
+                                    meetingId: meetingId,
+                                    observer: tEl.observer,
+                                    html: tEl.observer.getMeetingHtml(tEl.titleText, tEl.meetingId),
+                                    height: 25,
+                                    style: {
+                                        color: tEl.titleFontColor,
+                                        backgroundColor: tEl.titleColor
+                                    },
+                                    cls: 'callout-title',
+                                    listeners: {
+                                                delay: 10,
+                                                scope: this,
+                                                afterrender: function(targetCmp) {
+                                                    targetCmp.observer.subScribeOnMtgClick(targetCmp.meetingId, targetCmp.observer);
+                                                }
+                                    } 
+                                },
+                                {
+                                    xtype: 'container',
+                                    flex: 1, 
+                                    style: 'padding: 10px;',
+                                    cls: 'thinBorderBottom',
+                                    html : '<div class="callout-time" style="text-align:center;">' + observer.getDisplayHours(mtg.start) + " - " + observer.getDisplayHours(mtg.end)  + "<div>" + 
+                                            '<div class="callout-room" style="text-align:center;">' + mtg.room_setup_type.title + " | " + mtg.num_people +"pp</div>"
+                                },
+                                buildTipLinks(tEl.observer, meetingId)
                             ]
                         })
                     },
@@ -2393,7 +2411,8 @@ Ext.define('AgendaBuilderObservable', {
             {
                 cmpToRemove.hide();
                 cmpToRemove.destroy();
-                row.rows.splice(row.rows.length-1, 1)
+                if (row)
+                    row.rows.splice(row.rows.length-1, 1)
             }
         });
             
