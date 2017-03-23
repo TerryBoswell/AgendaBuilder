@@ -303,8 +303,8 @@ Ext.define('MeetingEditor', {
         return [
             {
                 xtype   : 'container',
-                style   : items.length == 0 ? '' : 'border-top: 1px solid rgba(0, 0, 0, .25); border-bottom: 1px solid rgba(0, 0, 0, .25);  padding: 5px;',
-                height  : items.length == 0 ? 0 : 185,
+                style   : items.length == 0 ? 'border-top: 1px solid rgba(0, 0, 0, .25);' : 'border-top: 1px solid rgba(0, 0, 0, .25); border-bottom: 1px solid rgba(0, 0, 0, .25);  padding: 5px;',
+                height  : items.length == 0 ? 2 : 185,
                 layout  : {
                     type    : 'hbox'
                 },
