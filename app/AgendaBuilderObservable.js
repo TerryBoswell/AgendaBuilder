@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.018',
+    version: '1.019',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -1804,10 +1804,22 @@ Ext.define('AgendaBuilderObservable', {
         var northCtrMtg = Ext.ComponentQuery.query('#northCtrMtg')[0];
         var northCtrMtgItems = northCtrMtg.items.items;
         var mtgFarLeft = northCtrMtg.getX();
-        var mtgFarRight = mtgFarLeft + northCtrMtg.getWidth();
+        
+        var getMtgFarLeft = function(){
+            if (mtgFarLeft == 0)
+                mtgFarLeft = northCtrMtg.getX();
+            return mtgFarLeft;
+        }
+        var northCtrWidth = northCtrMtg.getWidth();
+        var getMtgFarRight = function(){
+            if (northCtrWidth == 0)                
+                northCtrWidth = northCtrMtg.getWidth();
+            return getMtgFarLeft() + northCtrMtg.getWidth();
+        }
+
         var rightNorthCtrHandler = function(applyClass){
             var lastItem = northCtrMtgItems[northCtrMtgItems.length - 1];
-            if (lastItem.getX() + lastItem.getWidth() <= mtgFarRight)
+            if (lastItem.getX() + lastItem.getWidth() <= getMtgFarRight())
             {
                 if (applyClass)
                     rightNorthCtrMtg.addCls('btn-disable');
@@ -1832,7 +1844,7 @@ Ext.define('AgendaBuilderObservable', {
         rightNorthCtrMtg.mon(rightNorthCtrMtg.el, 'mouseup', function(){rightNorthCtrMtg.task.stop()});
 
         var leftNorthCtrHandler = function(applyClass){
-            if (northCtrMtgItems[0].getX() >= mtgFarLeft)
+            if (northCtrMtgItems[0].getX() >= getMtgFarLeft())
             {
                 if (applyClass)
                     leftNorthCtrMtg.addCls('btn-disable');
