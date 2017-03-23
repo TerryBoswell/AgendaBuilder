@@ -1892,12 +1892,24 @@ Ext.define('AgendaBuilderObservable', {
         var leftNorthCtrMeal = Ext.ComponentQuery.query('#leftNorthCtrMeal')[0];
         var northCtrMeal = Ext.ComponentQuery.query('#northCtrMeal')[0];
         var northCtrMealItems = northCtrMeal.items.items;
+        
         var mealFarLeft = northCtrMeal.getX();
-        var mealFarRight = mealFarLeft + northCtrMeal.getWidth();
+        var getMealFarLeft = function(){
+            if (mealFarLeft == 0)
+                mealFarLeft = northCtrMeal.getX();
+            return mealFarLeft;
+        }
+        var northCtrMealWidth = northCtrMeal.getWidth();
+        var getMtgFarRight = function(){
+            if (northCtrMealWidth == 0)                
+                northCtrMealWidth = northCtrMeal.getWidth();
+            return getMtgFarLeft() + northCtrMealWidth;
+        }
+        
         
         var rightClickMealHandler = function(applyClass){
             var lastItem = northCtrMealItems[northCtrMealItems.length - 1];
-            if (lastItem.getX() + lastItem.getWidth() <= mealFarRight)
+            if (lastItem.getX() + lastItem.getWidth() <= getMtgFarRight())
             {
                 if (applyClass)
                     rightNorthCtrMeal.addCls('btn-disable');
@@ -1910,7 +1922,7 @@ Ext.define('AgendaBuilderObservable', {
                 leftNorthCtrMeal.removeCls('btn-disable');
         }
         var leftClickMealHandler = function(applyClass){
-            if (northCtrMealItems[0].getX() >= mealFarLeft)
+            if (northCtrMealItems[0].getX() >= getMealFarLeft())
             {
                 if (applyClass)
                     leftNorthCtrMeal.addCls('btn-disable');
