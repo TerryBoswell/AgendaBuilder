@@ -145,6 +145,9 @@ Ext.define('AgendaBuilderObservable', {
          return new Date(dateAndTime);
     },
     createDate: function(str){
+        //It's already a date
+         if (Object.prototype.toString.call(str) == '[object Date]')
+            return str;
          if (Ext.isFirefox)
          {
              if (!str || !str.length)
@@ -1535,7 +1538,9 @@ Ext.define('AgendaBuilderObservable', {
         var start = null;
         var end = null;
         if (source.date)
+        {
             date = scope.createDate(source.date);
+        }
         else if (source.start)
             date = source.start;
 //zzz
@@ -1549,6 +1554,7 @@ Ext.define('AgendaBuilderObservable', {
             end = scope.createDateWithTime(date, source.end_time.replace('1900/01/01 ', ''));
         
         Ext.each(scope.dates, function(instance){
+            
             if (instance.date && date && scope.areTwoDatesEqual(instance.date, date))
             {
                 Ext.each(instance.meetings, function(meeting){
@@ -1559,7 +1565,6 @@ Ext.define('AgendaBuilderObservable', {
                     //if the start happens in the range of the meeting
                     if (start >= meeting.start && start <= meeting.end)
                         overLaps = true;
-                    
                     if (meeting.id != source.id && meeting.meeting_item_type.color == source.meeting_item_type.color && overLaps)
                     {
                         mtgs.push(meeting);
