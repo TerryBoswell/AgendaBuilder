@@ -37,6 +37,10 @@ Ext.define('AgendaBuilderObservable', {
         Ext.each(this.meetingCallouts, function(callout){
             callout.hide();
         })
+        Ext.ComponentQuery.query('#rightNorthCtrMtg')[0].removeCls('btn-disable');
+        Ext.ComponentQuery.query('#leftNorthCtrMtg')[0].addCls('btn-disable');
+        Ext.ComponentQuery.query('#rightNorthCtrMeal')[0].removeCls('btn-disable');
+        Ext.ComponentQuery.query('#leftNorthCtrMeal')[0].addCls('btn-disable');
     },
     mask: function(showMask)
     {
