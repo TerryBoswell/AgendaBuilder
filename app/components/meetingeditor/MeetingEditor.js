@@ -30,7 +30,7 @@ Ext.define('MeetingEditor', {
     createNumPeopleCmp: function(meeting, index, bold, scope){
         var me = scope;
         return new Ext.container.Container({
-            width       : 315,
+            width       : 317,
             height      : 30,
             style       : 'padding-top: 3px;',
             layout      : {
@@ -39,6 +39,7 @@ Ext.define('MeetingEditor', {
             items       : [
                 {
                     xtype       : 'label',
+                    style       : 'padding-top:4px !important;',
                     html        : me.getNumPepText(meeting.meeting_item_type.title, index, bold),
                     flex        : 1,
                     height      : 25
@@ -679,7 +680,7 @@ Ext.define('MeetingEditor', {
             width = "140px";
         if (title.length >= 15)
             width = "210px"; 
-        return Ext.String.format('<span style="width:{0};{1}"># People in {2} {3}</span>', width, boldstyle, title, index);
+        return Ext.String.format('<span style="width:{0};{1}"># People in {2} {3}:</span>', width, boldstyle, title, index);
                 
     },
     listeners: {
