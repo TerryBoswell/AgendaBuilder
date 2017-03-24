@@ -250,6 +250,7 @@ Ext.define('MeetingEditor', {
         return newCmp;
     },
     buildCenterComponents: function(meeting, meetingTemplate){
+        var me = this;
         var items = [];
         
         if (meetingTemplate.is_meal || 
@@ -298,6 +299,10 @@ Ext.define('MeetingEditor', {
                             cls     : 'thinBorder',
                             items   : this.buildRoomLayout('tabletoplayout')
                         });
+        }
+        else 
+        {
+            me.roomLayouts = [];
         }
         
         return [
@@ -516,6 +521,7 @@ Ext.define('MeetingEditor', {
                                 return;
                             }
                             me.meeting.title = me.getVal('meetingTitle');
+                            console.log(me.roomLayouts);
                             Ext.each(me.roomLayouts, function(rl){
                                 
                                 if (rl.selected)
