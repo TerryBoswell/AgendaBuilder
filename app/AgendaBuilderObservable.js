@@ -2957,6 +2957,17 @@ Ext.define('AgendaBuilderObservable', {
             }
 
         });
+        Ext.override(Ext.ComponentQuery, {
+            safeGetValue: function(qry){
+                var value = null;
+                var queryResults = Ext.ComponentQuery.query('#boothcount');
+                if (queryResults && queryResults.length && queryResults[0].getValue)
+                {
+                    value = queryResults[0].getValue();
+                }
+                return value;
+            }
+        });
 
         //handling missing support for IE 11
         if (Ext.isIE && document.msElementsFromPoint && !document.elementsFromPoint)

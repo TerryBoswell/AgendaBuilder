@@ -220,8 +220,10 @@ Ext.define('boothlayout', Ext.apply({
         getValue: function(){return '9'},
         values: function(){return ['9']},
         getAdditionalInfo: function(){
-            var ct = Ext.ComponentQuery.query('#boothcount')[0].getValue();
-            var sqft = Ext.ComponentQuery.query('#boothsqft')[0].getValue();
+
+            var ct = 0;
+            var bt = Ext.ComponentQuery.safeGetValue('#boothcount');
+            var sqft = Ext.ComponentQuery.safeGetValue('#boothsqft');
             return {square_feet : sqft, booths: ct};
         }
         
@@ -244,8 +246,8 @@ Ext.define('posterlayout', Ext.apply({
         getValue: function(){return '10'},
         values: function(){return ['10']},
         getAdditionalInfo: function(){
-            var ct = Ext.ComponentQuery.query('#postercount')[0].getValue();
-            var sqft = Ext.ComponentQuery.query('#postersqft')[0].getValue();
+            var ct = Ext.ComponentQuery.safeGetValue('#postercount');
+            var sqft = Ext.ComponentQuery.safeGetValue('#postersqft');
             return {square_feet : sqft, posters: ct};
         }
     }, baseConfig)
@@ -266,8 +268,8 @@ Ext.define('tabletoplayout', Ext.apply({
         getValue: function(){return '14'},
         values: function(){return ['14']},
         getAdditionalInfo: function(){
-            var ct = Ext.ComponentQuery.query('#tabletopcount')[0].getValue();
-            var sqft = Ext.ComponentQuery.query('#tabletopsqft')[0].getValue();
+            var ct = Ext.ComponentQuery.safeGetValue('#tabletopcount');
+            var sqft = Ext.ComponentQuery.safeGetValue('#tabletopsqft');
             return {square_feet : sqft, tabletops: ct};
         }
     }, baseConfig)
