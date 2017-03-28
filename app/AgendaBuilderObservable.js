@@ -2598,6 +2598,13 @@ Ext.define('AgendaBuilderObservable', {
         if (!mtg)
             throw("Meeting not found");
         mtg.all_day = !mtg.all_day;
+        mtg.start_time = mtg.start_time.replace('1900/01/01 ', '');
+        mtg.end_time = mtg.end_time.replace('1900/01/01 ', '');
+        var instance = me.getInstance(mtg.start, me);
+        if (instance == null)
+            throw("Instance not found");
+        mtg.room_night = instance.room_night;
+        mtg.room_block = instance.room_block;
         this.ajaxController.saveMeetingItem(mtg, this.onUpdateMeeting24Hours, this);
     },
     deleteMeetingItem: function(id){
