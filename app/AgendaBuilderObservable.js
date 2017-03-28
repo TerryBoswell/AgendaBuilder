@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.021',
+    version: '1.022',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -2979,10 +2979,12 @@ Ext.define('AgendaBuilderObservable', {
 
         });
         Ext.override(Ext.ComponentQuery, {
-            safeGetValue: function(qry){
+            safeGetValue: function(qry, defaultValue){
                 try
                 {
                     var value = null;
+                    if (defaultValue != undefined)
+                        value = defaultValue;
                     var queryResults = Ext.ComponentQuery.query('#boothcount');
                     if (queryResults && queryResults.length && queryResults[0].getValue)
                     {
@@ -2992,6 +2994,8 @@ Ext.define('AgendaBuilderObservable', {
                 }
                 catch(ex)
                 {
+                    if (defaultValue != undefined)
+                        return defaultValue;
                     return null;
                 }
             }
