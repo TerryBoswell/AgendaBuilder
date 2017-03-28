@@ -522,7 +522,6 @@ Ext.define('MeetingEditor', {
                                 return;
                             }
                             me.meeting.title = me.getVal('meetingTitle');
-                            console.log(me.roomLayouts);
                             Ext.each(me.roomLayouts, function(rl){
                                 
                                 if (rl.selected)

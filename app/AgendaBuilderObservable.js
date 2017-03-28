@@ -1768,8 +1768,9 @@ Ext.define('AgendaBuilderObservable', {
     },
     getRow: function(date){
         var row = null;
-        Ext.each(this.agendaBuilderRows, function(r){
-            if (r.date.valueOf() == date.valueOf())
+        var me = this;
+        Ext.each(me.agendaBuilderRows, function(r){
+            if (me.areTwoDatesEqual(r.date, date))
             {
                 row = r;
             }
