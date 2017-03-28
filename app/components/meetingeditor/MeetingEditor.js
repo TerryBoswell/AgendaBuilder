@@ -15,6 +15,7 @@ Ext.define('MeetingEditor', {
     observer: null,        
     copyToDates: [],
     ycoord: null,
+    closable: true,
     items: [
         {
             xtype   : 'container',
@@ -690,6 +691,12 @@ Ext.define('MeetingEditor', {
                 cmp.y = cmp.ycoord;
             Ext.ComponentQuery.query('#centerctr')[0].add(cmp.buildCenterComponents(cmp.meeting, cmp.meetingTemplate));
             
+        },
+        beforeclose: function(){
+            var me = this;
+            var id = me.meeting.id != null ? me.meeting.id : 0;
+            if (id == 0) //for unsaved meetings, we remove them
+                me.observer.removeMeeting(id);
         },
         afterrender: function(cmp){
             cmp.copyToDates = [];
