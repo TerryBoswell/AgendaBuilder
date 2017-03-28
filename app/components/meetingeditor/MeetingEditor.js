@@ -30,6 +30,10 @@ Ext.define('MeetingEditor', {
     ],
     createNumPeopleCmp: function(meeting, index, bold, scope){
         var me = scope;
+        if (meeting.type == 4) //We hide for trade shows
+            return new Ext.container.Container({
+                hidden: true
+            });
         return new Ext.container.Container({
             width       : 317,
             height      : 30,
@@ -600,7 +604,7 @@ Ext.define('MeetingEditor', {
             isValid = false;
         }
         
-        if (!mtg.num_people || mtg.num_people < 0)
+        if (mtg.type != 4 && (!mtg.num_people || mtg.num_people < 0))
         {
             msg = "Please select the number of people greater than 0";
             isValid = false;
@@ -639,7 +643,10 @@ Ext.define('MeetingEditor', {
         return isValid;
     },
     getVal: function(itemId){
-        return Ext.ComponentQuery.query('#' + itemId)[0].getValue();
+        var cmps = Ext.ComponentQuery.query('#' + itemId);
+        if (!cmps || !cmps.length)
+            return null;
+        return cmps[0].getValue();
     },
     setRoomSetup: function(id){
         var me = this;
@@ -706,8 +713,12 @@ Ext.define('MeetingEditor', {
                 cmp.addOverLappingRoomNumPeople(overLappingMeetings, cmp);
                 if (cmp.meeting.num_people == 0)
                 {
-                    var npepsCmp = Ext.ComponentQuery.query('#peopleInMeeting1')[0];
-                    npepsCmp.setValue(cmp.observer.getUnAccountAttendees(cmp.date, cmp.observer));
+                    var npepCmps = Ext.ComponentQuery.query('#peopleInMeeting1');
+                    if (npepCmps && npepCmps.length)
+                    {
+                        var npepsCmp = npepCmps[0];
+                        npepsCmp.setValue(cmp.observer.getUnAccountAttendees(cmp.date, cmp.observer));
+                    }
                 }
                 if (cmp.ycoord)
                     cmp.setY(cmp.ycoord);
