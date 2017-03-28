@@ -110,7 +110,7 @@ Ext.define('MeetingEditor', {
                         {
                             xtype: 'container',
                             height: 50,
-                            html: '<div class="date-large">' + Ext.Date.format(meeting.date, 'l n/j') + '</div>'
+                            html: '<div class="date-large">' + observer.getFullDayOfTheWeek(meeting.date) + " " + (meeting.date.getUTCMonth() + 1) + "/" + meeting.date.getUTCDate() + '</div>'
                         },
                         {
                             xtype: 'container',
@@ -390,7 +390,7 @@ Ext.define('MeetingEditor', {
                                         var items = [];
                                         Ext.each(me.observer.getDates(), function(d)
                                         {
-                                            var dateStr = Ext.Date.format(d.date, 'D n/j');
+                                            var dateStr = me.observer.getDayOfTheWeek(d.date) + " " + (d.date.getUTCMonth() + 1) + "/" + d.date.getUTCDate();
                                             var html = Ext.String.format('<div><span style="font-size:larger;">{0}</span><span style="float:right; font-size:larger;">{1}</span></div>', dateStr, d.room_block);
                                             var selectorXtype = Ext.Date.format(meeting.date, 'Y-m-d') == Ext.Date.format(d.date, 'Y-m-d') ? 'box' : 'checkbox';      
                                             var cls = Ext.Date.format(meeting.date, 'Y-m-d') == Ext.Date.format(d.date, 'Y-m-d') ? '' : 'copyToCheck';   
@@ -424,7 +424,7 @@ Ext.define('MeetingEditor', {
                                                                             copyToDates.push(d)
                                                                     });
                                                                     parent.copyToDates = copyToDates;
-                                                                }                                                                
+                                                                }                                                                                                                               
                                                             }
                                                         }
                                                     },

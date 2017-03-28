@@ -277,10 +277,23 @@ Ext.define('AgendaBuilderObservable', {
         weekday[5] = "Fri";
         weekday[6] = "Sat";
 
-        return weekday[d.getDay()];
+        return weekday[d.getUTCDay()];
+    },
+    getFullDayOfTheWeek: function(d)
+    {
+        var weekday = new Array(7);
+        weekday[0]=  "Sunday";
+        weekday[1] = "Monday";
+        weekday[2] = "Tueday";
+        weekday[3] = "Wednesday";
+        weekday[4] = "Thursday";
+        weekday[5] = "Friday";
+        weekday[6] = "Satday";
+
+        return weekday[d.getUTCDay()];
     },
     buildDates: function(dates){
-        this.dates = dates;
+        this.dates = dates;        
         var datesCtr = Ext.ComponentQuery.query('#datesCtr')[0];
         var me = this;
         Ext.each(dates, function(instance){
@@ -493,7 +506,7 @@ Ext.define('AgendaBuilderObservable', {
                 rowCount: null,
                 rowIndex: me.agendaBuilderRows.length                
             };
-            var data = instance.date.toLocaleDateString();
+            var data = instance.date.toUTCDateString();
             //This methods assigns the row index to the meetings and returns the number
             //of rows we need
             agendaBuilderRow.rowCount = me.assignRowIndexes(instance);
@@ -508,7 +521,7 @@ Ext.define('AgendaBuilderObservable', {
                     observer: this,
                     insertOverLay: true,
                     columns: [
-                        {html: day + '</br> ' + (instance.date.getMonth() + 1) + '/' + instance.date.getDate(), 
+                        {html: day + '</br> ' + (instance.date.getUTCMonth() + 1) + '/' + instance.date.getUTCDate(), 
                             style: 'font-size:medium; text-align: center;', Index: 0, cls: ''},
                         {html: '<span class="room-block" style="text-align:center; padding: 5px 8px; border-radius: 3px;">' + instance.room_block + 
                             '</span>', style: '', Index: 1, cls: ''},
@@ -601,7 +614,7 @@ Ext.define('AgendaBuilderObservable', {
             insertRowAt = dividerRowIndex;
         if (!agendaBuilderRow)
             agendaBuilderRow = me.getRow(date);
-        var data = date.toLocaleDateString();
+        var data = date.toUTCDateString();
         function isOdd(num) { return ((num % 2) == 1);}
         var evenColClass = 'evenRowBackGroundC';
         var oddColClass = 'oddRowBackGroundB';
@@ -1565,7 +1578,7 @@ Ext.define('AgendaBuilderObservable', {
         }
         else if (source.start)
             date = source.start;
-//zzz
+
         if (source.start)
             start = source.start;
         else
@@ -2967,15 +2980,28 @@ Ext.define('AgendaBuilderObservable', {
         });
         Ext.override(Ext.ComponentQuery, {
             safeGetValue: function(qry){
-                var value = null;
-                var queryResults = Ext.ComponentQuery.query('#boothcount');
-                if (queryResults && queryResults.length && queryResults[0].getValue)
+                try
                 {
-                    value = queryResults[0].getValue();
+                    var value = null;
+                    var queryResults = Ext.ComponentQuery.query('#boothcount');
+                    if (queryResults && queryResults.length && queryResults[0].getValue)
+                    {
+                        value = queryResults[0].getValue();
+                    }
+                    return value;
                 }
-                return value;
+                catch(ex)
+                {
+                    return null;
+                }
             }
         });
+
+        Date.prototype.toUTCDateString = function(){
+                var date = this;
+                return Ext.String.format("{0}/{1}/{2}", date.getUTCMonth() + 1, date.getUTCDate(), date.getUTCFullYear());
+        };
+        
 
         //handling missing support for IE 11
         if (Ext.isIE && document.msElementsFromPoint && !document.elementsFromPoint)
