@@ -1319,15 +1319,21 @@ Ext.define('AgendaBuilderObservable', {
                                             }
                                             
                                             var invalidDrop = function(){
-                                                if (cmp && cmp.el && cmp.el.removeCls)
-                                                    cmp.el.removeCls('dropOK');
-                                                if (cmp.origX)
-                                                    cmp.setX(cmp.origX);
-                                                if (cmp.origY)
-                                                    cmp.setY(cmp.origY);
-                                                delete cmp.invalidDrop;
-                                                delete cmp.origX;
-                                                delete cmp.origY;
+                                                
+                                                try
+                                                {
+                                                    if (cmp && cmp.el && cmp.el.removeCls)
+                                                        cmp.el.removeCls('dropOK');
+                
+                                                    if (cmp.origX)
+                                                        cmp.setX(cmp.origX);
+                                                    if (cmp.origY)
+                                                        cmp.setY(cmp.origY);
+                                                    delete cmp.invalidDrop;
+                                                    delete cmp.origX;
+                                                    delete cmp.origY;
+                                                }
+                                                catch(ex){}
                                             }
                                             if (forceCallInvalidate)
                                             {
