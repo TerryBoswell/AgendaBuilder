@@ -2644,6 +2644,7 @@ Ext.define('AgendaBuilderObservable', {
     deleteMeetingItem: function(id){
         Ext.Msg.show({
             title:'Confirm Delete',
+            cls: 'x-title-text-delete',
             message: 'This will permanently delete this event. Are you sure?',
             closable : false,
             buttons : Ext.Msg.YESCANCEl,

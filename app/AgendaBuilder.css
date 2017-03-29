@@ -492,3 +492,11 @@ div.meetingTip:before {
     
 }
 
+.x-title-text-delete .x-title-text
+{
+    background-color: #a2b1c5 !important;    
+}
+.x-title-text-delete .x-header
+{
+    padding: 0px !important;
+}
