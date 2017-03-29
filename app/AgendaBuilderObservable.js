@@ -42,6 +42,12 @@ Ext.define('AgendaBuilderObservable', {
         Ext.ComponentQuery.query('#rightNorthCtrMeal')[0].removeCls('btn-disable');
         Ext.ComponentQuery.query('#leftNorthCtrMeal')[0].addCls('btn-disable');
     },
+    resetButtons: function(){
+        Ext.ComponentQuery.query('#rightNorthCtrMtg')[0].removeCls('btn-disable');
+        Ext.ComponentQuery.query('#leftNorthCtrMtg')[0].addCls('btn-disable');
+        Ext.ComponentQuery.query('#rightNorthCtrMeal')[0].removeCls('btn-disable');
+        Ext.ComponentQuery.query('#leftNorthCtrMeal')[0].addCls('btn-disable');
+    },
     mask: function(showMask)
     {
         var datesCtr = Ext.ComponentQuery.query('#MainContainer')[0];
@@ -2220,7 +2226,8 @@ Ext.define('AgendaBuilderObservable', {
         {
             var d = me.dates[i];
             var newRows = me.shiftMeetings(d, rowsAbove, me);   
-            rowsAbove +=newRows;                                       
+            rowsAbove +=newRows;          
+            me.resetButtons();                             
         }
         
         if (!postedData.start && postedData.date && postedData.start_time)
