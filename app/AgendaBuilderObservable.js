@@ -277,7 +277,7 @@ Ext.define('AgendaBuilderObservable', {
         weekday[5] = "Fri";
         weekday[6] = "Sat";
 
-        return weekday[d.getUTCDay()];
+        return weekday[d.getTheDay()];
     },
     getFullDayOfTheWeek: function(d)
     {
@@ -290,7 +290,7 @@ Ext.define('AgendaBuilderObservable', {
         weekday[5] = "Friday";
         weekday[6] = "Satday";
 
-        return weekday[d.getUTCDay()];
+        return weekday[d.getTheDay()];
     },
     buildDates: function(dates){
         this.dates = dates;        
@@ -521,7 +521,7 @@ Ext.define('AgendaBuilderObservable', {
                     observer: this,
                     insertOverLay: true,
                     columns: [
-                        {html: day + '</br> ' + (instance.date.getUTCMonth() + 1) + '/' + instance.date.getUTCDate(), 
+                        {html: day + '</br> ' + instance.date.getTheMonth() + '/' + instance.date.getTheDate(), 
                             style: 'font-size:medium; text-align: center;', Index: 0, cls: ''},
                         {html: '<span class="room-block" style="text-align:center; padding: 5px 8px; border-radius: 3px;">' + instance.room_block + 
                             '</span>', style: '', Index: 1, cls: ''},
@@ -1038,7 +1038,7 @@ Ext.define('AgendaBuilderObservable', {
                                     style: 'padding: 10px;',
                                     cls: 'thinBorderBottom',
                                     html : '<div class="callout-time" style="text-align:center;">' + observer.getDisplayHours(mtg.start) + " - " + observer.getDisplayHours(mtg.end)  + "<div>" + 
-                                            '<div class="callout-room" style="text-align:center;">' + mtg.room_setup_type.title + " | " + mtg.num_people +"pp</div>"
+                                            '<div class="callout-room" style="text-align:center;">' + mtg.room_setup_type.title + " | " + (mtg.type == 4 ? 'N/A' : mtg.num_people +"pp") + "</div>"
                                 },
                                 buildTipLinks(tEl.observer, meetingId)
                             ]
@@ -1072,7 +1072,7 @@ Ext.define('AgendaBuilderObservable', {
             mtg = m;
         var mtgHtml = '<div class="truncate">' + 
                         '<span class="mtg-instance-text">' + text  + "</span></br>" + 
-                        '<span class="mtg-instance-title">' + mtg.room_setup_type.title + " | " + mtg.num_people +"pp</span>"
+                        '<span class="mtg-instance-title">' + mtg.room_setup_type.title + " | " +(mtg.type == 4 ? 'N/A' : mtg.num_people +"pp") +"</span>"
                        '</div>';
         var cmp = Ext.create('Ext.Component', {
             html: mtgHtml,
@@ -1736,7 +1736,7 @@ Ext.define('AgendaBuilderObservable', {
             })
         });
     },
-    updateMeetingText: function(meetingId, title, start, end, room_setup_type, num_people, scope){
+    updateMeetingText: function(meetingId, title, start, end, room_setup_type, num_people, type, scope){
         try
         {
             var me = scope;
@@ -1748,7 +1748,7 @@ Ext.define('AgendaBuilderObservable', {
             title, meetingId);
             tip.el.down('.callout-title').down('.title-text').el.dom.innerHTML = titleText;
             var html = '<div class="callout-time" style="text-align:center;">' + me.getDisplayHours(start) + " - " + me.getDisplayHours(end)  + "<div>" + 
-                                                '<div class="callout-room" style="text-align:center;">' + room_setup_type.title + " | " + num_people +"pp</div>";
+                                                '<div class="callout-room" style="text-align:center;">' + room_setup_type.title + " | " + (type == 4 ? 'N/A' : num_people +"pp") +"</div>";
             Ext.fly(tip.el.down('.thinBorderBottom')).update(html);
 
             var mtg = me.findMeetingComponent(meetingId, me);
@@ -1756,10 +1756,10 @@ Ext.define('AgendaBuilderObservable', {
                 return;
             var mtgHtml = '<div class="truncate">' + 
                             '<span>' + title  + "<span><div>" + 
-                            '<span>' + room_setup_type.title + " | " + num_people +"pp</span>"
+                            '<span>' + room_setup_type.title + " | " + (type == 4 ? 'N/A' : num_people +"pp") + "</span>"
                         '</div>';
             mtg.el.down('.mtg-instance-text').el.dom.innerText = title;
-            mtg.el.down('.mtg-instance-title').el.dom.innerText = room_setup_type.title + " | " + num_people +"pp";
+            mtg.el.down('.mtg-instance-title').el.dom.innerText = room_setup_type.title + " | " + (type == 4 ? 'N/A' : num_people +"pp");
             var titleCmpRatio = {
                             mtgCmpWidth : mtg.getWidth(),
                             titleWidth : Ext.fly(mtg.el.query('.mtg-instance-title')[0]).getWidth()
@@ -2095,6 +2095,12 @@ Ext.define('AgendaBuilderObservable', {
     },
     onSaveMeetingItem: function(postedData, response, scope){
         var me = scope;
+        if (!response || !response.id || response.success == false)
+        {
+            me.showError("There has been a server error. Please refresh this page");
+            me.removeMeeting(postedData.id);
+            return;
+        }
         me.currentDragDrop = null;
         var agendaBuilderRow = me.getRow(postedData.date);
         if (agendaBuilderRow == null)
@@ -2222,7 +2228,8 @@ Ext.define('AgendaBuilderObservable', {
         me.removeEmptyRows();
         postedData.meeting_item_type = scope.getMeetingType(postedData.type);
         postedData.room_setup_type = scope.getRoomSetup(postedData.room_setup);
-        me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
+        me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, 
+            postedData.num_people, postedData.type, me);
         me.fireEvent('meetingSaveComplete', postedData);
         if (me.queuedDates && me.queuedDates.length)
         {
@@ -2451,7 +2458,8 @@ Ext.define('AgendaBuilderObservable', {
     },
     onUpdateMeetingItemPeople: function(postedData, response, scope){
         var me = scope;
-        me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, postedData.num_people, me);
+        me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, 
+            postedData.room_setup_type, postedData.num_people, postedData.type, me);
     },
     onUpdateMeeting24Hours: function(postedData, response, scope){
         scope.fireEvent('meeting24HourUpdated', postedData);
@@ -3003,9 +3011,36 @@ Ext.define('AgendaBuilderObservable', {
 
         Date.prototype.toUTCDateString = function(){
                 var date = this;
-                return Ext.String.format("{0}/{1}/{2}", date.getUTCMonth() + 1, date.getUTCDate(), date.getUTCFullYear());
+                return Ext.String.format("{0}/{1}/{2}", date.getTheMonth(), date.getTheDate(), date.getTheFullYear());
         };
         
+        Date.prototype.getTheDay = function(){
+                var date = this;
+                if (Ext.isFirefox)
+                    return date.getUTCDay();
+                return date.getDay();
+        }
+
+        Date.prototype.getTheMonth = function(){
+                var date = this;
+                if (Ext.isFirefox)
+                    return date.getUTCMonth() + 1;
+                return date.getMonth() + 1;
+        }
+
+        Date.prototype.getTheDate = function(){
+                var date = this;
+                if (Ext.isFirefox)
+                    return date.getUTCDate();
+                return date.getDate();
+        }
+        Date.prototype.getTheFullYear = function(){
+                var date = this;
+                if (Ext.isFirefox)
+                    return date.getUTCFullYear();
+                return date.getFullYear();
+        }
+
 
         //handling missing support for IE 11
         if (Ext.isIE && document.msElementsFromPoint && !document.elementsFromPoint)
