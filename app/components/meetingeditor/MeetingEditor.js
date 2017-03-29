@@ -695,7 +695,11 @@ Ext.define('MeetingEditor', {
             cmp.title = cmp.meeting.title;
             cmp.add(cmp.buildNorthContainer(cmp.meeting, cmp.observer));
             if (cmp.ycoord)
+            {
+                if ((cmp.ycoord + cmp.height) > (window.scrollY + window.innerHeight))
+                   cmp.ycoord -= (cmp.ycoord + cmp.height) - (window.scrollY + window.innerHeight);
                 cmp.y = cmp.ycoord;
+            }
             Ext.ComponentQuery.query('#centerctr')[0].add(cmp.buildCenterComponents(cmp.meeting, cmp.meetingTemplate));
             
         },
