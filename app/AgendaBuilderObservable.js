@@ -1423,6 +1423,10 @@ Ext.define('AgendaBuilderObservable', {
                                                     start = mtg.start_time.replace('1900/01/01 ', '');
                                                     end = mtg.end_time.replace('1900/01/01 ', '');
                                                 }
+                                                
+                                                start = start.replace('29', '30');
+                                                start = start.replace('59', '00');
+                                                
                                                 var dimensions = cmp.observer.getDimensionsByRowIndex(rowIndex, start, end);
                                                 if (!dimensions)
                                                 {
@@ -1440,6 +1444,7 @@ Ext.define('AgendaBuilderObservable', {
                                                         return;
                                                      }
                                                 mtg.start_time = start;
+                                                //safety catch to prevent the offset based on the 59 min
                                                 mtg.end_time = end;
                                                 mtg.date = d;
                                                 cmp.observer.saveMeetingItem(mtg);
