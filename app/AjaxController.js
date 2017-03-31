@@ -48,7 +48,7 @@ Ext.define('AjaxController', {
             console.info('A mocked post has occurred', data, fakeResponse);
             data.id = fakeResponse.id;
             callback(data, fakeResponse, me);
-        }, me).delay(100);   
+        }, me).delay(1000);   
         // Ext.Ajax.request({
         //     url: this.getPostUrl(url),
         //     method: 'POST',

@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.022',
+    version: '1.023',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -336,6 +336,8 @@ Ext.define('AgendaBuilderObservable', {
         
         var formatDate = function(date_time, dateStr, zone, offset)
         {
+            if (date_time.indexOf('1900/01/01') == -1)
+                date_time = '1900/01/01 ' + date_time;
             if (Ext.isIE)
             {
                 var theDateStr = date_time.replace('1900/01/01', dateStr.stripInvalidChars());
@@ -458,6 +460,7 @@ Ext.define('AgendaBuilderObservable', {
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
         me.removeAllMeetings();
         var firstDate = me.dates[0].date;
+        var firstRoomNumber = me.dates[0].room_night;
         var newRows = [];
         for(var i = 1; i <= count; i++)
         {
@@ -465,7 +468,7 @@ Ext.define('AgendaBuilderObservable', {
                 date : Ext.Date.add(firstDate, Ext.Date.DAY, -i),
                 meetings: [],
                 room_block: 0,
-                room_night: firstDate.room_night - i
+                room_night: firstRoomNumber - i
             })
         }
         Ext.each(me.dates, function(d){
@@ -2478,9 +2481,12 @@ Ext.define('AgendaBuilderObservable', {
         var me = scope;
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, 
             postedData.room_setup_type, postedData.num_people, postedData.type, me);
+        me.unmask();
     },
     onUpdateMeeting24Hours: function(postedData, response, scope){
-        scope.fireEvent('meeting24HourUpdated', postedData);
+        var me = scope;
+        me.fireEvent('meeting24HourUpdated', postedData);
+        me.unmask();
     },
     onDeleteMeetingItem: function(data, response, scope){
         var me = scope;
@@ -2625,6 +2631,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     updateMeetingItemPeople: function(meetingId, numPeople, scope){
         var me = scope;
+        me.mask();
         var mtg = me.getMeeting(meetingId, me);
         if (!mtg)
             throw("Meeting not found");
@@ -2633,6 +2640,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     updateMeeting24Hours: function(meetingId, scope){
         var me = scope;
+        me.mask();
         var mtg = me.getMeeting(meetingId, me);
         if (!mtg)
             throw("Meeting not found");
@@ -3088,6 +3096,15 @@ Ext.define('AgendaBuilderObservable', {
             return str;
         }
 
+        Array.prototype.withoutElement = function(item){
+            var me = this;
+            var newMe = [];
+            Ext.each(me, function(m){
+                if (m != item)
+                    newMe.push(m)
+            })
+            return newMe;
+        }
         //IE missing contains
         if (!Array.prototype.includes) {
             Object.defineProperty(Array.prototype, 'includes', {
