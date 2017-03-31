@@ -132,7 +132,7 @@ Ext.define('AgendaBuilderObservable', {
     {
         if (!date1 || !date2 || !date1.getDate || !date2.getDate)
             return false;
-        return date1.getDate() == date2.getDate() && date1.getMonth() == date2.getMonth();
+        return date1.getTheDate() == date2.getTheDate() && date1.getTheMonth() == date2.getTheMonth();
     },
     parseDateStringToUTC: function(str){
         if (!str || !str.slice)

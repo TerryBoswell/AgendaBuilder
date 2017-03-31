@@ -736,7 +736,7 @@ Ext.define('MeetingEditor', {
                 }
             })
             cmp.el.dom.querySelector('.x-window-header').style.backgroundColor = '#' + cmp.meeting.meeting_item_type.color;
-            cmp.el.dom.querySelector('.x-window-header').style.color = 'white';
+            cmp.el.dom.querySelector('.x-title-text').style.color = 'white';
             
         },
         beforehide: function(cmp){
