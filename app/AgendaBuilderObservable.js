@@ -1480,9 +1480,10 @@ Ext.define('AgendaBuilderObservable', {
 
                     var titleCmpRatio = {
                         mtgCmpWidth : cmp.getWidth(),
-                        titleWidth : Ext.fly(cmp.el.query('.mtg-instance-title')[0]).getWidth()
+                        titleWidth : Ext.fly(cmp.el.query('.mtg-instance-title')[0]).getWidth(),
+                        textWidth : Ext.fly(cmp.el.query('.mtg-instance-text')[0]).getWidth()
                     };
-                    if (titleCmpRatio.titleWidth > titleCmpRatio.mtgCmpWidth)
+                    if (titleCmpRatio.titleWidth > titleCmpRatio.mtgCmpWidth || titleCmpRatio.textWidth > titleCmpRatio.mtgCmpWidth)
                     {
                         cmp.removeCls('inRatioMtg');
                     }
