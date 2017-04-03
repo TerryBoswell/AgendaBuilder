@@ -8,6 +8,7 @@ Ext.define('AgendaBuilderObservable', {
     // calling Ext.apply(this, config); instead of this.initConfig(config);
     $applyConfigs: true,
     rfpNumber: null,
+    numberOfPeople: null,
     agendaMode: null,
     meeting_item_types: null,
     room_setups: null,
@@ -814,7 +815,7 @@ Ext.define('AgendaBuilderObservable', {
         else
             var me = this;
         var instance = observer.getInstance(date, me);
-        var mtgTotal = instance.room_block;
+        var mtgTotal = observer.numberOfPeople;
         
         if (!instance || !instance.meetings || !instance.meetings.length)
             return mtgTotal;
@@ -1817,6 +1818,11 @@ Ext.define('AgendaBuilderObservable', {
         if (!n)
             throw ('A valid rfp number must be provided');
         this.rfpNumber = n;
+    },
+    setNumberOfPeople: function(n){
+        if (!n)
+            throw ('A valid number of people must be provided');
+        this.numberOfPeople = n;
     },
     getMeetingType: function(id){
         if (!this.meeting_item_types)

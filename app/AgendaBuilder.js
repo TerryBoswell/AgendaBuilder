@@ -21,6 +21,7 @@ Ext.define('AgendaBuilder.MainContainer', {
     itemId: 'MainContainer',
     cls : 'abMain',
     rfpNumber: null,
+    numberOfPeople: null,
     apiUrl: 'https://etouches987.zentilaqa.com',
     agendaMode: agendaMode.Planner,
     items: [
@@ -134,6 +135,9 @@ Ext.define('AgendaBuilder.MainContainer', {
         this.agendaMode = mode;
         observer.setAgendaMode(mode);
     },
+    setNumberOfPeople: function(n){
+        observer.setNumberOfPeople(n);
+    },
     pushBackFocus: function(){
         observer.pushBackFocus(observer);
     },
@@ -152,6 +156,7 @@ Ext.define('AgendaBuilder.MainContainer', {
                     observer.setScrollingHandlers();
                 }).delay(500); 
                 observer.setRfpNumber(cmp.rfpNumber);
+                observer.setNumberOfPeople(cmp.numberOfPeople);
                 observer.setAgendaMode(cmp.agendaMode);
                 observer.initAjaxController(cmp.apiUrl, observer);
                 observer.getRoomSetups();
