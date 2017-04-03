@@ -587,6 +587,7 @@ Ext.define('MeetingEditor', {
     },    
     validate: function(mtg, me){
         var isValid = true;
+        var exhibit = 4;
         var msg = "";
         if (!mtg.room_setup)
         {
@@ -604,7 +605,7 @@ Ext.define('MeetingEditor', {
             isValid = false;
         }
         
-        if (mtg.type != 4 && (!mtg.num_people || mtg.num_people < 0))
+        if (mtg.type != exhibit && (!mtg.num_people || mtg.num_people < 0))
         {
             msg = "Please select the number of people greater than 0";
             isValid = false;
@@ -621,6 +622,11 @@ Ext.define('MeetingEditor', {
                 Ext.getCmp(el.id).clearInvalid(' ');
             })
 
+        }
+
+        if (mtg.type == exhibit)
+        {
+            console.log(mtg);
         }
 
         if (!mtg.title)

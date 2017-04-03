@@ -329,7 +329,15 @@ Ext.define('AgendaBuilderObservable', {
         var date = instance.date;
         if (Object.prototype.toString.call(date) != '[object Date]')
             date = me.createDate(instance.date)
-        var dateStr = Ext.Date.format(date, "m/d/Y");
+        var dateStr = "";
+        if (Ext.isFirefox)
+        {
+            dateStr = date.getTheMonth() + "/" + date.getTheDate() + "/" + date.getTheFullYear();
+        }
+        else
+        {
+            dateStr = Ext.Date.format(date, "m/d/Y");
+        }
         var offset = Ext.Date.format(date, 'P');
         var zone = Ext.Date.format(date, 'T');
         if (offset.indexOf("+") != -1)
