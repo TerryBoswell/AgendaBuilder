@@ -626,7 +626,16 @@ Ext.define('MeetingEditor', {
 
         if (mtg.type == exhibit)
         {
-            console.log(mtg);
+            var booth = 9;
+            var poster = 10;
+            var tableTop = 14;
+            if (mtg.room_setup == booth && (!mtg.booths || mtg.booths < 0))
+            {}
+            else if (mtg.room_setup == poster && (!mtg.posters || mtg.mtg.posters < 0))
+            {}
+            else if (mtg.room_setup == tableTop && (!mtg.tabletops || mtg.mtg.tabletops < 0))
+            {}
+            
         }
 
         if (!mtg.title)
