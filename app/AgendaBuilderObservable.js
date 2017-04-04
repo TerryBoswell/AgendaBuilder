@@ -1829,8 +1829,6 @@ Ext.define('AgendaBuilderObservable', {
         this.rfpNumber = n;
     },
     setNumberOfPeople: function(n){
-        if (!n)
-            throw ('A valid number of people must be provided');
         this.numberOfPeople = n;
     },
     getMeetingType: function(id){
