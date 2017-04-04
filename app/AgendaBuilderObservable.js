@@ -2126,6 +2126,24 @@ Ext.define('AgendaBuilderObservable', {
                  });
             return maxRow;
     },
+    getMeetingItemTemplateX: function(){
+        var xS = [];
+        Ext.each(Ext.query('.meeting-item-type'), function(el){
+            var cmp = Ext.getCmp(el.id);
+            xS.push({
+                id : cmp.id,
+                x: cmp.getX()
+            })
+        });
+        return xS;
+    },
+    setMeetingItemTemplateX: function(xS){
+        Ext.each(xS, function(item){
+            var cmp = Ext.getCmp(item.id);
+            cmp.setX(item.x)
+        })
+
+    },
     onSaveMeetingItem: function(postedData, response, scope){
         var me = scope;
         if (!response || !response.id || response.success == false)
@@ -2243,14 +2261,15 @@ Ext.define('AgendaBuilderObservable', {
 
         var rowsAbove = 0;
         //This will handle shifting the meetings to the correct rows
+        var xS = me.getMeetingItemTemplateX();
         for(var i = 0; i < me.dates.length; i++)
         {
             var d = me.dates[i];
             var newRows = me.shiftMeetings(d, rowsAbove, me);   
             rowsAbove +=newRows;          
-            me.resetButtons();                             
+            //me.resetButtons();                             
         }
-        
+        me.setMeetingItemTemplateX(xS);
         if (!postedData.start && postedData.date && postedData.start_time)
         {
             postedData.start = me.createDateWithTime(postedData.date, postedData.start_time);
