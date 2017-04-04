@@ -149,7 +149,7 @@ Ext.define('roundlayout', Ext.apply({
         extenderRadios : [
             { boxLabel: 'Rounds of 8', name: 'rb', inputValue: '2', checked: true },
             { boxLabel: 'Rounds of 10', name: 'rb', inputValue: '3'},
-            { boxLabel: 'Crescent Round', width: 150, name: 'rb', inputValue: '12'}
+            { boxLabel: 'Crescents Round', width: 150, name: 'rb', inputValue: '12'}
             ],
         getValue: function(){
             var cmp = Ext.ComponentQuery.query('#extenderRadioGroup')[0];
