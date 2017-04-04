@@ -631,17 +631,17 @@ Ext.define('MeetingEditor', {
             var tableTop = 14;
             if (mtg.room_setup == booth && (!mtg.booths || mtg.booths < 0) && (!mtg.square_feet || mtg.square_feet < 0))
             {
-                msg = "Please either number of booths or the square feet needed.";
+                msg = "Please fill out at least one option for room type.";
                 isValid = false;
             }
             else if (mtg.room_setup == poster && (!mtg.posters || mtg.posters < 0) && (!mtg.square_feet || mtg.square_feet < 0))
             {
-                msg = "Please either number of posters or the square feet needed.";
+                msg = "Please fill out at least one option for room type.";
                 isValid = false;
             }
             else if (mtg.room_setup == tableTop && (!mtg.tabletops || mtg.tabletops < 0) && (!mtg.square_feet || mtg.square_feet < 0))
             {
-                msg = "Please either number of table tops or the square feet needed.";
+                msg = "Please fill out at least one option for room type.";
                 isValid = false;
             }
 
