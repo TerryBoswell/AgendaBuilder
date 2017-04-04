@@ -258,7 +258,7 @@ Ext.define('MeetingEditor', {
     buildCenterComponents: function(meeting, meetingTemplate){
         var me = this;
         var items = [];
-        
+        me.roomLayouts = [];
         if (meetingTemplate.is_meal || 
             meetingTemplate.id == 1 || //Meeting
             meetingTemplate.id == 2 || // Breakout
@@ -629,12 +629,22 @@ Ext.define('MeetingEditor', {
             var booth = 9;
             var poster = 10;
             var tableTop = 14;
-            if (mtg.room_setup == booth && (!mtg.booths || mtg.booths < 0))
-            {}
-            else if (mtg.room_setup == poster && (!mtg.posters || mtg.mtg.posters < 0))
-            {}
-            else if (mtg.room_setup == tableTop && (!mtg.tabletops || mtg.mtg.tabletops < 0))
-            {}
+            if (mtg.room_setup == booth && (!mtg.booths || mtg.booths < 0) && (!mtg.square_feet || mtg.square_feet < 0))
+            {
+                msg = "Please either number of booths or the square feet needed.";
+                isValid = false;
+            }
+            else if (mtg.room_setup == poster && (!mtg.posters || mtg.posters < 0) && (!mtg.square_feet || mtg.square_feet < 0))
+            {
+                msg = "Please either number of posters or the square feet needed.";
+                isValid = false;
+            }
+            else if (mtg.room_setup == tableTop && (!mtg.tabletops || mtg.tabletops < 0) && (!mtg.square_feet || mtg.square_feet < 0))
+            {
+                msg = "Please either number of table tops or the square feet needed.";
+                isValid = false;
+            }
+
             
         }
 
@@ -663,7 +673,7 @@ Ext.define('MeetingEditor', {
             return null;
         return cmps[0].getValue();
     },
-    setRoomSetup: function(id){
+    setRoomSetup: function(id, mtg){
         var me = this;
         Ext.each(me.roomLayouts, function(rl){
             var match = false;
@@ -673,11 +683,17 @@ Ext.define('MeetingEditor', {
             })
             if (match)
             {
+                
                if (rl.clickHandler)
                     rl.clickHandler(rl, null);
                 if (rl.renderExtender)
-                    rl.renderExtender(rl);
-                
+                    rl.renderExtender(rl, function(){
+                        if (!rl.setAdditionalInfo)
+                            return;
+                        new Ext.util.DelayedTask(function(){
+                            rl.setAdditionalInfo(mtg.square_feet, mtg.tabletops, mtg.posters, mtg.booths);
+                        }).delay(100);
+                    });
             }
         });
     },
@@ -727,7 +743,7 @@ Ext.define('MeetingEditor', {
         afterrender: function(cmp){
             cmp.copyToDates = [];
             new Ext.util.DelayedTask(function(){
-                cmp.setRoomSetup(cmp.meeting.room_setup);
+                cmp.setRoomSetup(cmp.meeting.room_setup, cmp.meeting);
                 var overLappingMeetings = cmp.observer.getOverlappingSimilarMeetings(cmp.meeting, cmp.observer);
                 cmp.addOverLappingRoomNumPeople(overLappingMeetings, cmp);
                 if (cmp.meeting.num_people == 0)

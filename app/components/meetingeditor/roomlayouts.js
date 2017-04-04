@@ -8,7 +8,7 @@ var baseConfig = {
     mouseOverHandler: null,
     mouseOutHandler: null,
     extender: null,
-    renderExtender: function(target){
+    renderExtender: function(target, postRender){
             //No items have been specified to go into the extender
             if (!target.extenderRadios && !target.extenderInput)
                 return;
@@ -90,6 +90,8 @@ var baseConfig = {
                             })
 
                         }
+                        if (postRender && Ext.isFunction(postRender))
+                            postRender();
                     }
                 }
             })
@@ -220,11 +222,13 @@ Ext.define('boothlayout', Ext.apply({
         getValue: function(){return '9'},
         values: function(){return ['9']},
         getAdditionalInfo: function(){
-
-            var ct = 0;
             var bt = Ext.ComponentQuery.safeGetValue('#boothcount', 0);
             var sqft = Ext.ComponentQuery.safeGetValue('#boothsqft', 0);
-            return {square_feet : sqft, booths: ct};
+            return {square_feet : sqft, booths: bt};
+        },
+        setAdditionalInfo: function(square_feet, tabletops, posters, booths){
+            Ext.ComponentQuery.safeSetValue('#boothcount', booths);
+            Ext.ComponentQuery.safeSetValue('#boothsqft', square_feet);
         }
         
     }, baseConfig)
@@ -249,6 +253,10 @@ Ext.define('posterlayout', Ext.apply({
             var ct = Ext.ComponentQuery.safeGetValue('#postercount', 0);
             var sqft = Ext.ComponentQuery.safeGetValue('#postersqft', 0);
             return {square_feet : sqft, posters: ct};
+        },
+        setAdditionalInfo: function(square_feet, tabletops, posters, booths){
+            Ext.ComponentQuery.safeSetValue('#postercount', posters);
+            Ext.ComponentQuery.safeSetValue('#postersqft', square_feet);
         }
     }, baseConfig)
 );
@@ -271,6 +279,10 @@ Ext.define('tabletoplayout', Ext.apply({
             var ct = Ext.ComponentQuery.safeGetValue('#tabletopcount', 0);
             var sqft = Ext.ComponentQuery.safeGetValue('#tabletopsqft', 0);
             return {square_feet : sqft, tabletops: ct};
+        },
+        setAdditionalInfo: function(square_feet, tabletops, posters, booths){
+            Ext.ComponentQuery.safeSetValue('#tabletopcount', tabletops);
+            Ext.ComponentQuery.safeSetValue('#tabletopsqft', square_feet);
         }
     }, baseConfig)
 );

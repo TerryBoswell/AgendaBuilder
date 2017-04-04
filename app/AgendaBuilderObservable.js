@@ -3035,10 +3035,10 @@ Ext.define('AgendaBuilderObservable', {
                     var value = null;
                     if (defaultValue != undefined)
                         value = defaultValue;
-                    var queryResults = Ext.ComponentQuery.query('#boothcount');
-                    if (queryResults && queryResults.length && queryResults[0].getValue)
+                    var queryResults = Ext.ComponentQuery.query(qry);
+                    if (queryResults && queryResults.length && queryResults[queryResults.length-1].getValue)
                     {
-                        value = queryResults[0].getValue();
+                        value = queryResults[queryResults.length-1].getValue();
                     }
                     return value;
                 }
@@ -3047,6 +3047,20 @@ Ext.define('AgendaBuilderObservable', {
                     if (defaultValue != undefined)
                         return defaultValue;
                     return null;
+                }
+            },
+            safeSetValue: function(qry, value)
+            {
+                try
+                {
+                    var queryResults = Ext.ComponentQuery.query(qry);
+                    if (queryResults && queryResults.length && queryResults[queryResults.length-1].setValue)
+                    {
+                        value = queryResults[queryResults.length-1].setValue(value);
+                    }
+                }
+                catch(ex)
+                {
                 }
             }
         });
