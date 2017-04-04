@@ -1485,20 +1485,7 @@ Ext.define('AgendaBuilderObservable', {
                    cmp.observer.addDragOverListener(cmp.el.dom, cmp.observer);
                     if (cmp.renderCallBack && Ext.isFunction(cmp.renderCallBack))
                         cmp.renderCallBack(mtg);
-
-                    var titleCmpRatio = {
-                        mtgCmpWidth : cmp.getWidth(),
-                        titleWidth : Ext.fly(cmp.el.query('.mtg-instance-title')[0]).getWidth(),
-                        textWidth : Ext.fly(cmp.el.query('.mtg-instance-text')[0]).getWidth()
-                    };
-                    if (titleCmpRatio.titleWidth > titleCmpRatio.mtgCmpWidth || titleCmpRatio.textWidth > titleCmpRatio.mtgCmpWidth)
-                    {
-                        cmp.removeCls('inRatioMtg');
-                    }
-                    else
-                    {
-                        cmp.addCls('inRatioMtg');
-                    }
+                    cmp.observer.setTitleRatio(cmp.meetingId, cmp.observer);
                 }
             }
 
@@ -1507,6 +1494,23 @@ Ext.define('AgendaBuilderObservable', {
         this.meetingCallouts.push(createTip(cmp, datesCtr, id, this, color, fontColor, text));
         
         return m;
+    },
+    setTitleRatio: function(meetingId, scope){
+        var me = scope;
+        var cmp = me.findMeetingComponent(meetingId);
+        var titleCmpRatio = {
+            mtgCmpWidth : cmp.getWidth(),
+            titleWidth : Ext.fly(cmp.el.query('.mtg-instance-title')[0]).getWidth(),
+            textWidth : Ext.fly(cmp.el.query('.mtg-instance-text')[0]).getWidth()
+        };
+        if (titleCmpRatio.titleWidth > titleCmpRatio.mtgCmpWidth || titleCmpRatio.textWidth > titleCmpRatio.mtgCmpWidth)
+        {
+            cmp.removeCls('inRatioMtg');
+        }
+        else
+        {
+            cmp.addCls('inRatioMtg');
+        }
     },
     showDragDropHourPreview: function(xCoord, yCoord, startHr, endHr, scope){
         var me=this;
@@ -2284,6 +2288,7 @@ Ext.define('AgendaBuilderObservable', {
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, 
             postedData.num_people, postedData.type, me);
         me.fireEvent('meetingSaveComplete', postedData);
+        me.setTitleRatio(postedData.id, me);
         if (me.queuedDates && me.queuedDates.length)
         {
             var dateInfo = me.queuedDates.shift();
