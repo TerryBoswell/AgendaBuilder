@@ -13,7 +13,8 @@
                     pushBackFocus : mainCtr.pushBackFocus,
                     refresh: mainCtr.refresh, 
                     addPreDays : mainCtr.addPreDays,
-                    addPostDays: mainCtr.addPostDays
+                    addPostDays: mainCtr.addPostDays,
+                    setNumberOfPeople: mainCtr.setNumberOfPeople
                 };
             }
             
