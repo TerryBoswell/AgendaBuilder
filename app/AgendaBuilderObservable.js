@@ -2289,6 +2289,24 @@ Ext.define('AgendaBuilderObservable', {
             postedData.num_people, postedData.type, me);
         me.fireEvent('meetingSaveComplete', postedData);
         me.setTitleRatio(postedData.id, me);
+        
+        //This is to handle existing meetings that have time changes via the UI
+        var start = postedData.start_time.replace('1900/01/01 ', '');
+        while (start.indexOf("1900") >= 0)
+            start = postedData.start_time.replace('1900/01/01 ', '');
+        var end = postedData.end_time.replace('1900/01/01 ', '');
+        while (end.indexOf("1900") >= 0)
+            end = postedData.end_time.replace('1900/01/01 ', '');
+        var dimensions = me.getDimensions(rowIdx, postedData.date, start, end);
+        if (dimensions && dimensions.width)
+        {
+            var m_cmp = me.findMeetingComponent(postedData.id);
+            new Ext.util.DelayedTask(function(){
+                m_cmp.setX(dimensions.xy[0]);
+                m_cmp.setWidth(dimensions.width);
+            }, me).delay(100); 
+        }
+        //End time changes
         if (me.queuedDates && me.queuedDates.length)
         {
             var dateInfo = me.queuedDates.shift();
