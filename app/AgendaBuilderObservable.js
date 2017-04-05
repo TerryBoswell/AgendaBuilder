@@ -2565,6 +2565,8 @@ Ext.define('AgendaBuilderObservable', {
             meeting.start_time = meeting.start_time + ":00";
         if (meeting.end_time.length < 6)
             meeting.end_time = meeting.end_time + ":00";
+        if (!meeting.num_people)
+            meeting.num_people = 0;
         me.mask();
         me.recordCurrentY();
         me.ajaxController.saveMeetingItem(meeting, me.onSaveMeetingItem, me);
