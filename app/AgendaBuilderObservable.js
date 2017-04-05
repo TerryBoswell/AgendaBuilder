@@ -497,6 +497,7 @@ Ext.define('AgendaBuilderObservable', {
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
         me.removeAllMeetings();        
         var lastDate = me.dates[me.dates.length - 1].date;
+        var lastRoomNight = me.dates[me.dates.length - 1].room_night;
         var newRows = [];
         Ext.each(me.dates, function(d){
             newRows.push(d);
@@ -507,7 +508,7 @@ Ext.define('AgendaBuilderObservable', {
                 date : Ext.Date.add(lastDate, Ext.Date.DAY, i),
                 meetings: [],
                 room_block: 0,
-                room_night: lastDate.room_night + i
+                room_night: lastRoomNight
             })
         }
         me.agendaBuilderRows = [];
@@ -2575,7 +2576,7 @@ Ext.define('AgendaBuilderObservable', {
             throw("Instance not found");
         meeting.room_night = instance.room_night;
         meeting.room_block = instance.room_block;
-        if (meeting.room_night == undefined || meeting.room_night == null)
+        if (meeting.room_night == undefined || meeting.room_night == null || isNaN(meeting.room_night))
             throw ("room night must be provided");
         if (meeting.room_block == undefined || meeting.room_block == null)
             throw ("room block must be provided");
@@ -2621,7 +2622,9 @@ Ext.define('AgendaBuilderObservable', {
                 title   : meeting.title,
                 type    : meeting.type,
                 id      : null,
-                oldRowIndex: 1
+                oldRowIndex: 1,
+                room_night: instance.room_night,
+                room_block: instance.room_block
             };
             var start = meeting.start_time.replace('1900/01/01 ', '');
             while (start.indexOf("1900") >= 0)
