@@ -1057,7 +1057,8 @@ Ext.define('AgendaBuilderObservable', {
                                     style: 'padding: 10px;',
                                     cls: 'thinBorderBottom',
                                     html : '<div class="callout-time" style="text-align:center;">' + observer.getDisplayHours(mtg.start) + " - " + observer.getDisplayHours(mtg.end)  + "<div>" + 
-                                            '<div class="callout-room" style="text-align:center;">' + mtg.room_setup_type.title + " | " + (mtg.type == 4 ? 'N/A' : mtg.num_people +"pp") + "</div>"
+                                            '<div class="callout-room" style="text-align:center;">' + mtg.room_setup_type.title + " | " + 
+                                            tEl.observer.getSeatingOptionsText(mtg.num_people, mtg.type, mtg.room_setup, mtg.posters, mtg.booths, mtg.tabletops, mtg.square_feet) + "</div>"
                                 },
                                 buildTipLinks(tEl.observer, meetingId)
                             ]
@@ -1091,7 +1092,8 @@ Ext.define('AgendaBuilderObservable', {
             mtg = m;
         var mtgHtml = '<div class="truncate">' + 
                         '<span class="mtg-instance-text">' + text  + "</span></br>" + 
-                        '<span class="mtg-instance-title">' + mtg.room_setup_type.title + " | " +(mtg.type == 4 ? 'N/A' : mtg.num_people +"pp") +"</span>"
+                        '<span class="mtg-instance-title">' + mtg.room_setup_type.title + " | " + 
+                        observer.getSeatingOptionsText(mtg.num_people, mtg.type, mtg.room_setup, mtg.posters, mtg.booths, mtg.tabletops, mtg.square_feet) +"</span>"
                        '</div>';
         var cmp = Ext.create('Ext.Component', {
             html: mtgHtml,
@@ -1496,6 +1498,45 @@ Ext.define('AgendaBuilderObservable', {
         
         return m;
     },
+    getSeatingOptionsText: function(num_people, type, room_setup, posters, booths, tabletops, square_feet){
+        Ext.util.Format.thousandSeparator = ",";
+        var thFn = function(v)
+        {
+            return Ext.util.Format.number(v, "0,000");
+        }
+        var sqFt = thFn(square_feet);
+        if (type != 4)
+            return thFn(num_people) +"pp";
+
+        if (room_setup == "9") //booths
+        {
+            if (!square_feet && booths)
+                return thFn(booths) + " booths";
+            else if (square_feet && !booths)
+                return sqFt + " square feet";
+            else
+                return thFn(booths) + " booths in " + sqFt + " square feet";
+        }
+        else if (room_setup == "10")//posters
+        {
+            if (!square_feet && posters)
+                return thFn(posters) + " posters";
+            else if (square_feet && !posters)
+                return sqFt + " square feet";
+            else
+                return thFn(posters) + " posters in " + sqFt + " square feet";
+        }
+        else if (room_setup == "14") //tabletops
+        {
+            if (!square_feet && tabletops)
+                return thFn(tabletops) + " tabletops";
+            else if (square_feet && !tabletops)
+                return sqFt + " square feet";
+            else
+                return thFn(tabletops) + " tabletops in " + sqFt + " square feet";
+        }
+        return 'N/A';
+    },
     setTitleRatio: function(meetingId, scope){
         var me = scope;
         var cmp = me.findMeetingComponent(meetingId);
@@ -1771,7 +1812,8 @@ Ext.define('AgendaBuilderObservable', {
             })
         });
     },
-    updateMeetingText: function(meetingId, title, start, end, room_setup_type, num_people, type, scope){
+    updateMeetingText: function(meetingId, title, start, end, room_setup_type, 
+        num_people, type, room_setup, posters, booths, tabletops, square_feet, scope){
         try
         {
             var me = scope;
@@ -1783,7 +1825,9 @@ Ext.define('AgendaBuilderObservable', {
             title, meetingId);
             tip.el.down('.callout-title').down('.title-text').el.dom.innerHTML = titleText;
             var html = '<div class="callout-time" style="text-align:center;">' + me.getDisplayHours(start) + " - " + me.getDisplayHours(end)  + "<div>" + 
-                                                '<div class="callout-room" style="text-align:center;">' + room_setup_type.title + " | " + (type == 4 ? 'N/A' : num_people +"pp") +"</div>";
+                                                '<div class="callout-room" style="text-align:center;">' + 
+                                                room_setup_type.title + " | " +
+                                                 me.getSeatingOptionsText(num_people, type, room_setup, posters, booths, tabletops, square_feet) +"</div>";
             Ext.fly(tip.el.down('.thinBorderBottom')).update(html);
 
             var mtg = me.findMeetingComponent(meetingId, me);
@@ -1794,7 +1838,8 @@ Ext.define('AgendaBuilderObservable', {
                             '<span>' + room_setup_type.title + " | " + (type == 4 ? 'N/A' : num_people +"pp") + "</span>"
                         '</div>';
             mtg.el.down('.mtg-instance-text').el.dom.innerText = title;
-            mtg.el.down('.mtg-instance-title').el.dom.innerText = room_setup_type.title + " | " + (type == 4 ? 'N/A' : num_people +"pp");
+            mtg.el.down('.mtg-instance-title').el.dom.innerText = room_setup_type.title + " | " + 
+                me.getSeatingOptionsText(num_people, type, room_setup, posters, booths, tabletops, square_feet);
             var titleCmpRatio = {
                             mtgCmpWidth : mtg.getWidth(),
                             titleWidth : Ext.fly(mtg.el.query('.mtg-instance-title')[0]).getWidth()
@@ -2287,7 +2332,8 @@ Ext.define('AgendaBuilderObservable', {
         postedData.meeting_item_type = scope.getMeetingType(postedData.type);
         postedData.room_setup_type = scope.getRoomSetup(postedData.room_setup);
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, 
-            postedData.num_people, postedData.type, me);
+            postedData.num_people, postedData.type, postedData.room_setup, postedData.posters, postedData.booths, 
+            postedData.tabletops, postedData.square_feet, me);
         me.fireEvent('meetingSaveComplete', postedData);
         
         //This is to handle existing meetings that have time changes via the UI
@@ -2536,7 +2582,9 @@ Ext.define('AgendaBuilderObservable', {
     onUpdateMeetingItemPeople: function(postedData, response, scope){
         var me = scope;
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, 
-            postedData.room_setup_type, postedData.num_people, postedData.type, me);
+            postedData.room_setup_type, postedData.num_people, postedData.type, 
+            postedData.room_setup, postedData.posters, postedData.booths, postedData.tabletops, 
+            postedData.square_feet, me);
         me.unmask();
     },
     onUpdateMeeting24Hours: function(postedData, response, scope){
