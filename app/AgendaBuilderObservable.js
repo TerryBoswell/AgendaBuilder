@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.024',
+    version: '1.025',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -2289,7 +2289,6 @@ Ext.define('AgendaBuilderObservable', {
         me.updateMeetingText(postedData.id, postedData.title, postedData.start, postedData.end, postedData.room_setup_type, 
             postedData.num_people, postedData.type, me);
         me.fireEvent('meetingSaveComplete', postedData);
-        me.setTitleRatio(postedData.id, me);
         
         //This is to handle existing meetings that have time changes via the UI
         var start = postedData.start_time.replace('1900/01/01 ', '');
@@ -2305,6 +2304,7 @@ Ext.define('AgendaBuilderObservable', {
             new Ext.util.DelayedTask(function(){
                 m_cmp.setX(dimensions.xy[0]);
                 m_cmp.setWidth(dimensions.width);
+                me.setTitleRatio(postedData.id, me);
             }, me).delay(100); 
         }
         //End time changes
