@@ -681,6 +681,8 @@ Ext.define('AgendaBuilderObservable', {
             return null;
         var startHourId = row.id + "-col-" + startColId;
         var sfly = Ext.fly(document.getElementById(startHourId));
+        if (!sfly || !sfly.getXY)
+            return null;
         var xy = sfly.getXY();
         var height = sfly.getHeight();
 
@@ -1458,6 +1460,57 @@ Ext.define('AgendaBuilderObservable', {
                                                         invalidDrop();
                                                         return;
                                                      }
+                                                
+                                                var origStart = mtg.start_time.replace('1900/01/01 ', '').substring(0,5);
+                                                var origEnd = mtg.end_time.replace('1900/01/01 ', '').substring(0,5);
+                                                
+                                                //This is all to compenstate for the 
+                                                //time of a block increasing due to the targets it is over
+                                                var getDiff = function(_start, _end)
+                                                {
+                                                    
+                                                    var s = _start.substring(0,5)
+                                                    var e = _end.substring(0,5);
+                                                    if (e == "23:59")
+                                                        e = "24:00";
+                                                    var strHr = parseInt(s.substring(0,2));
+                                                    var endHr = parseInt(e.substring(0,2));
+                                                    var strMin = parseInt(s.substring(3,5));
+                                                    var endMin = parseInt(e.substring(3,5));
+                                                    var totalStartMins = (strHr * 60) + strMin;
+                                                    var totalEndMin = (endHr * 60) + endMin;
+                                                    return Math.abs(totalStartMins - totalEndMin);
+                                                }
+                                                var diffFromDrag =  Math.abs(getDiff(start,end) - getDiff(origStart, origEnd));
+                                                
+                                                //Drag cannot change the timing
+                                                if (diffFromDrag != 0)
+                                                {
+                                                    var newEnd = end.substring(0,5);
+                                                    if (newEnd == "23:59")
+                                                        diffFromDrag -= 1;
+                                                    var diffHours = Math.floor(diffFromDrag / 60);
+                                                    var diffMins = diffFromDrag - (diffHours *60)
+                                                    var newHours = parseInt(newEnd.substring(0,2));
+                                                    var newMins = parseInt(newEnd.substring(3,5));
+                                                    newHours -= diffHours;
+                                                    newMins -= diffMins;
+                                                    if (newMins < 0)
+                                                    {
+                                                        //We moved back to the previous hour
+                                                        newHours -=1;
+                                                        newMins = Math.abs(newMins);
+                                                    }
+
+                                                    var strNewHours = newHours + "";
+                                                    var strNewMins = newMins + "";
+                                                    if (strNewHours.length < 2)
+                                                        strNewHours = "0" + strNewHours;
+                                                    if (strNewMins.length < 2)
+                                                        strNewMins = "0" + strNewMins;
+                                                    end = strNewHours + ":" + strNewMins + ":00";
+                                                }
+
                                                 mtg.start_time = start;
                                                 //safety catch to prevent the offset based on the 59 min
                                                 mtg.end_time = end;
