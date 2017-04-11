@@ -1515,6 +1515,9 @@ Ext.define('AgendaBuilderObservable', {
                                                 //safety catch to prevent the offset based on the 59 min
                                                 mtg.end_time = end;
                                                 mtg.date = d;
+                                                delete cmp.invalidDrop;
+                                                delete cmp.origX;
+                                                delete cmp.origY;
                                                 cmp.observer.saveMeetingItem(mtg);
                                                
                                             }
