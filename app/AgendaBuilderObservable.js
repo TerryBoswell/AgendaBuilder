@@ -1719,23 +1719,43 @@ Ext.define('AgendaBuilderObservable', {
             end = source.end;
         else
             end = scope.createDateWithTime(date, source.end_time.replace('1900/01/01 ', ''));
-        
+        var isSameMealType = function(meetingA, meetingB, type)
+        {
+            return (meetingA.meeting_item_type.title.contains(type) &&
+                meetingB.meeting_item_type.title.contains(type));
+        }
         Ext.each(scope.dates, function(instance){
             
             if (instance.date && date && scope.areTwoDatesEqual(instance.date, date))
             {
                 Ext.each(instance.meetings, function(meeting){
-                    var overLaps = false;
-                    //if the end happens in the range of the meeting
-                    if (end <= meeting.end && end >= meeting.start)
-                        overLaps = true;
-                    //if the start happens in the range of the meeting
-                    if (start >= meeting.start && start <= meeting.end)
-                        overLaps = true;
-                    if (meeting.id != source.id && meeting.meeting_item_type.color == source.meeting_item_type.color && overLaps)
+                    if (meeting.meeting_item_type.is_meal &&
+                        meeting.id != source.id &&
+                    (
+                        isSameMealType(meeting, source, "breakfast") ||
+                        isSameMealType(meeting, source, "lunch") ||
+                        isSameMealType(meeting, source, "dinner") ||
+                        isSameMealType(meeting, source, "coffee") ||
+                        isSameMealType(meeting, source, "reception")
+                    ))
                     {
-                        mtgs.push(meeting);
+                            mtgs.push(meeting);
                     }
+                    else
+                    {
+                        var overLaps = false;
+                        //if the end happens in the range of the meeting
+                        if (end <= meeting.end && end >= meeting.start)
+                            overLaps = true;
+                        //if the start happens in the range of the meeting
+                        if (start >= meeting.start && start <= meeting.end)
+                            overLaps = true;
+                        if (meeting.id != source.id && meeting.meeting_item_type.color == source.meeting_item_type.color && overLaps)
+                        {
+                            mtgs.push(meeting);
+                        }
+                    }
+
                 })             
             }
         });
@@ -3272,6 +3292,11 @@ Ext.define('AgendaBuilderObservable', {
             var str = this;
             str = str.replace('00:00:00', '23:59:00');
             return str;
+        }
+
+        String.prototype.contains = function(value){
+            var str = this;
+            return str.toLowerCase().indexOf(value.toLowerCase()) != -1;
         }
 
         Array.prototype.withoutElement = function(item){
