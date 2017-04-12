@@ -143,7 +143,7 @@ Ext.define('AgendaBuilder.MainContainer', {
     },
     refresh: function(){
         var cmp = Ext.ComponentQuery.query('#MainContainer')[0];
-         if (observer.isInitialized)
+        if (observer.isInitialized)
                 {
                     observer.clearAllCmps();
                     observer.destroy();

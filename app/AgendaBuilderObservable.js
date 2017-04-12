@@ -465,6 +465,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     addPreDays: function(count){
         var me = this;
+        var xS = me.getMeetingItemTemplateX();
         me.savePrePostDays('pre', count, me);
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
         me.removeAllMeetings();
@@ -490,9 +491,12 @@ Ext.define('AgendaBuilderObservable', {
         me.agendaBuilderRows = [];
         me.dates = [];
         me.buildDates(newRows.sort(sortFn));
+        me.setMeetingItemTemplateX(xS);
+               
     },
     addPostDays: function(count){
         var me = this;
+        var xS = me.getMeetingItemTemplateX();
         me.savePrePostDays('post', count, me);
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
         me.removeAllMeetings();        
@@ -514,6 +518,7 @@ Ext.define('AgendaBuilderObservable', {
         me.agendaBuilderRows = [];
         me.dates = [];
         me.buildDates(newRows);
+        me.setMeetingItemTemplateX(xS);
     },
     buildSingleDate: function(instance, parentCtr){
             var me = this;
