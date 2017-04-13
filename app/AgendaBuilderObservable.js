@@ -528,7 +528,8 @@ Ext.define('AgendaBuilderObservable', {
                 date: instance.date,
                 meetings: [],
                 rowCount: null,
-                rowIndex: me.agendaBuilderRows.length                
+                rowIndex: me.agendaBuilderRows.length,
+                collapsed: false                
             };
             var data = instance.date.toUTCDateString();
             //This methods assigns the row index to the meetings and returns the number

@@ -18,7 +18,7 @@ Ext.define('AgendaRow', {
     columns: [],
 	insertOverLay: false,
 	show24Hr: false,
-    initComponent: function() {
+	initComponent: function() {
         this.tpl = new Ext.XTemplate(
 			'<table style="width:900px;height:100%;" border="0" cellspacing="0">',
         		'<tpl for="columns">',
@@ -134,7 +134,8 @@ Ext.define('AgendaRow', {
 						var mtgsToHide = [];
 						var date = parent.observer.createDate(parent.dataField.stripInvalidChars());
 						var instance = parent.observer.getInstance(date, parent.observer);
-						var row = parent.observer.getRow(date)
+						var row = parent.observer.getRow(date);
+						row.collapsed = !row.collapsed;
 						var topMostCmp = Ext.ComponentQuery.query('#datesCtr')[0];
 						var scrollTop = topMostCmp.el.dom.scrollTop;
 						//If it hasn't been set, then it is visible
@@ -149,17 +150,18 @@ Ext.define('AgendaRow', {
 								mtgCmp.hide();
 							})
 							var hiddenCount = 0;
-							for(i = 1; i < row.rows.length; i++)
+							for(var i = 1; i < row.rows.length; i++)
 							{
 								var rowCmp = Ext.getCmp(row.rows[i].id);
 								rowCmp.hide();
 								hiddenCount++;
 							}
-							for(i = 0; i < parent.observer.dates.length; i++)
+							for(var i = 0; i < parent.observer.dates.length; i++)
 							{
 								if (parent.observer.dates[i].date > date)
 								{
 									Ext.each(parent.observer.dates[i].meetings, function(mtg){
+
 										parent.observer.moveMeetingUpXRows(mtg.id, hiddenCount, parent.observer)
 									})
 								}
@@ -175,23 +177,44 @@ Ext.define('AgendaRow', {
 								mtgCmp.show();
 							})
 							var shownCount = 0;
-							for(i = 1; i < row.rows.length; i++)
+							for(var i = 1; i < row.rows.length; i++)
 							{
 								var rowCmp = Ext.getCmp(row.rows[i].id);
 								rowCmp.show();
 								shownCount++;
 							}
-							for(i = 0; i < parent.observer.dates.length; i++)
+							for(var i = 0; i < parent.observer.dates.length; i++)
 							{
 								if (parent.observer.dates[i].date > date)
 								{
 									Ext.each(parent.observer.dates[i].meetings, function(mtg){
+										
 										parent.observer.moveMeetingDownXRows(mtg.id, shownCount, parent.observer)
 									})
 								}
 							}
 							overlayCmp.innerHTML = '';										
 						}	
+
+						for (var i = 0; i < parent.observer.agendaBuilderRows.length; i++)
+						{
+							var firstRowIndex = Ext.getCmp(parent.observer.agendaBuilderRows[i].rows[0].id).getRowIndex() - 1;
+							Ext.each(parent.observer.dates, function(d){
+								Ext.each(d.meetings, function(_m){
+									var m_cmp = parent.observer.findMeetingComponent(_m.id);
+									var isIndex = m_cmp.getCurrentRow();
+									var shouldBeIndex = (firstRowIndex + _m.rowIndex);
+									if (isIndex > 0 && shouldBeIndex != isIndex)
+									{
+										// console.log(shouldBeIndex);
+										// console.log(isIndex);
+										// console.log('ugh oh');
+									}
+									//console.log("Is "  + m_cmp.getCurrentRow() + " should be " + (firstRowIndex + _m.rowIndex));
+								})
+							})
+							
+						}
 						instance.visible = !instance.visible;		
 						Ext.each(parent.observer.meetingCallouts, function(callout){
 								callout.hide();
