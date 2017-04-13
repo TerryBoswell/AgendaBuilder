@@ -156,16 +156,6 @@ Ext.define('AgendaRow', {
 								rowCmp.hide();
 								hiddenCount++;
 							}
-							for(var i = 0; i < parent.observer.dates.length; i++)
-							{
-								if (parent.observer.dates[i].date > date)
-								{
-									Ext.each(parent.observer.dates[i].meetings, function(mtg){
-
-										parent.observer.moveMeetingUpXRows(mtg.id, hiddenCount, parent.observer)
-									})
-								}
-							}
 							overlayCmp.innerHTML = Ext.String.format("You have <span class='numberCircle room-block'>{0}</span> events on this day. <span class='link-color expand-view'>Expand ></span>", instance.meetings.length);																
 						}
 						else
@@ -183,36 +173,27 @@ Ext.define('AgendaRow', {
 								rowCmp.show();
 								shownCount++;
 							}
-							for(var i = 0; i < parent.observer.dates.length; i++)
-							{
-								if (parent.observer.dates[i].date > date)
-								{
-									Ext.each(parent.observer.dates[i].meetings, function(mtg){
-										
-										parent.observer.moveMeetingDownXRows(mtg.id, shownCount, parent.observer)
-									})
-								}
-							}
 							overlayCmp.innerHTML = '';										
 						}	
 
 						for (var i = 0; i < parent.observer.agendaBuilderRows.length; i++)
 						{
 							var firstRowIndex = Ext.getCmp(parent.observer.agendaBuilderRows[i].rows[0].id).getRowIndex() - 1;
-							Ext.each(parent.observer.dates, function(d){
-								Ext.each(d.meetings, function(_m){
-									var m_cmp = parent.observer.findMeetingComponent(_m.id);
-									var isIndex = m_cmp.getCurrentRow();
-									var shouldBeIndex = (firstRowIndex + _m.rowIndex);
-									if (isIndex > 0 && shouldBeIndex != isIndex)
-									{
-										// console.log(shouldBeIndex);
-										// console.log(isIndex);
-										// console.log('ugh oh');
-									}
-									//console.log("Is "  + m_cmp.getCurrentRow() + " should be " + (firstRowIndex + _m.rowIndex));
-								})
+							var d = parent.observer.dates[i];
+							Ext.each(d.meetings, function(_m){
+								var m_cmp = parent.observer.findMeetingComponent(_m.id);
+								var isIndex = m_cmp.getCurrentRow();
+								var shouldBeIndex = (firstRowIndex + _m.rowIndex);
+								var differential = shouldBeIndex - isIndex;
+								if (isIndex > 0 && differential != 0)
+								{
+										if (differential < 0)
+											parent.observer.moveMeetingUpXRows(_m.id, Math.abs(differential), parent.observer);
+										else
+											parent.observer.moveMeetingDownXRows(_m.id, Math.abs(differential), parent.observer);										
+								}								
 							})
+							
 							
 						}
 						instance.visible = !instance.visible;		
