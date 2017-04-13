@@ -2578,7 +2578,7 @@ Ext.define('AgendaBuilderObservable', {
 
             })
         });
-        var index = 1;
+        //var index = 1;
         var emtpyRows = [];
         var removeNextRowOnDate = null;
         //loop through all the rows and if there are any unused that are row 1 or 2, add them
@@ -2587,12 +2587,17 @@ Ext.define('AgendaBuilderObservable', {
                 var dataField = cmp.dataField;
                 if(dataField)
                 {
+                    var index = cmp.getRowIndex();
                     var dateFromDataField = me.createDate(dataField);
                     //This row does not have an item on it
                     if (!usedRows.includes(index))
                     {
+                        var collapsed = false;
+                        var parentRow = parent.observer.getRow(dateFromDataField);
+                        if (parentRow)
+                            collapsed = parentRow.collapsed;
                         //We won't remove the first or second row
-                        if (!cmp.isFirstRow() && !cmp.isSecondRow())
+                        if (!cmp.isFirstRow() && !cmp.isSecondRow() && !collapsed)
                         {
                             emtpyRows.push({
                                 id: rowEl.id, 
@@ -2610,7 +2615,11 @@ Ext.define('AgendaBuilderObservable', {
                     }
                     else if (removeNextRowOnDate != null && removeNextRowOnDate.getDate && me.areTwoDatesEqual(removeNextRowOnDate, dateFromDataField))
                     {
-                        if (!cmp.isFirstRow() && !cmp.isSecondRow())
+                        var collapsed = false;
+                        var parentRow = parent.observer.getRow(dateFromDataField);
+                        if (parentRow)
+                            collapsed = parentRow.collapsed;
+                        if (!cmp.isFirstRow() && !cmp.isSecondRow() && !collapsed)
                         {
                             emtpyRows.push({
                                     id: rowEl.id, 

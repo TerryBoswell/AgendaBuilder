@@ -18,6 +18,7 @@ Ext.define('AgendaRow', {
     columns: [],
 	insertOverLay: false,
 	show24Hr: false,
+	collapsed: false,
 	initComponent: function() {
         this.tpl = new Ext.XTemplate(
 			'<table style="width:900px;height:100%;" border="0" cellspacing="0">',
@@ -136,6 +137,7 @@ Ext.define('AgendaRow', {
 						var instance = parent.observer.getInstance(date, parent.observer);
 						var row = parent.observer.getRow(date);
 						row.collapsed = !row.collapsed;
+						parent.collapsed = !row.collapsed;
 						var topMostCmp = Ext.ComponentQuery.query('#datesCtr')[0];
 						var scrollTop = topMostCmp.el.dom.scrollTop;
 						//If it hasn't been set, then it is visible
@@ -147,14 +149,14 @@ Ext.define('AgendaRow', {
 							Ext.fly(overlayCmp).setHeight(50);
 							Ext.each(instance.meetings, function(mtg){
 								var mtgCmp = parent.observer.findMeetingComponent(mtg.id);
-								mtgCmp.hide();
+								if (mtgCmp && mtgCmp.hide)
+									mtgCmp.hide();
 							})
-							var hiddenCount = 0;
 							for(var i = 1; i < row.rows.length; i++)
 							{
 								var rowCmp = Ext.getCmp(row.rows[i].id);
-								rowCmp.hide();
-								hiddenCount++;
+								if (rowCmp && rowCmp.hide)
+									rowCmp.hide();
 							}
 							overlayCmp.innerHTML = Ext.String.format("You have <span class='numberCircle room-block'>{0}</span> events on this day. <span class='link-color expand-view'>Expand ></span>", instance.meetings.length);																
 						}
@@ -164,14 +166,14 @@ Ext.define('AgendaRow', {
 							Ext.fly(overlayCmp).setHeight(0);
 							Ext.each(instance.meetings, function(mtg){
 								var mtgCmp = parent.observer.findMeetingComponent(mtg.id);
-								mtgCmp.show();
+								if (mtgCmp && mtgCmp.show)
+									mtgCmp.show();
 							})
-							var shownCount = 0;
 							for(var i = 1; i < row.rows.length; i++)
 							{
 								var rowCmp = Ext.getCmp(row.rows[i].id);
-								rowCmp.show();
-								shownCount++;
+								if (rowCmp && rowCmp.show)
+									rowCmp.show();
 							}
 							overlayCmp.innerHTML = '';										
 						}	
