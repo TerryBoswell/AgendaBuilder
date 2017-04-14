@@ -501,7 +501,7 @@ Ext.define('AgendaBuilderObservable', {
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
         me.removeAllMeetings();        
         var lastDate = me.dates[me.dates.length - 1].date;
-        var lastRoomNight = me.dates[me.dates.length - 1].room_night + 1;
+        var lastRoomNight = me.dates[me.dates.length - 1].room_night;
         var newRows = [];
         Ext.each(me.dates, function(d){
             newRows.push(d);
@@ -512,7 +512,7 @@ Ext.define('AgendaBuilderObservable', {
                 date : Ext.Date.add(lastDate, Ext.Date.DAY, i),
                 meetings: [],
                 room_block: 0,
-                room_night: lastRoomNight
+                room_night: lastRoomNight + i
             })
         }
         me.agendaBuilderRows = [];
