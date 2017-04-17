@@ -882,6 +882,8 @@ Ext.define('AgendaBuilderObservable', {
             var centerX = position.left + position.width / 2;
             var centerY = position.top + position.height / 2;
             var mtg = observer.getMeeting(meetingId, observer);
+            if (title.length > 30) 
+                title = title.substr(0,30) + '...';
             if (!mtg)
                 mtg = m;
             return target.extender = Ext.create('Ext.Component', {
@@ -1902,9 +1904,11 @@ Ext.define('AgendaBuilderObservable', {
             var tip = me.findMeetingTip(meetingId);
             if (tip == null)
                 return;
-            
+            var tipTitle = title;
+            if (tipTitle.length > 30) 
+                tipTitle = title.substr(0,30) + '...';
             var titleText = Ext.String.format('{0}<i id="closemtg{1}" style="margin-top: 3px; margin-right: 2px; float: right;" class="fa fa-times-circle fa-lg close-tip" aria-hidden="true"></i>',
-            title, meetingId);
+            tipTitle, meetingId);
             tip.el.down('.callout-title').down('.title-text').el.dom.innerHTML = titleText;
             var html = '<div class="callout-time" style="text-align:center;">' + me.getDisplayHours(start) + " - " + me.getDisplayHours(end)  + "<div>" + 
                                                 '<div class="callout-room" style="text-align:center;">' + 

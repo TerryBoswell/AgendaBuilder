@@ -190,8 +190,17 @@ div.meetingTip:before {
     padding: 1px;
     z-index: 1000; 
     border-radius: 6px;
+    white-space:nowrap; 
+    text-overflow:ellipsis; 
+    overflow:hidden;
 }
-
+.callout-room
+{
+    text-align:center; 
+    white-space:nowrap; 
+    text-overflow:ellipsis; 
+    overflow:hidden;
+}
 
 .truncate {
   white-space: nowrap;

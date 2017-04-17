@@ -649,7 +649,7 @@ Ext.define('MeetingEditor', {
             
         }
 
-        if (!mtg.title)
+        if (!mtg.title || mtg.title.length > 120)
         {
             msg = "Please provide a valid title";
             isValid = false;
