@@ -1489,10 +1489,10 @@ Ext.define('AgendaBuilderObservable', {
                                                     var totalEndMin = (endHr * 60) + endMin;
                                                     return Math.abs(totalStartMins - totalEndMin);
                                                 }
-                                                var diffFromDrag =  Math.abs(getDiff(start,end) - getDiff(origStart, origEnd));
+                                                var diffFromDrag =  getDiff(start,end) - getDiff(origStart, origEnd);
                                                 
                                                 //Drag cannot change the timing
-                                                if (diffFromDrag != 0)
+                                                if (diffFromDrag > 0)
                                                 {
                                                     var newEnd = end.substring(0,5);
                                                     if (newEnd == "23:59")
@@ -1517,6 +1517,39 @@ Ext.define('AgendaBuilderObservable', {
                                                     if (strNewMins.length < 2)
                                                         strNewMins = "0" + strNewMins;
                                                     end = strNewHours + ":" + strNewMins + ":00";
+                                                }
+                                                else if (diffFromDrag < 0)
+                                                {
+                                                    if (start == "06:00" || start == "06:00:00")
+                                                    {
+                                                        var origDiff = getDiff(origStart, origEnd);
+                                                        var startHr = parseInt(start.substring(0,2));
+                                                        var startMin = parseInt(start.substring(3,5));
+                                                        var endHours = Math.floor(origDiff / 60);
+                                                        var endMins =  (origDiff - (endHours *60));
+                                                        endHours += startHr;
+                                                        endMins += startMin;
+                                                        if (endMins >= 60)
+                                                        {
+                                                            endMins = 0;
+                                                            endHours += 1;
+                                                        }
+                                                        if (endHours >= 24)
+                                                        {
+                                                            end = "23:59:00";
+                                                        }
+                                                        else
+                                                        {
+                                                            var strNewHours = endHours + "";
+                                                            var strNewMins = endMins + "";
+                                                            if (strNewHours.length < 2)
+                                                                strNewHours = "0" + strNewHours;
+                                                            if (strNewMins.length < 2)
+                                                                strNewMins = "0" + strNewMins;
+                                                            end = strNewHours + ":" + strNewMins + ":00";
+                                                        }
+                                                    }
+                                                    
                                                 }
 
                                                 mtg.start_time = start;
