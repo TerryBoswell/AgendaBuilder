@@ -2403,9 +2403,7 @@ Ext.define('AgendaBuilderObservable', {
         if (rowIdx > agendaBuilderRow.rows.length - 1)
             rowIdx = agendaBuilderRow.rows.length - 1;
         me.fireEvent('meetingSaved', newRows);
-        var savedAbsoluteRowIndex = null; //Find the spot the row is saved at
-        var startShift = false; //tracks that a shift has started. There will only ever be on shift at a time in this method and it is down only
-
+        
         //lets go through and make sure that all the meetings are on the proper dates and 
         //assign the row indexes. They can be on the wrong date due to drag
         var meetingWasRemoved = false; //this is used to detect when a meeting is removed; needed for moving from one date to the next
@@ -2724,8 +2722,12 @@ Ext.define('AgendaBuilderObservable', {
     onDeleteMeetingItem: function(data, response, scope){
         var me = scope;
         var id = data.id;
+        var mtg = me.getMeeting(id, me);
+        var instance = me.getInstance(mtg.start, me);
         scope.deleteMeeting(id, scope);
         scope.fireEvent('meetingItemDeleted', id);
+        me.assignRowIndexes(instance);
+        me.shiftMeetings(instance, null, me);
         me.removeEmptyRows();
     },
     onSaveAlternateOptions: function(obj, scope){},
