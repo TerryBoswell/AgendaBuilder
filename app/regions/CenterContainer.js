@@ -17,7 +17,7 @@ Ext.define('CenterContainer', {
 					defaultColClass: 'arHeader',
 					columns: [
                         {style: 'border-bottom: 1px solid black !important;', Index: 0} ,
-    					{html: 'Guest Rooms', style: 'font-size:12pt;border-bottom: 1px solid black !important; color:rgb(0,128,128)', Index: 1}, 
+    					{html: '<span class="guestRoom">Guest Rooms</span>', style: 'border-bottom: 1px solid black !important;', Index: 1}, 
     					{html: '<span class="amhourText">6</span>', style: headingStyleAM, Index: 2},{html: '<span class="amhourText">7</span>', style: headingStyleAM, Index: 4}, 
     					{html: '<span class="amhourText">8</span>', style: headingStyleAM, Index: 6},
 						{html: '<span class="amFirst">A</span>', style: headingStyleAM, Index: 7}, 
