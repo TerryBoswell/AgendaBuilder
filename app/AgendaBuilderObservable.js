@@ -545,6 +545,7 @@ Ext.define('AgendaBuilderObservable', {
                     dataField: data,
                     observer: this,
                     insertOverLay: true,
+                    show24Hr: true,
                     columns: [
                         {html: day + '</br> ' + instance.date.getTheMonth() + '/' + instance.date.getTheDate(), 
                             style: 'font-size:medium; text-align: center;', Index: 0, cls: ''},
