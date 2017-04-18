@@ -79,9 +79,12 @@ Ext.define('MeetingTemplate',
 								{
 									throw("Cannoth find browserEvent");									
 								}
-								var x = browserEvent.clientX;
-								var y = browserEvent.clientY;
-								Ext.each(document.elementsFromPoint(x, y), function(el){
+								var rect = newCmp.el.dom.getBoundingClientRect();
+								var y = (rect.top + rect.bottom) / 2; //We'll get the center
+
+								//Now let's  find the starting timeslot
+								var startingPoint = rect.left + 1; //shifted one pixel to make sure we are on the starting block 
+								Ext.each(document.elementsFromPoint(startingPoint, y), function(el){
 									if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
 										match = el;
 								})
