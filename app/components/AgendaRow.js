@@ -337,7 +337,7 @@ Ext.define('AgendaRow', {
 			scope: this
 		})
     },
-	toggleTwentyFourHour: function(isAllDay, isEmpty){
+	toggleTwentyFourHour: function(isAllDay, isEmpty, is_meal){
 		var me = this;
 		var toggleRow = function(rows, clsName){
 			Ext.each(rows, function(rowEl){
@@ -361,7 +361,7 @@ Ext.define('AgendaRow', {
 		 if (twentyFourHrCmp)
 		 {
 			 twentyFourHrCmp.show();
-			if (isEmpty == true)
+			if (isEmpty == true || is_meal)
 			{
 				twentyFourHrCmp.hide();
 			}
@@ -391,12 +391,17 @@ Ext.define('AgendaRow', {
 		var me = this;
 		var meetings = me.getMeetingsCurrentlyOnRow();
 		var hasAllDayItem = false;
+		var hasMeal = false;
 		Ext.each(meetings, function(mtg){
 			if (mtg && mtg.all_day)
 				hasAllDayItem = true;
+			if (mtg && mtg.meeting_item_type && mtg.meeting_item_type.is_meal)
+				hasMeal = true;
 		})
 		var isEmpty = !meetings || !meetings.length;
-		me.toggleTwentyFourHour(hasAllDayItem, isEmpty);
+		if (hasMeal)
+			hasAllDayItem = false;
+		me.toggleTwentyFourHour(hasAllDayItem, isEmpty, hasMeal);
 	},
 	isFirstRow: function(){
 		return this.el.down('.row-overlay') != null;
