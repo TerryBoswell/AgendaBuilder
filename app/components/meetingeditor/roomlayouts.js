@@ -1,3 +1,4 @@
+const maxValsForNine = 999999999;
 var baseConfig = {
     extend  : 'Ext.Container',
     cls     : 'roomLayout',
@@ -214,9 +215,9 @@ Ext.define('boothlayout', Ext.apply({
         extenderInput : [{xtype: 'box', height: 1},
                 {xtype: 'displayfield', value: 'Please answer at least one:', height: 18, style: 'z-index: 1001;'},
                 {xtype: 'box', height: 1},
-                {xtype: 'numberfield', itemId: 'boothsqft', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, height: 20},
+                {xtype: 'numberfield', itemId: 'boothsqft', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, maxValue: maxValsForNine, height: 20},
                 {xtype: 'box', height: 1},
-                {xtype: 'numberfield', itemId: 'boothcount', fieldLabel  : '# of booths', minValue    : 0, value       : 0, height: 20},
+                {xtype: 'numberfield', itemId: 'boothcount', fieldLabel  : '# of booths', minValue    : 0, value       : 0, maxValue: maxValsForNine, height: 20},
                 {xtype: 'box', height: 5}
                 ],
         getValue: function(){return '9'},
@@ -242,9 +243,9 @@ Ext.define('posterlayout', Ext.apply({
         extenderInput : [{xtype: 'box', height: 1},
                 {xtype: 'displayfield', value: 'Please answer at least one:', height: 18, style: 'z-index: 1001;'},
                 {xtype: 'box', height: 1},
-                {xtype: 'numberfield', itemId: 'postersqft', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, height: 20},
+                {xtype: 'numberfield', itemId: 'postersqft', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, maxValue: maxValsForNine , height: 20},
                 {xtype: 'box', height: 1},
-                {xtype: 'numberfield', itemId: 'postercount', fieldLabel  : '# of posters', minValue    : 0, value       : 0, height: 20},
+                {xtype: 'numberfield', itemId: 'postercount', fieldLabel  : '# of posters', minValue    : 0, value       : 0, maxValue: maxValsForNine , height: 20},
                 {xtype: 'box', height: 5}
                 ],
         getValue: function(){return '10'},
@@ -268,9 +269,9 @@ Ext.define('tabletoplayout', Ext.apply({
         extenderInput : [{xtype: 'box', height: 1},
                 {xtype: 'displayfield', value: 'Please answer at least one:', height: 18, style: 'z-index: 1001;'},
                 {xtype: 'box', height: 1},
-                {xtype: 'numberfield', itemId: 'tabletopsqft', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, height: 20},
+                {xtype: 'numberfield', itemId: 'tabletopsqft', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, maxValue: maxValsForNine , height: 20},
                 {xtype: 'box', height: 1},
-                {xtype: 'numberfield', itemId: 'tabletopcount', fieldLabel  : '# of table tops', minValue    : 0, value       : 0, height: 20},
+                {xtype: 'numberfield', itemId: 'tabletopcount', fieldLabel  : '# of table tops', minValue    : 0, value       : 0, maxValue: maxValsForNine , height: 20},
                 {xtype: 'box', height: 5}
                 ],
         getValue: function(){return '14'},

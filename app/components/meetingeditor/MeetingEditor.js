@@ -630,17 +630,36 @@ Ext.define('MeetingEditor', {
             var booth = 9;
             var poster = 10;
             var tableTop = 14;
-            if (mtg.room_setup == booth && (!mtg.booths || mtg.booths < 0) && (!mtg.square_feet || mtg.square_feet < 0))
+            if (mtg.room_setup == booth && (mtg.booths > maxValsForNine || mtg.square_feet > maxValsForNine))
+            {
+                msg = "Please select a validate value.";
+                isValid = false;
+            }
+            else if (mtg.room_setup == poster && (mtg.posters > maxValsForNine || mtg.square_feet > maxValsForNine))
+            {
+                msg = "Please select a validate value.";
+                isValid = false;
+            }
+            else if (mtg.room_setup == tableTop && (mtg.tabletops > maxValsForNine || mtg.square_feet > maxValsForNine))
+            {
+                msg = "Please select a validate value.";
+                isValid = false;
+            }
+
+            if (mtg.room_setup == booth && (!mtg.booths || mtg.booths < 0) && 
+                (!mtg.square_feet || mtg.square_feet < 0))
             {
                 msg = "Please fill out at least one option for room type.";
                 isValid = false;
             }
-            else if (mtg.room_setup == poster && (!mtg.posters || mtg.posters < 0) && (!mtg.square_feet || mtg.square_feet < 0))
+            else if (mtg.room_setup == poster && (!mtg.posters || mtg.posters < 0) 
+                && (!mtg.square_feet || mtg.square_feet < 0))
             {
                 msg = "Please fill out at least one option for room type.";
                 isValid = false;
             }
-            else if (mtg.room_setup == tableTop && (!mtg.tabletops || mtg.tabletops < 0) && (!mtg.square_feet || mtg.square_feet < 0))
+            else if (mtg.room_setup == tableTop && (!mtg.tabletops || mtg.tabletops < 0) 
+                && (!mtg.square_feet || mtg.square_feet < 0))
             {
                 msg = "Please fill out at least one option for room type.";
                 isValid = false;

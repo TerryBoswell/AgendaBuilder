@@ -1,5 +1,6 @@
 Ext.ns('AgendaBuilder');
 const agendaMode={Planner: 'planner', Hotel: 'hotel'};
+
 var centerContainer = Ext.create('CenterContainer');
 
 var observer = Ext.create('AgendaBuilderObservable');
