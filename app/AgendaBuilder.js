@@ -149,6 +149,7 @@ Ext.define('AgendaBuilder.MainContainer', {
                     observer.clearAllCmps();
                     observer.destroy();
                     observer = Ext.create('AgendaBuilderObservable');
+                    observer.agendaBuilderRows = [];
                 }
                 observer.isInitialized = true;
                 observer.executeOverrides();

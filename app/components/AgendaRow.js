@@ -180,22 +180,25 @@ Ext.define('AgendaRow', {
 
 						for (var i = 0; i < parent.observer.agendaBuilderRows.length; i++)
 						{
-							var firstRowIndex = Ext.getCmp(parent.observer.agendaBuilderRows[i].rows[0].id).getRowIndex() - 1;
-							var d = parent.observer.dates[i];
-							Ext.each(d.meetings, function(_m){
-								var m_cmp = parent.observer.findMeetingComponent(_m.id);
-								var isIndex = m_cmp.getCurrentRow();
-								var shouldBeIndex = (firstRowIndex + _m.rowIndex);
-								var differential = shouldBeIndex - isIndex;
-								if (isIndex > 0 && differential != 0)
-								{
-										if (differential < 0)
-											parent.observer.moveMeetingUpXRows(_m.id, Math.abs(differential), parent.observer);
-										else
-											parent.observer.moveMeetingDownXRows(_m.id, Math.abs(differential), parent.observer);										
-								}								
-							})
-							
+							var f_cmp = Ext.getCmp(parent.observer.agendaBuilderRows[i].rows[0].id);
+							if (f_cmp)
+							{
+								var firstRowIndex = f_cmp.getRowIndex() - 1;
+								var d = parent.observer.dates[i];
+								Ext.each(d.meetings, function(_m){
+									var m_cmp = parent.observer.findMeetingComponent(_m.id);
+									var isIndex = m_cmp.getCurrentRow();
+									var shouldBeIndex = (firstRowIndex + _m.rowIndex);
+									var differential = shouldBeIndex - isIndex;
+									if (isIndex > 0 && differential != 0)
+									{
+											if (differential < 0)
+												parent.observer.moveMeetingUpXRows(_m.id, Math.abs(differential), parent.observer);
+											else
+												parent.observer.moveMeetingDownXRows(_m.id, Math.abs(differential), parent.observer);										
+									}								
+								})
+							}
 							
 						}
 						
