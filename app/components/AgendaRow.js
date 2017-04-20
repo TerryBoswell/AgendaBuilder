@@ -152,6 +152,7 @@ Ext.define('AgendaRow', {
 								if (mtgCmp && mtgCmp.hide)
 									mtgCmp.hide();
 							})
+							console.log(row.rows);
 							for(var i = 1; i < row.rows.length; i++)
 							{
 								var rowCmp = Ext.getCmp(row.rows[i].id);

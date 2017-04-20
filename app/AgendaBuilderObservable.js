@@ -2699,7 +2699,15 @@ Ext.define('AgendaBuilderObservable', {
                 cmpToRemove.hide();
                 cmpToRemove.destroy();
                 if (row)
-                    row.rows.splice(row.rows.length-1, 1)
+                {
+                    var splicedRows = [];
+                    Ext.each(row.rows, function(r){
+                        if (cmpToRemove.id != r.id)
+                            splicedRows.push({id: r.id});
+                    })
+                    row.rows = splicedRows;
+                    //row.rows.splice(row.rows.length-1, 1)
+                }
             }
         });
             
