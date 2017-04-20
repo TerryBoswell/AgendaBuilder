@@ -152,7 +152,13 @@ Ext.define('AgendaRow', {
 								if (mtgCmp && mtgCmp.hide)
 									mtgCmp.hide();
 							})
-							console.log(row.rows);
+							var fstCmp = Ext.getCmp(window.observer.agendaBuilderRows[0].rows[0].id);
+							if (fstCmp && fstCmp.el && fstCmp.el.down)
+							{
+								var twentyFourHourCmp = fstCmp.el.down('.lineThrough');
+								if (twentyFourHourCmp && twentyFourHourCmp.hide)
+									twentyFourHourCmp.hide();
+							}
 							for(var i = 1; i < row.rows.length; i++)
 							{
 								var rowCmp = Ext.getCmp(row.rows[i].id);
