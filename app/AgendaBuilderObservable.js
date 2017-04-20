@@ -1728,7 +1728,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     getMeetingHtml: function(titleText, meetingId){
         return Ext.String.format('<div class="title-text" style="font-size:larger; margin-left:auto;margin-right:auto;text-align:center;">{0}' + 
-        '<i id="closemtg{1}" style="margin-top: 3px; margin-right: 2px; float: right;" class="fa fa-times-circle fa-lg close-tip" aria-hidden="true"></i></div>',
+        '<i id="closemtg{1}" class="fa fa-times-circle fa-lg close-tip" aria-hidden="true"></i></div>',
         titleText, meetingId);
     },
     getMeeting: function(meetingId, scope){

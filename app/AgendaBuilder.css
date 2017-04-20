@@ -239,6 +239,13 @@ div.meetingTip:before {
   border-radius: 3px;
 }
 
+.close-tip
+{
+    position: absolute;
+    top: 5px;
+    right: 3px;
+}
+
 .link-color
 {
     color: rgb(0,128,128);
