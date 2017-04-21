@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.028',
+    version: '1.029',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -23,6 +23,7 @@ Ext.define('AgendaBuilderObservable', {
     currentDragDrop: null, //This is the current drag drop manager
     isInitialized: false, //flag to keep from repeating after initialize
     lastRecordedY: 0,
+    tipTextLen: 28,
     initAjaxController: function(url, scope){
         var me = scope;
         me.ajaxController = Ext.create('AjaxController', {
@@ -883,8 +884,8 @@ Ext.define('AgendaBuilderObservable', {
             var centerX = position.left + position.width / 2;
             var centerY = position.top + position.height / 2;
             var mtg = observer.getMeeting(meetingId, observer);
-            if (title.length > 30) 
-                title = title.substr(0,30) + '...';
+            if (title.length > me.tipTextLen) 
+                title = title.substr(0, me.tipTextLen) + '...';
             if (!mtg)
                 mtg = m;
             return target.extender = Ext.create('Ext.Component', {
@@ -925,7 +926,7 @@ Ext.define('AgendaBuilderObservable', {
                                     defaultType: 'container',
                                     defaults: {
                                         height: 30,
-                                        style: 'text-align: center; font-size: larger; padding-bottom: 5px;'
+                                        style: 'text-align: center; font-size: 12px; padding-bottom: 5px;'
                                     },
                                     padding: 5,
                                     items: [
@@ -1727,7 +1728,7 @@ Ext.define('AgendaBuilderObservable', {
         return match;
     },
     getMeetingHtml: function(titleText, meetingId){
-        return Ext.String.format('<div class="title-text" style="font-size:larger; margin-left:auto;margin-right:auto;text-align:center;">{0}' + 
+        return Ext.String.format('<div style="font-size:larger; text-align:center;"><span style="display:inline-block; width:75%; float:left; margin-left:3px; margin-top:2px;" class="title-text">{0}</span>' + 
         '<i id="closemtg{1}" class="fa fa-times-circle fa-lg close-tip" aria-hidden="true"></i></div>',
         titleText, meetingId);
     },
@@ -1939,8 +1940,8 @@ Ext.define('AgendaBuilderObservable', {
             if (tip == null)
                 return;
             var tipTitle = title;
-            if (tipTitle.length > 30) 
-                tipTitle = title.substr(0,30) + '...';
+            if (tipTitle.length > me.tipTextLen) 
+                tipTitle = title.substr(0, me.tipTextLen) + '...';
             var titleText = Ext.String.format('{0}<i id="closemtg{1}" style="margin-top: 3px; margin-right: 2px; float: right;" class="fa fa-times-circle fa-lg close-tip" aria-hidden="true"></i>',
             tipTitle, meetingId);
             tip.el.down('.callout-title').down('.title-text').el.dom.innerHTML = titleText;
