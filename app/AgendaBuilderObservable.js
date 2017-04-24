@@ -825,7 +825,7 @@ Ext.define('AgendaBuilderObservable', {
                 dtel.classList.remove('shaded');
         })
         if (startingHour && endingHour && endingRight)
-            me.showDragDropHourPreview(endingRight - 50, mouseEvent.pageY + 40, 
+            me.showDragDropHourPreview(endingRight - 100, mouseEvent.pageY + 40, 
                 me.convertTimeTo12Hrs(startingHour),me.convertTimeTo12Hrs(endingHour), me)
     },
     getUnAccountAttendees: function(date, context){
@@ -1551,7 +1551,6 @@ Ext.define('AgendaBuilderObservable', {
                                                             end = strNewHours + ":" + strNewMins + ":00";
                                                         }
                                                     }
-                                                    
                                                 }
 
                                                 mtg.start_time = start;

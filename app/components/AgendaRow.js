@@ -53,6 +53,8 @@ Ext.define('AgendaRow', {
 						{
 							data = 'data-date="'+ this.dataField + '"';						
 							var hour = this.observer.getHourForCol(i);
+							if (i == 39 && !hour)
+								hour = "23:59:00";
 							if (hour && hour.length)
 								data = 'data-hour="' + hour + '" ' + data;
 							if (i)
