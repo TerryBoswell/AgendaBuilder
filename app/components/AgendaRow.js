@@ -21,7 +21,7 @@ Ext.define('AgendaRow', {
 	collapsed: false,
 	initComponent: function() {
         this.tpl = new Ext.XTemplate(
-			'<table style="width:900px;height:100%;" border="0" cellspacing="0">',
+			'<table class="rowTable" border="0" cellspacing="0">',
         		'<tpl for="columns">',
 		            '<col width="{[this.getColumnWidth(xindex)]} max-width="{[this.getColumnWidth(xindex)]}">',
 	        	'</tpl>',

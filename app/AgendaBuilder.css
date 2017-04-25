@@ -8,42 +8,61 @@
 }
 .evenRowBackGroundA{
     background: white;
-    /*border-bottom: 1px solid black;
-    border-top: 1px solid black;*/
+    height:50px;
 }
 
 .evenRowBackGroundB{
     background:  white;
+    height:50px;
 }
 
 .evenRowBackGroundC{
     background:  white;
-    /*border-top: 1px solid black;*/
+    height:50px;
 }
 
 .evenRowBackGroundC{
     background:  white;
-    /*border-top: 1px solid black;*/
+    height:50px;
 }
 
 .rowDivider
 {
     border-top: 1px solid black !important;
+    background-color: transparent;
+    height:0px;
+}
+
+.holdDiv{
+    height:50px; 
+    text-align: center; 
+    border-bottom: 1px solid black;
+    padding-top:5px;
+    margin-bottom: 1px;
+    color: white;
+    font-size:12pt;
 }
 
 .oddRowBackGround{
-    /*border-bottom: 1px solid black;*/
     background:  white ;
-    /*border-top: 1px solid black;*/
+    height:50px;
 }
 
 .oddRowBackGroundB{
-    /*border-top: 1px solid black;*/
+    height:50px;
     background:  white ;
 }
 
 .oddRowBackGroundC{
+    height:50px;
     background:  white ;
+}
+.rowTable
+{
+    width:900px;
+    height:50px;
+    min-height: 50px;
+    max-height: 50px;
 }
 
 
