@@ -23,7 +23,7 @@ Ext.define('AgendaBuilderObservable', {
     currentDragDrop: null, //This is the current drag drop manager
     isInitialized: false, //flag to keep from repeating after initialize
     lastRecordedY: 0,
-    tipTextLen: 25,
+    tipTextLen: 23,
     initAjaxController: function(url, scope){
         var me = scope;
         me.ajaxController = Ext.create('AjaxController', {
@@ -1727,7 +1727,7 @@ Ext.define('AgendaBuilderObservable', {
         return match;
     },
     getMeetingHtml: function(titleText, meetingId){
-        return Ext.String.format('<div style="font-size:larger; text-align:center;"><span style="display:inline-block; width:75%; float:left; margin-left:3px; margin-top:2px;" class="title-text">{0}</span>' + 
+        return Ext.String.format('<div style="font-size:larger; text-align:center;"><span style="display:inline-block; width:100%; float:left; padding-left:3px; margin-top:2px;" class="title-text">{0}</span>' + 
         '<i id="closemtg{1}" style="margin-right: 2px; float: right;" class="fa fa-times-circle fa-lg close-tip" aria-hidden="true"></i></div>',
         titleText, meetingId);
     },
