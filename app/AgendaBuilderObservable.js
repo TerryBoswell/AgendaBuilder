@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.029',
+    version: '1.030',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -23,7 +23,7 @@ Ext.define('AgendaBuilderObservable', {
     currentDragDrop: null, //This is the current drag drop manager
     isInitialized: false, //flag to keep from repeating after initialize
     lastRecordedY: 0,
-    tipTextLen: 28,
+    tipTextLen: 25,
     initAjaxController: function(url, scope){
         var me = scope;
         me.ajaxController = Ext.create('AjaxController', {
@@ -1728,7 +1728,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     getMeetingHtml: function(titleText, meetingId){
         return Ext.String.format('<div style="font-size:larger; text-align:center;"><span style="display:inline-block; width:75%; float:left; margin-left:3px; margin-top:2px;" class="title-text">{0}</span>' + 
-        '<i id="closemtg{1}" class="fa fa-times-circle fa-lg close-tip" aria-hidden="true"></i></div>',
+        '<i id="closemtg{1}" style="margin-right: 2px; float: right;" class="fa fa-times-circle fa-lg close-tip" aria-hidden="true"></i></div>',
         titleText, meetingId);
     },
     getMeeting: function(meetingId, scope){
@@ -1941,7 +1941,7 @@ Ext.define('AgendaBuilderObservable', {
             var tipTitle = title;
             if (tipTitle.length > me.tipTextLen) 
                 tipTitle = title.substr(0, me.tipTextLen) + '...';
-            var titleText = Ext.String.format('{0}<i id="closemtg{1}" style="margin-top: 3px; margin-right: 2px; float: right;" class="fa fa-times-circle fa-lg close-tip" aria-hidden="true"></i>',
+            var titleText = Ext.String.format('{0}',
             tipTitle, meetingId);
             tip.el.down('.callout-title').down('.title-text').el.dom.innerHTML = titleText;
             var html = '<div class="callout-time" style="text-align:center;">' + me.getDisplayHours(start) + " - " + me.getDisplayHours(end)  + "<div>" + 
