@@ -1906,6 +1906,9 @@ Ext.define('AgendaBuilderObservable', {
     },
     updateMeetingId: function(meetingId, newId, scope){
         var me = scope;
+        var clsmtgs = Ext.query('#closemtg' + meetingId);
+        if (clsmtgs && clsmtgs.length)
+            clsmtgs[0].id = "closemtg" + newId;
         var mtg = me.findMeetingComponent(meetingId);
         if (mtg == null)
             return;
@@ -1943,6 +1946,7 @@ Ext.define('AgendaBuilderObservable', {
                 tipTitle = title.substr(0, me.tipTextLen) + '...';
             var titleText = Ext.String.format('{0}',
             tipTitle, meetingId);
+            //zzz
             tip.el.down('.callout-title').down('.title-text').el.dom.innerHTML = titleText;
             var html = '<div class="callout-time" style="text-align:center;">' + me.getDisplayHours(start) + " - " + me.getDisplayHours(end)  + "<div>" + 
                                                 '<div class="callout-room" style="text-align:center;">' + 

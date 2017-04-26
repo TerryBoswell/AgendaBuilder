@@ -121,7 +121,12 @@ var baseConfig = {
     }
 };
 
-
+var numericChange = function(cmp, newValue, oldValue) 
+{
+    var value = parseInt(newValue);
+    if (isNaN(value))
+        cmp.setValue(oldValue);
+};
 
 Ext.define('squarelayout', Ext.apply({
         itemId: 'squarelayout',
@@ -217,11 +222,13 @@ Ext.define('boothlayout', Ext.apply({
                 {xtype: 'box', height: 1},
                 {xtype: 'numberfield', itemId: 'boothsqft', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, 
                     maxValue: maxValsForNine, height: 20,
-                    msgTarget   : 'none'},
+                    msgTarget   : 'none', 
+                    listeners: {change: numericChange}
+                    },
                 {xtype: 'box', height: 1},
                 {xtype: 'numberfield', itemId: 'boothcount', fieldLabel  : '# of booths', minValue    : 0, value       : 0, 
                     maxValue: maxValsForNine, height: 20,
-                    msgTarget   : 'none'},
+                    msgTarget   : 'none', listeners: {change: numericChange}},
                 {xtype: 'box', height: 5}
                 ],
         getValue: function(){return '9'},
@@ -249,11 +256,11 @@ Ext.define('posterlayout', Ext.apply({
                 {xtype: 'box', height: 1},
                 {xtype: 'numberfield', itemId: 'postersqft', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, 
                     maxValue: maxValsForNine , height: 20,
-                    msgTarget   : 'none'},
+                    msgTarget   : 'none', listeners: {change: numericChange}},
                 {xtype: 'box', height: 1},
                 {xtype: 'numberfield', itemId: 'postercount', fieldLabel  : '# of posters', minValue    : 0, value       : 0, 
                     maxValue: maxValsForNine , height: 20,
-                    msgTarget   : 'none'},
+                    msgTarget   : 'none', listeners: {change: numericChange}},
                 {xtype: 'box', height: 5}
                 ],
         getValue: function(){return '10'},
@@ -279,11 +286,11 @@ Ext.define('tabletoplayout', Ext.apply({
                 {xtype: 'box', height: 1},
                 {xtype: 'numberfield', itemId: 'tabletopsqft', fieldLabel  : 'Sq. ft. needed', minValue    : 0, value       : 0, 
                     maxValue: maxValsForNine , height: 20,
-                    msgTarget   : 'none'},
+                    msgTarget   : 'none', listeners: {change: numericChange}},
                 {xtype: 'box', height: 1},
                 {xtype: 'numberfield', itemId: 'tabletopcount', fieldLabel  : '# of table tops', minValue    : 0, value       : 0, 
                     maxValue: maxValsForNine , height: 20,
-                    msgTarget   : 'none'},
+                    msgTarget   : 'none', listeners: {change: numericChange}},
                 {xtype: 'box', height: 5}
                 ],
         getValue: function(){return '14'},
