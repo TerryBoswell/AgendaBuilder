@@ -1908,7 +1908,7 @@ Ext.define('AgendaBuilderObservable', {
         var me = scope;
         var clsmtgs = Ext.query('#closemtg' + meetingId);
         if (clsmtgs && clsmtgs.length)
-            clsmtgs[0].id = "closemtg" + newId;
+            Ext.fly(clsmtgs[0]).setId("closemtg" + newId);
         var mtg = me.findMeetingComponent(meetingId);
         if (mtg == null)
             return;
@@ -2200,9 +2200,9 @@ Ext.define('AgendaBuilderObservable', {
         
         if (minHour && slice == "AM" && hr < minHour) //if a min hour is provided and the min hour is less than the one provide, we go to 11:30PM
         {
-            hr = 12;
-            min = '00';
-            slice = "AM";
+            hr = 11;
+            min = '59';
+            slice = "PM";
         }
         if (hr == 12 && (min == '00' || min == '30'))
             slice = 'PM';
