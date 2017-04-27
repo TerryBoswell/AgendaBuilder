@@ -125,7 +125,9 @@ var numericChange = function(cmp, newValue, oldValue)
 {
     var value = parseInt(newValue);
     if (isNaN(value))
-        cmp.setValue(oldValue);
+        cmp.setValue(0);
+    if (value < 0)
+        cmp.setValue(0);
 };
 
 Ext.define('squarelayout', Ext.apply({
