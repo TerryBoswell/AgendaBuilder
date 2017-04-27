@@ -486,6 +486,7 @@ Ext.define('MeetingEditor', {
                     },
                     {
                         xtype   : 'button',
+                        itemId  : 'deleteBtn',
                         text    : '<div class="btn">Delete</div>',
                         scope   : this,
                         handler : function(){
@@ -768,6 +769,13 @@ Ext.define('MeetingEditor', {
                 me.observer.removeMeeting(id);
         },
         afterrender: function(cmp){
+            var id = cmp.meeting.id != null ? cmp.meeting.id : 0;
+            if (id == 0)
+            {
+                var cmps = Ext.ComponentQuery.query('#deleteBtn');
+                if (cmps && cmps.length)
+                    cmps[0].hide();
+            }
             cmp.copyToDates = [];
             new Ext.util.DelayedTask(function(){
                 cmp.setRoomSetup(cmp.meeting.room_setup, cmp.meeting);
