@@ -128,6 +128,8 @@ var numericChange = function(cmp, newValue, oldValue)
         cmp.setValue(0);
     if (value < 0)
         cmp.setValue(0);
+    if (newValue != value)
+        cmp.setValue(value);
 };
 
 Ext.define('squarelayout', Ext.apply({
