@@ -129,7 +129,14 @@ var numericChange = function(cmp, newValue, oldValue)
     if (value < 0)
         cmp.setValue(0);
     if (newValue != value)
-        cmp.setValue(value);
+    {
+        if (newValue == null)
+            cmp.setValue(0);
+        else if (isNaN(value))
+            cmp.setValue(0);
+        else
+            cmp.setValue(value);
+    }
 };
 
 Ext.define('squarelayout', Ext.apply({
