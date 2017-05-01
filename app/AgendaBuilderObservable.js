@@ -2733,6 +2733,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     onDeleteMeetingItem: function(data, response, scope){
         var me = scope;
+        var xS = me.getMeetingItemTemplateX();
         var id = data.id;
         var mtg = me.getMeeting(id, me);
         var instance = me.getInstance(mtg.start, me);
@@ -2741,6 +2742,7 @@ Ext.define('AgendaBuilderObservable', {
         me.assignRowIndexes(instance);
         me.shiftMeetings(instance, null, me);
         me.removeEmptyRows();
+        me.setMeetingItemTemplateX(xS);
     },
     onSaveAlternateOptions: function(obj, scope){},
     onSavePrePostDays: function(obj, scope){

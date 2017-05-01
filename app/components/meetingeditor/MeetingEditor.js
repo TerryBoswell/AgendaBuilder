@@ -64,6 +64,25 @@ Ext.define('MeetingEditor', {
                     validator: function (value) {
                         return true;
                     },
+                    listeners   : {
+                        change: function(cmp, newValue, oldValue) 
+                            {
+                                var value = parseInt(newValue);
+                                if (isNaN(value))
+                                    cmp.setValue(0);
+                                if (value < 0)
+                                    cmp.setValue(0);
+                                if (newValue != value)
+                                {
+                                    if (newValue == null)
+                                        cmp.setValue(0);
+                                    else if (isNaN(value))
+                                        cmp.setValue(0);
+                                    else
+                                        cmp.setValue(value);
+                                }
+                            }
+                    },
                     width       : 75
                 }
             ]
