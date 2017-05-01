@@ -54,6 +54,7 @@ Ext.define('MeetingEditor', {
                     hideLabel   : true,
                     index       : index,
                     minValue    : 0,
+                    maxValue    : maxValsForNine,
                     itemId      :  Ext.String.format('peopleInMeeting{0}', index),
                     value       : meeting.num_people,
                     cls         : 'numpeoplefield',
@@ -72,6 +73,8 @@ Ext.define('MeetingEditor', {
                                     cmp.setValue(0);
                                 if (value < 0)
                                     cmp.setValue(0);
+                                if (value > maxValsForNine)
+                                    cmp.setValue(maxValsForNine);
                                 if (newValue != value)
                                 {
                                     if (newValue == null)
@@ -626,7 +629,7 @@ Ext.define('MeetingEditor', {
             isValid = false;
         }
         
-        if (mtg.type != exhibit && (!mtg.num_people || mtg.num_people < 0))
+        if (mtg.type != exhibit && (!mtg.num_people || mtg.num_people < 0 || mtg.num_people > maxValsForNine))
         {
             msg = "Please select the number of people greater than 0";
             isValid = false;
