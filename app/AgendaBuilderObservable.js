@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.032',
+    version: '1.033',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -963,6 +963,7 @@ Ext.define('AgendaBuilderObservable', {
                                                                     _m.posters = mtg.posters;
                                                                     _m.square_feet = mtg.square_feet;
                                                                     _m.tabletops = mtg.tabletops;
+                                                                    _m.note = mtg.note;
                                                                     targetCmp.observer.saveMeetingItem(_m);
                                                                 }, this).delay(100); 
                                                                 
