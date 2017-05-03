@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.031',
+    version: '1.032',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -23,6 +23,7 @@ Ext.define('AgendaBuilderObservable', {
     currentDragDrop: null, //This is the current drag drop manager
     isInitialized: false, //flag to keep from repeating after initialize
     lastRecordedY: 0,
+    lastRecordedXs: null, //This is used to determine the position of the title items. We need to persist it for drag and drops because it repositions the items on the drop
     tipTextLen: 23,
     initAjaxController: function(url, scope){
         var me = scope;
@@ -1560,6 +1561,8 @@ Ext.define('AgendaBuilderObservable', {
                                                 delete cmp.invalidDrop;
                                                 delete cmp.origX;
                                                 delete cmp.origY;
+                                                    //on Drags the dom manager in extjs resets the x position, so we need to track it
+                                                cmp.observer.lastRecordedXs = cmp.observer.getMeetingItemTemplateX();
                                                 cmp.observer.saveMeetingItem(mtg);
                                                
                                             }
@@ -2301,14 +2304,28 @@ Ext.define('AgendaBuilderObservable', {
             return maxRow;
     },
     getMeetingItemTemplateX: function(){
+        var me = this;
         var xS = [];
-        Ext.each(Ext.query('.meeting-item-type'), function(el){
-            var cmp = Ext.getCmp(el.id);
-            xS.push({
-                id : cmp.id,
-                x: cmp.getX()
+        if (me.lastRecordedXs && me.lastRecordedXs.length)
+        {
+            //We only record them once. This way once we use them, they have to be reset
+            //this gives asycronous operations like ajax the ability to set them before they go into action;
+            Ext.each(me.lastRecordedXs, function(xs){
+                xS.push(xs);
             })
-        });
+                
+            me.lastRecordedXs = null;
+        }
+        else
+        {
+            Ext.each(Ext.query('.meeting-item-type'), function(el){
+                var cmp = Ext.getCmp(el.id);
+                xS.push({
+                    id : cmp.id,
+                    x: cmp.getX()
+                })
+            });
+        }
         return xS;
     },
     setMeetingItemTemplateX: function(xS){
