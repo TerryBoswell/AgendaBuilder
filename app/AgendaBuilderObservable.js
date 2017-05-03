@@ -964,6 +964,7 @@ Ext.define('AgendaBuilderObservable', {
                                                                     _m.posters = mtg.posters;
                                                                     _m.square_feet = mtg.square_feet;
                                                                     _m.tabletops = mtg.tabletops;
+                                                                    _m.note = mtg.note;
                                                                     targetCmp.observer.saveMeetingItem(_m);
                                                                 }, this).delay(100); 
                                                                 
