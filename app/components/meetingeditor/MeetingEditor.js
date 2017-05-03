@@ -701,13 +701,14 @@ Ext.define('MeetingEditor', {
         {
             Ext.ComponentQuery.query('#meetingTitle')[0].clearInvalid();
         }
+        
         if (mtg.start_time >= mtg.end_time && mtg.end_time != '00:00')
         {
             msg = "Please enter a valid time range";
             isValid = false;
         }
 
-        if (!Ext.ComponentQuery.query('#start_time')[0].validTime || !Ext.ComponentQuery.query('#end_time')[0].validTime)
+        if (isValid && (!Ext.ComponentQuery.query('#start_time')[0].validTime || !Ext.ComponentQuery.query('#end_time')[0].validTime))
         {
             msg = "Please be sure that start/end times are in H:MM A/PM format and rounded to the nearest half hour interval.";
             isValid = false;
