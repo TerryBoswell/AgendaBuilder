@@ -1929,11 +1929,24 @@ Ext.define('AgendaBuilderObservable', {
         })
     },
     subScribeOnMtgClick: function(meetingId, scope){
-        var cmp = Ext.get(Ext.query('#closemtg' + meetingId)[0].id)
-        var fly = new Ext.fly(Ext.query('#closemtg' + meetingId)[0]);
+        var queryResults = Ext.query('#closemtg' + meetingId);
+        if (!queryResults || !queryResults.length || !queryResults[0])
+            return; 
+        var cmp = Ext.get(queryResults[0].id);
+        if (!cmp)
+            return;
+        var fly = new Ext.fly(queryResults[0]);
+        if (!fly)
+            return;
         fly.on('click', function(){
             Ext.each(scope.meetingCallouts, function(callout){
-                callout.hide();
+                try
+                {
+                    callout.hide();
+                }
+                catch(ex){
+                    console.warn(ex);
+                }
             })
         });
     },
