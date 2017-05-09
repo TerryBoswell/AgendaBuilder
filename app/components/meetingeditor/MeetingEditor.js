@@ -631,7 +631,7 @@ Ext.define('MeetingEditor', {
         
         if (mtg.type != exhibit && (!mtg.num_people || mtg.num_people < 0 || mtg.num_people > maxValsForNine))
         {
-            msg = "Please select the number of people greater than 0";
+            msg = "Please be sure that all of your person counts are greater than zero";
             isValid = false;
             Ext.each(Ext.query('.numpeoplefield'), function(el){ 
                 var cmp = Ext.getCmp(el.id);
@@ -810,7 +810,7 @@ Ext.define('MeetingEditor', {
                     if (npepCmps && npepCmps.length)
                     {
                         var npepsCmp = npepCmps[0];
-                        npepsCmp.setValue(cmp.observer.getUnAccountAttendees(cmp.date, cmp.observer));
+                        npepsCmp.setValue(cmp.observer.getUnAccountAttendees(cmp.date, cmp.observer, cmp.meeting));
                     }
                 }
                 if (cmp.ycoord)

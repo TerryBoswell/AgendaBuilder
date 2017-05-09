@@ -829,7 +829,7 @@ Ext.define('AgendaBuilderObservable', {
             me.showDragDropHourPreview(endingRight - 100, mouseEvent.pageY + 40, 
                 me.convertTimeTo12Hrs(startingHour),me.convertTimeTo12Hrs(endingHour), me)
     },
-    getUnAccountAttendees: function(date, context){
+    getUnAccountAttendees: function(date, context, mtg){
         if (context)
             var me = context;
         else
@@ -839,9 +839,21 @@ Ext.define('AgendaBuilderObservable', {
         
         if (!instance || !instance.meetings || !instance.meetings.length)
             return mtgTotal;
-        Ext.each(instance.meetings, function(mtg){
-            mtgTotal -= mtg.num_people;
-        })
+        if (mtg && mtg.meeting_item_type && mtg.meeting_item_type.is_meal)
+        {
+            if (mtg.meeting_item_type.id == 21)//Coffee break
+                return mtgTotal;
+            Ext.each(instance.meetings, function(_m){
+                if (_m && _m.meeting_item_type && _m.meeting_item_type.id == mtg.meeting_item_type.id)
+                    mtgTotal -= _m.num_people;
+            })    
+        }
+        else
+        {
+            Ext.each(instance.meetings, function(_m){
+                mtgTotal -= _m.num_people;
+            })
+        }
         if (mtgTotal < 0)
             return 0;
         return mtgTotal;
