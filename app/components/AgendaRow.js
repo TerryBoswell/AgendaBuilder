@@ -219,7 +219,6 @@ Ext.define('AgendaRow', {
 						})										
 						topMostCmp.el.dom.scrollTop = scrollTop;
 				};
-
 				var hideCmp = null;
 				var overlayCmp = null;
 				var observer = cmp.observer;
@@ -252,6 +251,12 @@ Ext.define('AgendaRow', {
 							hideShow(hideCmp, parent, overlayCmp);
 					});
 				}
+				cmp.hideShow = function(){
+					if (hideCmp && overlayCmp)
+						hideShow(hideCmp, parent, overlayCmp);
+				};
+				
+
 				var onTwentyFourHourClick = function(el){
 					if (el)
 					{

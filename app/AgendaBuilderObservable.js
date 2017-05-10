@@ -1777,6 +1777,14 @@ Ext.define('AgendaBuilderObservable', {
         });
         return mtg;
     },
+    tempShowAll: function(){
+        var match = null;
+        Ext.each(Ext.query('.agendaRowClass'), function(el){
+            var cmp = Ext.getCmp(el.id);
+            if (cmp.isFirstRow())
+                cmp.hideShow();
+        })
+    },
     getOverlappingSimilarMeetings: function(source, scope){
         var mtgs = [];
         var date = null;
