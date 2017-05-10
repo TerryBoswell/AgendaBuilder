@@ -17,6 +17,7 @@ Ext.define('AgendaBuilderObservable', {
     meetingCallouts: [],
     dividerRows: [],
     queuedDates: [],
+    autoShownRows: [],
     localListeners: [],
     ajaxController: null,
     currentDragMtg: null, //This is used to target when item is current being dragged
@@ -1777,13 +1778,44 @@ Ext.define('AgendaBuilderObservable', {
         });
         return mtg;
     },
-    tempShowAll: function(){
+    autoShowAllCollapsedRows: function(){
         var match = null;
+        var me = this;
+        var results = [];
         Ext.each(Ext.query('.agendaRowClass'), function(el){
             var cmp = Ext.getCmp(el.id);
             if (cmp.isFirstRow())
-                cmp.hideShow();
+            {
+                var row = null;
+                Ext.each(me.getRows(), function(r){
+                    if (r && r.rows)
+                        Ext.each(r.rows, function(rEl){
+                            if (rEl && rEl.id == cmp.id)
+                                row = r;
+                        })
+                });
+                if (row && row.collapsed)
+                {
+                    cmp.hideShow();
+                    results.push(row);
+                }
+            }
         })
+        me.autoShownRows = results;
+        return results;
+    },
+    autoHideAllCollapsedRows: function(){
+        var match = null;
+        var me = this;
+        var results = [];
+        Ext.each(me.autoShownRows, function(row){
+            if (row && row.rows && row.rows.length && !row.collapsed)
+            {
+                var cmp = Ext.getCmp(row.rows[0].id);
+                cmp.hideShow();
+            }            
+        })
+        me.autoShownRows = [];
     },
     getOverlappingSimilarMeetings: function(source, scope){
         var mtgs = [];
@@ -2549,12 +2581,18 @@ Ext.define('AgendaBuilderObservable', {
         //End time changes
         if (me.queuedDates && me.queuedDates.length)
         {
+            if (!me.autoShownRows || !me.autoShownRows.length)//don't run this twice
+                me.autoShowAllCollapsedRows();
             var dateInfo = me.queuedDates.shift();
             var id = dateInfo.meetingId;
             if (id == null)
                 id = response.id;
             var baseMtg = me.getMeeting(id, me);
             me.saveQueueDate(dateInfo.date, baseMtg);
+        }
+        else
+        {
+            me.autoHideAllCollapsedRows();
         }
         me.restoreLastY();
         me.unmask();
