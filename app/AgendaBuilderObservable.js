@@ -2593,9 +2593,9 @@ Ext.define('AgendaBuilderObservable', {
         else
         {
             me.autoHideAllCollapsedRows();
+            me.restoreLastY();
+            me.unmask();
         }
-        me.restoreLastY();
-        me.unmask();
     },
     getTotalRowsInAboveDates : function(date)
     { 
@@ -2871,7 +2871,7 @@ Ext.define('AgendaBuilderObservable', {
     getMeetingItems: function(){
         this.ajaxController.getMeetingItems(this.onGetMeetingItems, this);
     },
-    saveMeetingItem: function(meeting){
+    saveMeetingItem: function(meeting, fromQueue){
         var me = this;
         var instance = me.getInstance(meeting.date, me);
         if (instance == null)
@@ -2889,7 +2889,8 @@ Ext.define('AgendaBuilderObservable', {
         if (!meeting.num_people)
             meeting.num_people = 0;
         me.mask();
-        me.recordCurrentY();
+        if (!fromQueue)
+            me.recordCurrentY();
         me.ajaxController.saveMeetingItem(meeting, me.onSaveMeetingItem, me);
     },
     getInstance: function(d, scope)
@@ -2941,7 +2942,7 @@ Ext.define('AgendaBuilderObservable', {
             newMtg.start_time =  start;
             newMtg.end_time =  end;
            
-            me.saveMeetingItem(newMtg);         
+            me.saveMeetingItem(newMtg, true);         
 
             var listenerid = me.localListeners.length;
             me.localListeners.push({
