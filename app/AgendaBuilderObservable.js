@@ -1283,7 +1283,15 @@ Ext.define('AgendaBuilderObservable', {
                             })
                         })
                     }
-                    cmp.mon(cmp.el, 'click', function(){
+                    var onDblClick = function(){
+                        var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
+                        mtg.date = cmp.observer.getDate(cmp.meetingId, cmp.observer);
+                        Ext.each(cmp.observer.meetingCallouts, function(callout){
+                            callout.hide();
+                        })
+                        cmp.observer.showMeetingEditor(mtg, cmp.observer, mtg.meeting_item_type, mtg.date, cmp.getY());
+                    }
+                    var onClick = function(){
                         var xCenter = null;
                         var yCenter = null;
                         if (cmp.getCenterXY)
@@ -1307,15 +1315,27 @@ Ext.define('AgendaBuilderObservable', {
                             yCenter : yCenter
                         };
                         cmp.extender.show();
+
+                    };
+                    
+                    var lastClickTime = new Date(-8640000000000000);
+                    cmp.mon(cmp.el, 'click', function(){
+                        var diff = Ext.Date.diff(lastClickTime, new Date(), Ext.Date.SECOND);
+                        if (diff < 1)
+                        {
+                            lastClickTime = new Date(-8640000000000000);
+                            onDblClick();
+                        }
+                        else
+                        {
+                            lastClickTime = new Date();
+                            onClick();
+                        }
                     })
 
+
                     cmp.mon(cmp.el, 'dblclick', function(){
-                        var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
-                        mtg.date = cmp.observer.getDate(cmp.meetingId, cmp.observer);
-                        Ext.each(cmp.observer.meetingCallouts, function(callout){
-                            callout.hide();
-                        })
-                        cmp.observer.showMeetingEditor(mtg, cmp.observer, mtg.meeting_item_type, mtg.date, cmp.getY());
+                        onDblClick();
                     })
 
                     cmp.mon(cmp.el, 'mousedown', function(e){
