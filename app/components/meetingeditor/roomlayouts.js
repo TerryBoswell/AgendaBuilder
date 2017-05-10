@@ -142,7 +142,7 @@ var numericChange = function(cmp, newValue, oldValue)
 Ext.define('squarelayout', Ext.apply({
         itemId: 'squarelayout',
         html: 
-            '<img class="img-roomlayout" src="app/images/boardroom.png">' +
+            '<img class="img-roomlayout" src="app/images/square.png">' +
             '<div class="layoutName img-banquet">Square</img></div>',
         getValue: function(){return '13'},
         values: function(){return ['13']}
