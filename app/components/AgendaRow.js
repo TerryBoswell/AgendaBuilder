@@ -212,8 +212,7 @@ Ext.define('AgendaRow', {
 						}
 						
 						instance.visible = !instance.visible;		
-						if (instance.visible)
-							parent.observer.setAllRows24HourStatus();
+						parent.observer.setAllRows24HourStatus();
 						Ext.each(parent.observer.meetingCallouts, function(callout){
 								callout.hide();
 						})										
