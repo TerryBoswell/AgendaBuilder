@@ -323,7 +323,7 @@ div.meetingTip:before {
     z-index: 2
 }
 
-.mtg-instance-comment
+.comment
 {
     border: 2px solid black !important;
 }

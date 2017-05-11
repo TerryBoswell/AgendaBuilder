@@ -2701,11 +2701,11 @@ Ext.define('AgendaBuilderObservable', {
                 {
                     if (m.note && m.note.length > 0)
                     {
-                        m_cmp.addCls('mtg-instance-comment');
+                        m_cmp.addCls('comment');
                     }
                     else
                     {
-                        m_cmp.removeCls('mtg-instance-comment');
+                        m_cmp.removeCls('comment');
                     }
                 }
             }

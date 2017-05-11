@@ -396,9 +396,16 @@ Ext.define('AgendaRow', {
 		var rowViewRegion = me.getViewRegion();
 		var mtgs = [];
 		Ext.each(Ext.query('.mtg-instance'), function(mtg){
-			var mtgViewRegion = Ext.getCmp(mtg.id).getViewRegion();
-			if (mtgViewRegion.top >= rowViewRegion.top && mtgViewRegion.bottom <= rowViewRegion.bottom)
-				mtgs.push(me.observer.getMeeting(Ext.getCmp(mtg.id).meetingId, me.observer));
+			var cmp = Ext.getCmp(mtg.id);
+			var mtgViewRegion = cmp.getViewRegion();
+			var offset = 0;
+			
+			//if (cmp.el.dom.classList.contains("comment"))
+			//	offset = 2;
+			if ((mtgViewRegion.top - offset) >= rowViewRegion.top && (mtgViewRegion.bottom + offset) <= rowViewRegion.bottom)
+			{
+				mtgs.push(me.observer.getMeeting(cmp.meetingId, me.observer));
+			}
 		})
 
 		return mtgs;
