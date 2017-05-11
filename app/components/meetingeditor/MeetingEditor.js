@@ -774,6 +774,7 @@ Ext.define('MeetingEditor', {
     },
     listeners: {
         beforeshow: function(cmp){
+            var me = this;
             cmp.title = cmp.meeting.title;
             cmp.add(cmp.buildNorthContainer(cmp.meeting, cmp.observer));
             if (cmp.ycoord)
@@ -783,13 +784,13 @@ Ext.define('MeetingEditor', {
                 cmp.y = cmp.ycoord;
             }
             Ext.ComponentQuery.query('#centerctr')[0].add(cmp.buildCenterComponents(cmp.meeting, cmp.meetingTemplate));
-            
+            me.observer.editorVisible = true;
         },
         beforeclose: function(){
             var me = this;
             var id = me.meeting.id != null ? me.meeting.id : 0;
             if (id == 0) //for unsaved meetings, we remove them
-                me.observer.removeMeeting(id);
+                me.observer.removeMeeting(id);            
         },
         afterrender: function(cmp){
             var id = cmp.meeting.id != null ? cmp.meeting.id : 0;
@@ -829,6 +830,7 @@ Ext.define('MeetingEditor', {
             
         },
         beforehide: function(cmp){
+            cmp.observer.editorVisible = false;
             Ext.each(cmp.roomLayouts, function(c){
                 c.clickHandler = null;
                 if (c.extender)

@@ -19,6 +19,7 @@ Ext.define('AgendaBuilderObservable', {
     queuedDates: [],
     autoShownRows: [],
     localListeners: [],
+    editorVisible: false,
     ajaxController: null,
     currentDragMtg: null, //This is used to target when item is current being dragged
     currentDragDrop: null, //This is the current drag drop manager
@@ -1336,6 +1337,7 @@ Ext.define('AgendaBuilderObservable', {
 
 
                     cmp.mon(cmp.el, 'dblclick', function(){
+                        lastClickTime = new Date(-8640000000000000);
                         onDblClick();
                     })
 
@@ -2116,6 +2118,8 @@ Ext.define('AgendaBuilderObservable', {
     },
     showMeetingEditor: function(meeting, observer, meetingTemplate, date, ycoord){
         var me = this;
+        if (me.editorVisible)
+            return;
         var datesCtr = Ext.ComponentQuery.query('#MainContainer')[0];
         Ext.create('MeetingEditor', {
             meeting: meeting,
@@ -2123,7 +2127,12 @@ Ext.define('AgendaBuilderObservable', {
             observer: observer,
             meetingTemplate: meetingTemplate,
             date: date,
-            ycoord: ycoord
+            ycoord: ycoord,
+            listeners: {
+                hide: function(){
+                    console.log('hide');
+                }
+            }
         }).show();
 
     },
