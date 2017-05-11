@@ -399,10 +399,9 @@ Ext.define('AgendaRow', {
 			var cmp = Ext.getCmp(mtg.id);
 			var mtgViewRegion = cmp.getViewRegion();
 			var offset = 0;
-			
-			//if (cmp.el.dom.classList.contains("comment"))
-			//	offset = 2;
-			if ((mtgViewRegion.top - offset) >= rowViewRegion.top && (mtgViewRegion.bottom + offset) <= rowViewRegion.bottom)
+			if (cmp.el.dom.classList.contains("comment"))
+				offset = 2;
+			if ((mtgViewRegion.top - offset) >= rowViewRegion.top && (mtgViewRegion.bottom - offset) <= rowViewRegion.bottom)
 			{
 				mtgs.push(me.observer.getMeeting(cmp.meetingId, me.observer));
 			}
