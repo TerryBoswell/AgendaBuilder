@@ -241,8 +241,7 @@ Ext.define('AgendaRow', {
 				{ 					
 					hideCmp.listeningForClick = true;
 					hideCmp.addEventListener('mousedown', function(tEl){
-						if (tEl.target && tEl.target.dataset && tEl.target.dataset.date == parent.dataField)
-							hideShow(hideCmp, parent, overlayCmp);
+						hideShow(hideCmp, parent, overlayCmp);
 					});
 				}
 				if (overlayCmp && !overlayCmp.listeningForClick)
@@ -251,8 +250,7 @@ Ext.define('AgendaRow', {
 					overlayCmp.addEventListener('mousedown', function(tEl){
 						if (tEl.target.classList.contains("expand-view"))
 						{
-							if (tEl.target.dataset && tEl.target.dataset.date == parent.dataField)
-								hideShow(hideCmp, parent, overlayCmp);
+							hideShow(hideCmp, parent, overlayCmp);
 						}
 					});
 				}

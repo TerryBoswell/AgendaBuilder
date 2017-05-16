@@ -2601,9 +2601,12 @@ Ext.define('AgendaBuilderObservable', {
         }
         else
         {
-            me.autoHideAllCollapsedRows();
-            me.restoreLastY();
-            me.unmask();
+            new Ext.util.DelayedTask(function(){
+                me.autoHideAllCollapsedRows();
+                me.restoreLastY();
+                me.unmask();                                                        
+            }, me).delay(250);
+            
         }
     },
     getTotalRowsInAboveDates : function(date)
