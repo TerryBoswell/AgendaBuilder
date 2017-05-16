@@ -137,6 +137,7 @@ Ext.define('AgendaRow', {
 						var mtgsToHide = [];
 						var date = parent.observer.createDate(parent.dataField.stripInvalidChars());
 						var instance = parent.observer.getInstance(date, parent.observer);
+						var xS = parent.observer.getMeetingItemTemplateX();
 						var row = parent.observer.getRow(date);
 						row.collapsed = !row.collapsed;
 						parent.collapsed = !row.collapsed;
@@ -217,6 +218,7 @@ Ext.define('AgendaRow', {
 								callout.hide();
 						})										
 						topMostCmp.el.dom.scrollTop = scrollTop;
+						parent.observer.setMeetingItemTemplateX(xS);
 				};
 				var hideCmp = null;
 				var overlayCmp = null;
@@ -239,7 +241,8 @@ Ext.define('AgendaRow', {
 				{ 					
 					hideCmp.listeningForClick = true;
 					hideCmp.addEventListener('mousedown', function(tEl){
-						hideShow(hideCmp, parent, overlayCmp);
+						if (tEl.target && tEl.target.dataset && tEl.target.dataset.date == parent.dataField)
+							hideShow(hideCmp, parent, overlayCmp);
 					});
 				}
 				if (overlayCmp && !overlayCmp.listeningForClick)
@@ -247,7 +250,10 @@ Ext.define('AgendaRow', {
 					overlayCmp.listeningForClick = true;
 					overlayCmp.addEventListener('mousedown', function(tEl){
 						if (tEl.target.classList.contains("expand-view"))
-							hideShow(hideCmp, parent, overlayCmp);
+						{
+							if (tEl.target.dataset && tEl.target.dataset.date == parent.dataField)
+								hideShow(hideCmp, parent, overlayCmp);
+						}
 					});
 				}
 				cmp.hideShow = function(){
