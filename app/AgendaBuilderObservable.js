@@ -2130,7 +2130,7 @@ Ext.define('AgendaBuilderObservable', {
             ycoord: ycoord,
             listeners: {
                 hide: function(){
-                    console.log('hide');
+                    
                 }
             }
         }).show();
@@ -2966,6 +2966,7 @@ Ext.define('AgendaBuilderObservable', {
                     newMtg = result.postedData;
                     newMtg.id = result.newId;
                     instance.meetings.push(newMtg);
+                    var xS = me.getMeetingItemTemplateX();
                     me.assignRowIndexes(instance);
                     var color = "#" + meeting.meeting_item_type.color;
                     var idx = me.calculateRowIndex(newMtg, instance);
@@ -2983,10 +2984,12 @@ Ext.define('AgendaBuilderObservable', {
 
                     var insertAt = rowsAbove + idx;
                     //We need to add a row if this is true
+
                     if (agendaBuilderRow.rows.length <= idx)
                         me.addAdditionalRow(instance.date, me, agendaBuilderRow, insertAt);
                     me.createMeeting(newMtg.id, instance.date, start, end, meeting.title, 'white', 
                             color, idx, me, meeting.meeting_item_type);
+                    me.setMeetingItemTemplateX(xS);
                 }, me)});   
             
     },
