@@ -855,7 +855,7 @@ Ext.define('AgendaBuilderObservable', {
                 return mtgTotal;
             Ext.each(instance.meetings, function(_m){
                 if (_m && _m.meeting_item_type && _m.meeting_item_type.id == mtg.meeting_item_type.id)
-                    mtgTotal -= _m.num_people;
+                    mtgTotal = 0; //-= _m.num_people;
             })    
         }
         else
