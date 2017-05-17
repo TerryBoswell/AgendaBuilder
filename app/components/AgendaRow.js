@@ -146,6 +146,7 @@ Ext.define('AgendaRow', {
 						//If it hasn't been set, then it is visible
 						if (instance.visible === undefined)
 							instance.visible = true;
+						
 						if (instance.visible)
 						{
 							hCmp.innerText = '+Show';

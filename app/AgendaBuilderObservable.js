@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.035',
+    version: '1.036',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -496,6 +496,10 @@ Ext.define('AgendaBuilderObservable', {
         me.dates = [];
         me.buildDates(newRows.sort(sortFn));
         me.setMeetingItemTemplateX(xS);
+        //Reset all the dates to be visible since they will be expanded
+        Ext.each(me.dates, function(i){
+            i.visible = true;
+        });
                
     },
     addPostDays: function(count){
@@ -523,6 +527,10 @@ Ext.define('AgendaBuilderObservable', {
         me.dates = [];
         me.buildDates(newRows);
         me.setMeetingItemTemplateX(xS);
+        //Reset all the dates to be visible since they will be expanded
+        Ext.each(me.dates, function(i){
+            i.visible = true;
+        });
     },
     buildSingleDate: function(instance, parentCtr){
             var me = this;
