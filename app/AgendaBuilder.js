@@ -87,7 +87,7 @@ Ext.define('AgendaBuilder.MainContainer', {
                             xtype: 'container',
                             itemId: 'northCtrMeal',
                             style:  'background-color: #d9d9db;z-index:1000;',
-                            layout  : {type: 'hbox', align: 'stretch'} 
+                            layout  : {type: 'hbox', align: 'stretch'}
                         },
                         {
                             width: 35,

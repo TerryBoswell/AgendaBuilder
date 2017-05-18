@@ -469,7 +469,6 @@ Ext.define('AgendaBuilderObservable', {
     },
     addPreDays: function(count){
         var me = this;
-        var xS = me.getMeetingItemTemplateX();
         me.savePrePostDays('pre', count, me);
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
         me.removeAllMeetings();
@@ -495,7 +494,7 @@ Ext.define('AgendaBuilderObservable', {
         me.agendaBuilderRows = [];
         me.dates = [];
         me.buildDates(newRows.sort(sortFn));
-        me.setMeetingItemTemplateX(xS);
+        me.setMeetingItemTemplateX();
         //Reset all the dates to be visible since they will be expanded
         Ext.each(me.dates, function(i){
             i.visible = true;
@@ -504,7 +503,6 @@ Ext.define('AgendaBuilderObservable', {
     },
     addPostDays: function(count){
         var me = this;
-        var xS = me.getMeetingItemTemplateX();
         me.savePrePostDays('post', count, me);
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
         me.removeAllMeetings();        
@@ -526,7 +524,7 @@ Ext.define('AgendaBuilderObservable', {
         me.agendaBuilderRows = [];
         me.dates = [];
         me.buildDates(newRows);
-        me.setMeetingItemTemplateX(xS);
+        me.setMeetingItemTemplateX();
         //Reset all the dates to be visible since they will be expanded
         Ext.each(me.dates, function(i){
             i.visible = true;
@@ -1607,7 +1605,6 @@ Ext.define('AgendaBuilderObservable', {
                                                 delete cmp.origX;
                                                 delete cmp.origY;
                                                     //on Drags the dom manager in extjs resets the x position, so we need to track it
-                                                cmp.observer.lastRecordedXs = cmp.observer.getMeetingItemTemplateX();
                                                 cmp.observer.saveMeetingItem(mtg);
                                                
                                             }
@@ -2149,6 +2146,7 @@ Ext.define('AgendaBuilderObservable', {
     /*******************Scrolling Functionality************/
     setScrollingHandlers: function(){
         var runner = new Ext.util.TaskRunner();
+        var me = this;
         //We are dealing with the left and right scrolling here
         var rightNorthCtrMtg = Ext.ComponentQuery.query('#rightNorthCtrMtg')[0];
         var leftNorthCtrMtg = Ext.ComponentQuery.query('#leftNorthCtrMtg')[0];
@@ -2181,6 +2179,7 @@ Ext.define('AgendaBuilderObservable', {
             })
             if (applyClass)
                 leftNorthCtrMtg.removeCls('btn-disable');
+            me.lastRecordedXs = me.getMeetingItemTemplateX();
         };
         rightNorthCtrMtg.mon(rightNorthCtrMtg.el, 'click', function(){rightNorthCtrHandler(true)});
         rightNorthCtrMtg.task = runner.newTask({
@@ -2206,6 +2205,7 @@ Ext.define('AgendaBuilderObservable', {
             })
             if (applyClass)
                 rightNorthCtrMtg.removeCls('btn-disable');
+            me.lastRecordedXs = me.getMeetingItemTemplateX();
         };
         leftNorthCtrMtg.mon(leftNorthCtrMtg.el, 'click', function(){leftNorthCtrHandler(true)});
         leftNorthCtrMtg.task = runner.newTask({
@@ -2253,6 +2253,7 @@ Ext.define('AgendaBuilderObservable', {
             })
             if (applyClass)
                 leftNorthCtrMeal.removeCls('btn-disable');
+            me.lastRecordedXs = me.getMeetingItemTemplateX();
         }
         var leftClickMealHandler = function(applyClass){
             if (northCtrMealItems[0].getX() >= getMealFarLeft())
@@ -2266,6 +2267,7 @@ Ext.define('AgendaBuilderObservable', {
             })
             if (applyClass)
                 rightNorthCtrMeal.removeCls('btn-disable');
+            me.lastRecordedXs = me.getMeetingItemTemplateX();
         }
         rightNorthCtrMeal.mon(rightNorthCtrMeal.el, 'click', function() {rightClickMealHandler(true)});
         rightNorthCtrMeal.task = runner.newTask({
@@ -2411,29 +2413,18 @@ Ext.define('AgendaBuilderObservable', {
     getMeetingItemTemplateX: function(){
         var me = this;
         var xS = [];
-        if (me.lastRecordedXs && me.lastRecordedXs.length)
-        {
-            //We only record them once. This way once we use them, they have to be reset
-            //this gives asycronous operations like ajax the ability to set them before they go into action;
-            Ext.each(me.lastRecordedXs, function(xs){
-                xS.push(xs);
-            })
-                
-            me.lastRecordedXs = null;
-        }
-        else
-        {
-            Ext.each(Ext.query('.meeting-item-type'), function(el){
+        Ext.each(Ext.query('.meeting-item-type'), function(el){
                 var cmp = Ext.getCmp(el.id);
                 xS.push({
                     id : cmp.id,
                     x: cmp.getX()
                 })
-            });
-        }
+        });
         return xS;
     },
-    setMeetingItemTemplateX: function(xS){
+    setMeetingItemTemplateX: function(){
+        var me = this;
+        var xS = me.lastRecordedXs;
         Ext.each(xS, function(item){
             var cmp = Ext.getCmp(item.id);
             cmp.setX(item.x)
@@ -2555,7 +2546,6 @@ Ext.define('AgendaBuilderObservable', {
 
         var rowsAbove = 0;
         //This will handle shifting the meetings to the correct rows
-        var xS = me.getMeetingItemTemplateX();
         for(var i = 0; i < me.dates.length; i++)
         {
             var d = me.dates[i];
@@ -2563,7 +2553,7 @@ Ext.define('AgendaBuilderObservable', {
             rowsAbove +=newRows;          
             //me.resetButtons();                             
         }
-        me.setMeetingItemTemplateX(xS);
+        me.setMeetingItemTemplateX();
         if (!postedData.start && postedData.date && postedData.start_time)
         {
             postedData.start = me.createDateWithTime(postedData.date, postedData.start_time);
@@ -2864,7 +2854,6 @@ Ext.define('AgendaBuilderObservable', {
     },
     onDeleteMeetingItem: function(data, response, scope){
         var me = scope;
-        var xS = me.getMeetingItemTemplateX();
         var id = data.id;
         var mtg = me.getMeeting(id, me);
         var instance = me.getInstance(mtg.start, me);
@@ -2873,7 +2862,7 @@ Ext.define('AgendaBuilderObservable', {
         me.assignRowIndexes(instance);
         me.shiftMeetings(instance, null, me);
         me.removeEmptyRows();
-        me.setMeetingItemTemplateX(xS);
+        me.setMeetingItemTemplateX();
     },
     onSaveAlternateOptions: function(obj, scope){},
     onSavePrePostDays: function(obj, scope){
@@ -3002,7 +2991,7 @@ Ext.define('AgendaBuilderObservable', {
                         me.addAdditionalRow(instance.date, me, agendaBuilderRow, insertAt);
                     me.createMeeting(newMtg.id, instance.date, start, end, meeting.title, 'white', 
                             color, idx, me, meeting.meeting_item_type);
-                    me.setMeetingItemTemplateX(xS);
+                    me.setMeetingItemTemplateX();
                 }, me)});   
             
     },
