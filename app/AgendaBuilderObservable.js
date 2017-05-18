@@ -1328,6 +1328,7 @@ Ext.define('AgendaBuilderObservable', {
 
                     };
                     
+                    cmp.onClick = onClick;
                     var lastClickTime = new Date(-8640000000000000);
                     cmp.mon(cmp.el, 'click', function(){
                         var diff = Ext.Date.diff(lastClickTime, new Date(), Ext.Date.SECOND);
@@ -1753,6 +1754,7 @@ Ext.define('AgendaBuilderObservable', {
             Ext.each(cmp.el.query('.x-component-handle'), function(handle){
                 handle.classList.add('x-resizable-pinned-mtg-hover');
                 handle.classList.remove('x-resizable-pinned-mtg');
+                cmp.onClick();
             });
         });
 
