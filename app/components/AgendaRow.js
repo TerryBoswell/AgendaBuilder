@@ -407,7 +407,12 @@ Ext.define('AgendaRow', {
 				offset = 2;
 			if ((mtgViewRegion.top - offset) >= rowViewRegion.top && (mtgViewRegion.bottom - offset) <= rowViewRegion.bottom)
 			{
-				mtgs.push(me.observer.getMeeting(cmp.meetingId, me.observer));
+				if (me && me.observer && me.observer.getMeeting && cmp && cmp.meetingId)
+				{
+					var _mtg = me.observer.getMeeting(cmp.meetingId, me.observer);
+					if (_mtg) 
+						mtgs.push(_mtg);
+				}
 			}
 		})
 
