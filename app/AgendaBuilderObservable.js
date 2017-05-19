@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.036',
+    version: '1.037',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -46,6 +46,11 @@ Ext.define('AgendaBuilderObservable', {
         Ext.ComponentQuery.query('#leftNorthCtrMtg')[0].addCls('btn-disable');
         Ext.ComponentQuery.query('#rightNorthCtrMeal')[0].removeCls('btn-disable');
         Ext.ComponentQuery.query('#leftNorthCtrMeal')[0].addCls('btn-disable');
+    },
+    hideAllCallOuts: function(){
+        Ext.each(this.meetingCallouts, function(callout){
+            callout.hide();
+        })
     },
     resetButtons: function(){
         Ext.ComponentQuery.query('#rightNorthCtrMtg')[0].removeCls('btn-disable');
@@ -469,6 +474,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     addPreDays: function(count){
         var me = this;
+        me.hideAllCallOuts();
         me.savePrePostDays('pre', count, me);
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
         me.removeAllMeetings();
@@ -503,6 +509,7 @@ Ext.define('AgendaBuilderObservable', {
     },
     addPostDays: function(count){
         var me = this;
+        me.hideAllCallOuts();
         me.savePrePostDays('post', count, me);
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll();
         me.removeAllMeetings();        
