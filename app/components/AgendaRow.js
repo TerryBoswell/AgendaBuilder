@@ -141,7 +141,7 @@ Ext.define('AgendaRow', {
 						row.collapsed = !row.collapsed;
 						parent.collapsed = !row.collapsed;
 						var topMostCmp = Ext.ComponentQuery.query('#datesCtr')[0];
-						var scrollTop = topMostCmp.el.dom.scrollTop;
+						var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
 						//If it hasn't been set, then it is visible
 						if (instance.visible === undefined)
 							instance.visible = true;
@@ -216,8 +216,8 @@ Ext.define('AgendaRow', {
 						parent.observer.setAllRows24HourStatus();
 						Ext.each(parent.observer.meetingCallouts, function(callout){
 								callout.hide();
-						})										
-						topMostCmp.el.dom.scrollTop = scrollTop;
+						})	
+						window.scrollTo(0, scrollTop);
 						parent.observer.setMeetingItemTemplateX();
 				};
 				var hideCmp = null;
