@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.037',
+    version: '1.038',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -24,6 +24,7 @@ Ext.define('AgendaBuilderObservable', {
     currentDragMtg: null, //This is used to target when item is current being dragged
     currentDragDrop: null, //This is the current drag drop manager
     isInitialized: false, //flag to keep from repeating after initialize
+    lastScrollTop : null,
     lastRecordedY: 0,
     lastRecordedXs: null, //This is used to determine the position of the title items. We need to persist it for drag and drops because it repositions the items on the drop
     tipTextLen: 23,
@@ -2438,6 +2439,16 @@ Ext.define('AgendaBuilderObservable', {
         })
 
     },
+    recordCurretScrollTop: function(){
+        var me = this;
+        me.lastScrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    },
+    restoreLastScrollTop: function(){
+        var me = this;
+        if (me.lastScrollTop == null)
+            return;
+        window.scrollTo(0, me.lastScrollTop);
+    },
     onSaveMeetingItem: function(postedData, response, scope){
         var me = scope;
         if (!response || !response.id || response.success == false)
@@ -2862,6 +2873,7 @@ Ext.define('AgendaBuilderObservable', {
     onDeleteMeetingItem: function(data, response, scope){
         var me = scope;
         var id = data.id;
+        me.recordCurretScrollTop();
         var mtg = me.getMeeting(id, me);
         var instance = me.getInstance(mtg.start, me);
         scope.deleteMeeting(id, scope);
@@ -2869,6 +2881,7 @@ Ext.define('AgendaBuilderObservable', {
         me.assignRowIndexes(instance);
         me.shiftMeetings(instance, null, me);
         me.removeEmptyRows();
+        me.restoreLastScrollTop();
         me.setMeetingItemTemplateX();
     },
     onSaveAlternateOptions: function(obj, scope){},
