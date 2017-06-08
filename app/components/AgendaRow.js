@@ -352,6 +352,11 @@ Ext.define('AgendaRow', {
 					if (parent && parent.observer)
 						parent.observer.addDragOverListener(tr, parent.observer);
 				}, parent)
+
+				cmp.mon(cmp.el, 'mouseover', function(){
+					if (parent && parent.observer && parent.observer.hideAllCallOuts)
+						parent.observer.hideAllCallOuts();
+				})
 			},
 			scope: this
 		})

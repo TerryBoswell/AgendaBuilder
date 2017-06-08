@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.038',
+    version: '1.039',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -1759,15 +1759,16 @@ Ext.define('AgendaBuilderObservable', {
             Ext.each(cmp.el.query('.x-component-handle'), function(handle){
                 handle.classList.add('x-resizable-pinned-mtg-hover');
                 handle.classList.remove('x-resizable-pinned-mtg');
-                cmp.onClick();
             });
+            cmp.onClick();
         });
 
-        cmp.mon(cmp.el, 'mouseout', function(mEvent){
-            Ext.each(cmp.el.query('.x-component-handle'), function(handle){
-                handle.classList.add('x-resizable-pinned-mtg');
-                handle.classList.remove('x-resizable-pinned-mtg-hover');
-            });
+        cmp.mon(cmp.extender.el, 'mouseover', function(mEvent){
+            cmp.onClick();
+        });
+
+        cmp.mon(cmp.extender.el, 'mouseout', function(mEvent){
+            cmp.extender.hide()
         });
 
     },
