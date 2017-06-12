@@ -325,7 +325,18 @@ div.meetingTip:before {
 
 .comment
 {
+    border: 2px solid red !important;
+}
+
+.lastAccessed
+{
     border: 2px solid black !important;
+}
+
+.comment-lastAccessed
+{
+    border: 2px solid red !important;
+    outline: 1px solid black !important;
 }
 
 .twentyfourhr-bubble

@@ -24,6 +24,7 @@ Ext.define('AgendaBuilderObservable', {
     currentDragMtg: null, //This is used to target when item is current being dragged
     currentDragDrop: null, //This is the current drag drop manager
     isInitialized: false, //flag to keep from repeating after initialize
+    lastAccessedMeeting: null, //This is used to track the lasted accessed for last access feature
     lastScrollTop : null,
     lastRecordedY: 0,
     lastRecordedXs: null, //This is used to determine the position of the title items. We need to persist it for drag and drops because it repositions the items on the drop
