@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.039',
+    version: '1.040',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -1756,6 +1756,9 @@ Ext.define('AgendaBuilderObservable', {
         });
         
         cmp.mon(cmp.el, 'mouseover', function(mEvent){
+            //This prevents the mouse over events when a drag is in progress
+            if (cmp.observer && cmp.observer.currentDragMtg)
+                return;
             Ext.each(cmp.el.query('.x-component-handle'), function(handle){
                 handle.classList.add('x-resizable-pinned-mtg-hover');
                 handle.classList.remove('x-resizable-pinned-mtg');
@@ -1763,12 +1766,29 @@ Ext.define('AgendaBuilderObservable', {
             cmp.onClick();
         });
 
+        cmp.mon(cmp.el, 'mouseout', function(mEvent){
+            //This prevents the mouse over events when a drag is in progress
+            if (cmp.observer && cmp.observer.currentDragMtg)
+                return;
+            Ext.each(cmp.el.query('.x-component-handle'), function(handle){
+                handle.classList.remove('x-resizable-pinned-mtg-hover');
+                handle.classList.add('x-resizable-pinned-mtg');
+            });
+        });
+
         cmp.mon(cmp.extender.el, 'mouseover', function(mEvent){
+            //zzz
+            if (cmp.observer && cmp.observer.currentDragMtg)
+                return;
             cmp.onClick();
         });
 
         cmp.mon(cmp.extender.el, 'mouseout', function(mEvent){
             cmp.extender.hide()
+            Ext.each(cmp.el.query('.x-component-handle'), function(handle){
+                handle.classList.remove('x-resizable-pinned-mtg-hover');
+                handle.classList.add('x-resizable-pinned-mtg');
+            });
         });
 
     },
