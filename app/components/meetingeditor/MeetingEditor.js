@@ -498,6 +498,9 @@ Ext.define('MeetingEditor', {
                             var id = me.meeting.id != null ? me.meeting.id : 0;
                             if (id == 0) //for unsaved meetings, we remove them
                                 me.observer.removeMeeting(id);
+                            else
+                                me.observer.lastAccessedMeetingId = id;
+                            me.observer.setBorderIdentifier();
                             me.hide();
                             me.destroy();
                         }
@@ -594,6 +597,8 @@ Ext.define('MeetingEditor', {
                                     }, me).delay(500); 
                             }
                             //getCurrentRow
+                            me.observer.lastAccessedMeetingId = me.meeting.id;
+                            
                             me.observer.saveMeetingItem(me.meeting);
                             Ext.each(Ext.query('.numpeoplefield'), function(el){
                                 var nMtgCmp = Ext.getCmp(Ext.fly(el).id);

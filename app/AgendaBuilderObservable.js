@@ -24,7 +24,7 @@ Ext.define('AgendaBuilderObservable', {
     currentDragMtg: null, //This is used to target when item is current being dragged
     currentDragDrop: null, //This is the current drag drop manager
     isInitialized: false, //flag to keep from repeating after initialize
-    lastAccessedMeeting: null, //This is used to track the lasted accessed for last access feature
+    lastAccessedMeetingId: null, //This is used to track the lasted accessed for last access feature
     lastScrollTop : null,
     lastRecordedY: 0,
     lastRecordedXs: null, //This is used to determine the position of the title items. We need to persist it for drag and drops because it repositions the items on the drop
@@ -319,7 +319,7 @@ Ext.define('AgendaBuilderObservable', {
             me.buildMeetingsForDate(instance, me);
         }); 
         this.setAllRows24HourStatus(); 
-        this.setAllRowCommentStatus();      
+        this.setBorderIdentifier();      
     },
     getDates: function(){
         return this.dates;
@@ -2601,7 +2601,8 @@ Ext.define('AgendaBuilderObservable', {
         if (!postedData.end && postedData.date && postedData.end_time)
             postedData.end = me.createDateWithTime(postedData.date, postedData.end_time);
         me.setAllRows24HourStatus();
-        me.setAllRowCommentStatus();
+        me.lastAccessedMeetingId = postedData.id;
+        me.setBorderIdentifier();
         me.removeEmptyRows();
         postedData.meeting_item_type = scope.getMeetingType(postedData.type);
         postedData.room_setup_type = scope.getRoomSetup(postedData.room_setup);
@@ -2641,6 +2642,7 @@ Ext.define('AgendaBuilderObservable', {
         }
         else
         {
+            me.lastAccessedMeetingId = null;  
             new Ext.util.DelayedTask(function(){
                 me.autoHideAllCollapsedRows();
                 me.restoreLastY();
@@ -2740,7 +2742,7 @@ Ext.define('AgendaBuilderObservable', {
             Ext.getCmp(el.id).setAllDayToMatchMeetings()
         });
     },
-    setAllRowCommentStatus: function(){
+    setBorderIdentifier: function(){
         var me = this;
         for(var i = 0; i < me.dates.length; i++)
         {
@@ -2751,13 +2753,29 @@ Ext.define('AgendaBuilderObservable', {
                 var m_cmp = me.findMeetingComponent(m.id);
                 if (m_cmp)
                 {
-                    if (m.note && m.note.length > 0)
+                    if (m.note && m.note.length > 0 && me.lastAccessedMeetingId == m.id)
+                    {
+                        m_cmp.addCls('comment-lastAccessed');
+                        m_cmp.removeCls('comment');
+                        m_cmp.removeCls('lastAccessed');
+                    }
+                    else if (me.lastAccessedMeetingId == m.id)
+                    {
+                        m_cmp.addCls('lastAccessed');
+                        m_cmp.removeCls('comment');
+                        m_cmp.removeCls('comment-lastAccessed');
+                    }
+                    else if (m.note && m.note.length > 0)
                     {
                         m_cmp.addCls('comment');
+                        m_cmp.removeCls('lastAccessed');
+                        m_cmp.removeCls('comment-lastAccessed');
                     }
                     else
                     {
                         m_cmp.removeCls('comment');
+                        m_cmp.removeCls('lastAccessed');
+                        m_cmp.removeCls('comment-lastAccessed');
                     }
                 }
             }
@@ -2841,7 +2859,7 @@ Ext.define('AgendaBuilderObservable', {
         if (emptyRows == null || !emptyRows.length)
         {
             me.setAllRows24HourStatus();
-            me.setAllRowCommentStatus();
+            me.setBorderIdentifier();
             return;
         }
         var hitRowWithTwo = false; //once we hit a row with only two, we stop
@@ -2877,7 +2895,7 @@ Ext.define('AgendaBuilderObservable', {
         });
             
         me.setAllRows24HourStatus();
-        me.setAllRowCommentStatus();
+        me.setBorderIdentifier();
     },
     onUpdateMeetingItemPeople: function(postedData, response, scope){
         var me = scope;

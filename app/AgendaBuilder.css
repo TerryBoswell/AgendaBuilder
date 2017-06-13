@@ -333,11 +333,8 @@ div.meetingTip:before {
     border: 2px solid black !important;
 }
 
-.comment-lastAccessed
-{
-    border: 2px solid red !important;
-    outline: 1px solid black !important;
-}
+.comment-lastAccessed{position:relative; z-index:10; border:2px solid black; }
+.comment-lastAccessed:before{content:""; display:block; position:absolute; z-index:-1; top:0px; left:0px; right:0px; bottom:0px; border:2px solid red}
 
 .twentyfourhr-bubble
 {
