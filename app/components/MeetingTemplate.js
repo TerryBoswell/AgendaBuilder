@@ -43,13 +43,14 @@ Ext.define('MeetingTemplate',
 					            if (!newCmp.el) {
 					                newCmp.el = Ext.get(this.getEl());
 					            }
-
+								observer.currentDragMtg = -1;
 					            //Cache the original XY Coordinates of the element, we'll use this later.
 					        },
 					        // Called when element is dropped in a spot without a dropzone, or in a dropzone without matching a ddgroup.
 					        onInvalidDrop : function(target) {
 					        	// Set a flag to invoke the animated repair
 								newCmp.invalidDrop = false;
+								observer.currentDragMtg = null;
 					        },
 							onMouseUp: function(e){
 								if (newCmp.dragEnded)
@@ -64,6 +65,7 @@ Ext.define('MeetingTemplate',
 							},
 					        // Called when the drag operation completes
 					        endDrag : function(dropTarget) {
+								observer.currentDragMtg = null;
 								newCmp.dragEnded = true;
 								var match = null;
 								var browserEvent = null;

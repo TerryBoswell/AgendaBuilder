@@ -766,6 +766,8 @@ Ext.define('AgendaBuilderObservable', {
     },
     handleMeetingDrag: function(mouseEvent, meeting, scope){
         var me = scope;
+        if (!meeting || !meeting.el || !meeting.el.dom)
+            return;
         var rect = meeting.el.dom.getBoundingClientRect();
         var y = (rect.top + rect.bottom) / 2; //We'll get the center
         var getColIndex = function(el)
@@ -1760,6 +1762,7 @@ Ext.define('AgendaBuilderObservable', {
             //This prevents the mouse over events when a drag is in progress
             if (cmp.observer && cmp.observer.currentDragMtg)
                 return;
+            console.log(cmp.observer.currentDragMtg)
             Ext.each(cmp.el.query('.x-component-handle'), function(handle){
                 handle.classList.add('x-resizable-pinned-mtg-hover');
                 handle.classList.remove('x-resizable-pinned-mtg');
@@ -1771,6 +1774,7 @@ Ext.define('AgendaBuilderObservable', {
             //This prevents the mouse over events when a drag is in progress
             if (cmp.observer && cmp.observer.currentDragMtg)
                 return;
+            console.log(cmp.observer.currentDragMtg);   
             Ext.each(cmp.el.query('.x-component-handle'), function(handle){
                 handle.classList.remove('x-resizable-pinned-mtg-hover');
                 handle.classList.add('x-resizable-pinned-mtg');
@@ -1781,6 +1785,7 @@ Ext.define('AgendaBuilderObservable', {
             //zzz
             if (cmp.observer && cmp.observer.currentDragMtg)
                 return;
+            console.log(cmp.observer.currentDragMtg);
             cmp.onClick();
         });
 
