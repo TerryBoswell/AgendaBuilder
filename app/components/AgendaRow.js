@@ -407,7 +407,9 @@ Ext.define('AgendaRow', {
 			var cmp = Ext.getCmp(mtg.id);
 			var mtgViewRegion = cmp.getViewRegion();
 			var offset = 0;
-			if (cmp.el.dom.classList.contains("comment"))
+			if (cmp.el.dom.classList.contains("comment") || 
+				cmp.el.dom.classList.contains("lastAccessed") || 
+				cmp.el.dom.classList.contains("comment-lastAccessed"))
 				offset = 2;
 			if ((mtgViewRegion.top - offset) >= rowViewRegion.top && (mtgViewRegion.bottom - offset) <= rowViewRegion.bottom)
 			{
