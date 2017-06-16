@@ -1388,6 +1388,8 @@ Ext.define('AgendaBuilderObservable', {
                                         endDrag : function(dropTarget, invalidate, mtgCmp, forceCallInvalidate) {
                                             if (mtgCmp)
                                                 cmp=mtgCmp;
+                                            var clearedCurrentDragMtg = observer.currentDragMtg;
+                                            var clearedCurrentDragDrop = observer.currentDragDrop
                                             observer.currentDragMtg = null; //Drag is over, so don't track it.
                                             observer.currentDragDrop = null;
                                             observer.hideDragDropHourPreview(observer);
@@ -1434,6 +1436,8 @@ Ext.define('AgendaBuilderObservable', {
                                             }
                                             if (browserEvent == null || invalidate == true)
                                             {
+                                                observer.currentDragMtg = clearedCurrentDragMtg;
+                                                observer.currentDragDrop = clearedCurrentDragDrop;
                                                 return;
                                             }
                                             var x = browserEvent.clientX;
