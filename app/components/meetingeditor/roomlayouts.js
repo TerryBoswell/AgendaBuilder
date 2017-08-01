@@ -18,6 +18,11 @@ var baseConfig = {
             var targetX = target.getX();
             //we need to get the parent target center
             var targetCenter = targetX + (target.getWidth()/2);
+            Ext.each(Ext.query('.extender'), function(e){
+                var c = Ext.getCmp(e.id);
+                if (c && c.destroy)
+                    c.destroy();
+            });
             target.extender = Ext.create('Ext.Component', {
                 html: '<div id="' + target.itemId +'div" class="expand"></div>',
                 style: 'background: rgba(1, 0, 0, 0);padding-top: 12px;',
@@ -72,13 +77,7 @@ var baseConfig = {
                                 columns: 2,
                                 vertical: true,
                                 padding: 5,
-                                items: tEl.extenderRadios,
-                                listeners: {
-                                    afterrender: function(){
-                                    },
-                                    hide: function(){
-                                    }
-                                }
+                                items: tEl.extenderRadios
                             })
                         }
                         else
