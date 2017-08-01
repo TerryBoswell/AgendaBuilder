@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.042',
+    version: '1.043',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -3197,17 +3197,18 @@ Ext.define('AgendaBuilderObservable', {
             return 39;            
     },
     executeOverrides: function(){
+        var  spacesRe = /\s+/;
         /**************Overrides */
         Ext.override(Ext.dom.Element, {
-        setStyle: function(prop, value) {
-            if (!this || !this.dom) // BAD EXTJS... You didn't null check for destroyed elements that haven't purged from the dom
-            {
-                if (this.destoyed)
+            setStyle: function(prop, value) {
+                if (!this || !this.dom) // BAD EXTJS... You didn't null check for destroyed elements that haven't purged from the dom
                 {
-                    var p = this.parent;                    
+                    if (this.destoyed)
+                    {
+                        var p = this.parent;                    
+                    }
+                    return;
                 }
-                return;
-            }
                     var me = this,
                         dom = me.dom,
                         hooks = me.styleHooks,
@@ -3331,6 +3332,44 @@ Ext.define('AgendaBuilderObservable', {
                         shim.realign(x, y, w, h);
                     }
                 }
+            },
+            removeCls: function(names, prefix, suffix) {
+                var me = this,
+                    elementData = me.getData(),
+                    hasNewCls, dom, map, classList, i, ln, name;
+                if (!elementData){
+                    return me;
+                }
+
+                if (!names) {
+                    return me;
+                }
+                if (!elementData.isSynchronized) {
+                    me.synchronize();
+                }
+                dom = me.dom;
+                map = elementData.classMap;
+                classList = elementData.classList;
+                prefix = prefix ? prefix + SEPARATOR : '';
+                suffix = suffix ? SEPARATOR + suffix : '';
+                if (typeof names === 'string') {
+                    names = names.split(spacesRe);
+                }
+                for (i = 0 , ln = names.length; i < ln; i++) {
+                    name = names[i];
+                    if (name) {
+                        name = prefix + name + suffix;
+                        if (map[name]) {
+                            delete map[name];
+                            Ext.Array.remove(classList, name);
+                            hasNewCls = true;
+                        }
+                    }
+                }
+                if (hasNewCls) {
+                    dom.className = classList.join(' ');
+                }
+                return me;
             }
         });
 

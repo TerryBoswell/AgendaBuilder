@@ -21,7 +21,7 @@ var baseConfig = {
             target.extender = Ext.create('Ext.Component', {
                 html: '<div id="' + target.itemId +'div" class="expand"></div>',
                 style: 'background: rgba(1, 0, 0, 0);padding-top: 12px;',
-                cls: 'invisible',
+                cls: 'invisible extender',
                 target: target,
                 floating: true,
                 x:targetCenter,
@@ -60,6 +60,7 @@ var baseConfig = {
                     {
                         var extenderId = '#' + target.itemId +'div';
                         var expandEl =  Ext.query(extenderId)[0];
+                        
                         if (tEl.extenderRadios)
                         {
                             Ext.create('Ext.form.RadioGroup', {
@@ -71,7 +72,13 @@ var baseConfig = {
                                 columns: 2,
                                 vertical: true,
                                 padding: 5,
-                                items: tEl.extenderRadios
+                                items: tEl.extenderRadios,
+                                listeners: {
+                                    afterrender: function(){
+                                    },
+                                    hide: function(){
+                                    }
+                                }
                             })
                         }
                         else
