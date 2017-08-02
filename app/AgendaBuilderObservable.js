@@ -3338,6 +3338,7 @@ Ext.define('AgendaBuilderObservable', {
                     elementData = me.getData(),
                     hasNewCls, dom, map, classList, i, ln, name;
                 if (!elementData){
+                    me.destroy();
                     return me;
                 }
 
@@ -3370,6 +3371,32 @@ Ext.define('AgendaBuilderObservable', {
                     dom.className = classList.join(' ');
                 }
                 return me;
+            },
+            set: function(attributes, useSet) {
+                var me = this,
+                    dom = me.dom,
+                    attribute, value;
+                if (!dom)
+                    return me;
+                for (attribute in attributes) {
+                    if (attributes.hasOwnProperty(attribute)) {
+                        value = attributes[attribute];
+                        if (attribute === 'style') {
+                            me.applyStyles(value);
+                        } else if (attribute === 'cls') {
+                            dom.className = value;
+                        } else if (useSet !== false) {
+                            if (value === undefined) {
+                                dom.removeAttribute(attribute);
+                            } else {
+                                dom.setAttribute(attribute, value);
+                            }
+                        } else {
+                            dom[attribute] = value;
+                        }
+                    }
+                }
+                return me;
             }
         });
 
@@ -3392,6 +3419,31 @@ Ext.define('AgendaBuilderObservable', {
                     return null;
             }
         })
+
+        Ext.override(Ext.form.field.Checkbox, {
+            setRawValue: function(value) {
+                var me = this,
+                    inputEl = me.inputEl,
+                    displayEl = me.displayEl,
+                    checked = me.isChecked(value, me.inputValue);
+                if (inputEl) {
+                    me[checked ? 'addCls' : 'removeCls'](me.checkedCls);
+                    if (me.ariaRole && me.ariaEl.dom) {
+                        me.ariaEl.dom.setAttribute('aria-checked', checked);
+                    }
+                }
+                // IE8 has a bug with font icons and pseudo-elements, see below in onFocus override
+                if (Ext.isIE8 && displayEl && checked !== me.lastValue) {
+                    displayEl.repaint();
+                }
+                me.checked = me.rawValue = checked;
+                if (!me.duringSetValue) {
+                    me.lastValue = checked;
+                }
+                return checked;
+            }
+        })
+
 
         Ext.override(Ext.Component, {
             translateXY: function(x, y) {
