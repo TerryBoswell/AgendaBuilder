@@ -739,11 +739,19 @@ Ext.define('MeetingEditor', {
             })
             if (match)
             {
-                
                if (rl.clickHandler)
                     rl.clickHandler(rl, null);
                 if (rl.renderExtender)
                     rl.renderExtender(rl, function(){
+                        if (rl.extenderRadios)
+                        {
+                            var radGrp = Ext.ComponentQuery.query('#extenderRadioGroup');
+                            if (radGrp && radGrp.length)
+                                Ext.each(radGrp[0].items.items, function(rb){
+                                    if (rb.inputValue == id)
+                                        rb.setValue(true);
+                                })
+                        }
                         if (!rl.setAdditionalInfo)
                             return;
                         new Ext.util.DelayedTask(function(){
