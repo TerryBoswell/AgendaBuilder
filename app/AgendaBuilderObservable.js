@@ -1447,7 +1447,16 @@ Ext.define('AgendaBuilderObservable', {
                                                 return;
                                             }
                                             var x = browserEvent.clientX;
+                                            if (browserEvent.clientX == undefined &&
+                                                browserEvent.changedTouches != undefined && 
+                                                browserEvent.changedTouches.length)
+                                                x = browserEvent.changedTouches[0].clientX;
+
                                             var y = browserEvent.clientY;
+                                            if (browserEvent.clientY == undefined &&
+                                                browserEvent.changedTouches != undefined && 
+                                                browserEvent.changedTouches.length)
+                                                y = browserEvent.changedTouches[0].clientY;
                                             Ext.each(document.elementsFromPoint(x, y), function(el){
                                                 if (el.id.indexOf('agendarow-ctr') != -1 && el.id.indexOf('col') != -1 && el.dataset.date)
                                                     match = el;
@@ -1496,6 +1505,9 @@ Ext.define('AgendaBuilderObservable', {
                                                 })
                                                 var end = (matchingEl.dataset.hour);
                                                 var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
+                                                console.log(start);
+                                                if (!mtg)
+                                                    debugger;
                                                 if (!end)
                                                 {
                                                     end = "23:59:00";
@@ -1525,7 +1537,17 @@ Ext.define('AgendaBuilderObservable', {
                                                     invalidDrop();
                                                     return;
                                                 }
+                                                if (!mtg)
+                                                {
+                                                    invalidDrop();
+                                                    return;
+                                                }
                                                 var m_cmp = cmp.observer.findMeetingComponent(mtg.id);
+                                                if (!m_cmp)
+                                                {
+                                                    invalidDrop();
+                                                    return;
+                                                }
                                                 m_cmp.setX(dimensions.xy[0]);
                                                 m_cmp.setY(dimensions.xy[1] + 3);
                                                 
@@ -2587,6 +2609,11 @@ Ext.define('AgendaBuilderObservable', {
                 else
                     meetingWasRemoved = true;             
             }
+            if (meetingWasRemoved)
+                {
+                    console.log(d.meetings);
+                    console.log(vettedMeetings);
+                }
             d.meetings = vettedMeetings;
             me.assignRowIndexes(d);
         }
