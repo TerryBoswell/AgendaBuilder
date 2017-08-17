@@ -374,7 +374,7 @@ Ext.define('AgendaBuilderObservable', {
             {
                 var theDateStr = date_time.replace('1900/01/01', dateStr.stripInvalidChars());
                 offset = offset.replace(":", "");
-                return new Date(theDateStr);
+                return new Date(theDateStr + ' GMT-0000');
             }
             else
             {
@@ -1505,9 +1505,6 @@ Ext.define('AgendaBuilderObservable', {
                                                 })
                                                 var end = (matchingEl.dataset.hour);
                                                 var mtg = cmp.observer.getMeeting(cmp.meetingId, cmp.observer);
-                                                console.log(start);
-                                                if (!mtg)
-                                                    debugger;
                                                 if (!end)
                                                 {
                                                     end = "23:59:00";
@@ -2609,11 +2606,6 @@ Ext.define('AgendaBuilderObservable', {
                 else
                     meetingWasRemoved = true;             
             }
-            if (meetingWasRemoved)
-                {
-                    console.log(d.meetings);
-                    console.log(vettedMeetings);
-                }
             d.meetings = vettedMeetings;
             me.assignRowIndexes(d);
         }
