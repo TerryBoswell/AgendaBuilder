@@ -161,8 +161,7 @@ Ext.define('MeetingEditor', {
                                     listeners: {
                                         change: function(cmp, newValue, oldValue, e)
                                         {
-                                            var regex = /(01|1|02|2|03|3|04|4|05|5|06|6|07|7|08|8|09|9|10|11|12):?(00|30)\s?(?:AM|PM)/;
-                                            if (!regex.test(newValue) || this.observer.getHourFor24Hrs(newValue) < 6 || this.observer.getHourFor24Hrs(newValue) > 24)
+                                            if (!timeRegEx.test(newValue) || this.observer.getHourFor24Hrs(newValue) < 6 || this.observer.getHourFor24Hrs(newValue) > 24)
                                             {
                                                 cmp.el.down('.timeInput').el.dom.classList.add('timeInvalid')
                                                 cmp.validTime = false;
@@ -175,9 +174,8 @@ Ext.define('MeetingEditor', {
                                         },
                                         blur: function(cmp){
                                             var newValue = cmp.getValue();
-                                             var regex = /(01|1|02|2|03|3|04|4|05|5|06|6|07|7|08|8|09|9|10|11|12):?(00|30)\s?(?:AM|PM)/;
                                              
-                                            if (!regex.test(newValue) || this.observer.getHourFor24Hrs(newValue) < 6 || this.observer.getHourFor24Hrs(newValue) > 24)
+                                            if (!timeRegEx.test(newValue) || this.observer.getHourFor24Hrs(newValue) < 6 || this.observer.getHourFor24Hrs(newValue) > 24)
                                             {
                                                 cmp.el.down('.timeInput').el.dom.classList.add('timeInvalid')
                                                 cmp.validTime = false;
@@ -206,9 +204,7 @@ Ext.define('MeetingEditor', {
                                         change: function(cmp, newValue, oldValue, e)
                                         {
                                            
-                                            var regex = /(01|1|02|2|03|3|04|4|05|5|06|6|07|7|08|8|09|9|10|11|12):?(00|30)\s?(?:AM|PM)/;
-                                            
-                                            if (!regex.test(newValue) || this.observer.getHourFor24Hrs(newValue) < 6 || this.observer.getHourFor24Hrs(newValue) > 24)
+                                            if (!timeRegEx.test(newValue) || this.observer.getHourFor24Hrs(newValue) < 6 || this.observer.getHourFor24Hrs(newValue) > 24)
                                             {
                                                 cmp.el.down('.timeInput').el.dom.classList.add('timeInvalid')
                                                 cmp.validTime = false;
@@ -221,8 +217,7 @@ Ext.define('MeetingEditor', {
                                         },
                                         blur: function(cmp){
                                             var newValue = cmp.getValue();
-                                            var regex = /(01|1|02|2|03|3|04|4|05|5|06|6|07|7|08|8|09|9|10|11|12):?(00|30)\s?(?:AM|PM)/;
-                                            if (!regex.test(newValue) || this.observer.getHourFor24Hrs(newValue) < 6 || this.observer.getHourFor24Hrs(newValue) > 24)
+                                            if (!timeRegEx.test(newValue) || this.observer.getHourFor24Hrs(newValue) < 6 || this.observer.getHourFor24Hrs(newValue) > 24)
                                             {
                                                 cmp.el.down('.timeInput').el.dom.classList.add('timeInvalid')
                                                 cmp.validTime = false;

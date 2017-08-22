@@ -1,6 +1,6 @@
 Ext.ns('AgendaBuilder');
 const agendaMode={Planner: 'planner', Hotel: 'hotel'};
-
+const timeRegEx= /(01|1|02|2|03|3|04|4|05|5|06|6|07|7|08|8|09|9|10|11|12):?(00|30)\s?(?:AM|am|Am|aM|PM|pm|Pm|pM)/;
 var centerContainer = Ext.create('CenterContainer');
 
 var observer = Ext.create('AgendaBuilderObservable');

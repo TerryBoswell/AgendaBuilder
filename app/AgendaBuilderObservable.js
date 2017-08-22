@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.045',
+    version: '1.046',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -3758,6 +3758,15 @@ Ext.define('AgendaBuilderObservable', {
                 return false;
                 }
             });
+        }
+
+        window.onerror = function(message, file, line, col, error)
+        {
+            if (Ext.isSafari)
+            {
+                var msg = Ext.String.format("{0} occurred in {1} at line #{2} and column #{3} ", message, file, line, col);
+                alert(msg);
+            }
         }
     }
     
