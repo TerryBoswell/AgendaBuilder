@@ -297,6 +297,15 @@ Ext.define('AgendaRow', {
 											rowEl.classList.add('oddRowBackGround-allday');
 									}
 
+								}
+								var twentyFourHrCmp = (Ext.fly(el));
+								if (twentyFourHrCmp.dom.classList.contains('bubbleClicked'))
+								{
+									twentyFourHrCmp.dom.classList.remove('bubbleClicked');
+								}
+								else
+								{
+									twentyFourHrCmp.dom.classList.add('bubbleClicked');
 								}		
 								Ext.each(document.elementsFromPoint(event.clientX, event.clientY), function(match){									
 									if (match.id.indexOf('agendarow-ctr') != -1 && match.id.indexOf('col') != -1 && match.dataset.date)
@@ -320,22 +329,10 @@ Ext.define('AgendaRow', {
 										}
 									}
 								})
-								var twentyFourHrCmp = (Ext.fly(el));
-								var lineThroughCmp = twentyFourHrCmp.parent().down('.lineThrough');
-								if (twentyFourHrCmp.dom.classList.contains('bubbleClicked'))
-								{
-									//lineThroughCmp.dom.classList.remove('lineHidden');
-									twentyFourHrCmp.dom.classList.remove('bubbleClicked');
-								}
-								else
-								{
-									//lineThroughCmp.dom.classList.add('lineHidden');
-									twentyFourHrCmp.dom.classList.add('bubbleClicked');
-								}
+								
 								Ext.each(meetingIds, function(mtgId){
 									parent.observer.updateMeeting24Hours(mtgId, parent.observer);
 								})
-								
 							});
 						}
 					}
