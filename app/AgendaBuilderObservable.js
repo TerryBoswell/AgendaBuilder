@@ -1,7 +1,7 @@
 Ext.ns('AgendaBuilder');
 
 Ext.define('AgendaBuilderObservable', {
-    version: '1.046',
+    version: '1.047',
     extend: 'Ext.mixin.Observable',
     agendaBuilderRows: [], //This holds the agenda builder rows added for each date
     // The constructor of Ext.util.Observable instances processes the config object by
@@ -1645,6 +1645,7 @@ Ext.define('AgendaBuilderObservable', {
                                                 delete cmp.origX;
                                                 delete cmp.origY;
                                                     //on Drags the dom manager in extjs resets the x position, so we need to track it
+                                                document.getSelection().removeAllRanges();
                                                 cmp.observer.saveMeetingItem(mtg);
                                                
                                             }
@@ -2186,6 +2187,7 @@ Ext.define('AgendaBuilderObservable', {
         var me = this;
         if (me.editorVisible)
             return;
+        document.getSelection().removeAllRanges();
         var datesCtr = Ext.ComponentQuery.query('#MainContainer')[0];
         Ext.create('MeetingEditor', {
             meeting: meeting,
@@ -3766,6 +3768,13 @@ Ext.define('AgendaBuilderObservable', {
             {
                 var msg = Ext.String.format("{0} occurred in {1} at line #{2} and column #{3} ", message, file, line, col);
                 alert(msg);
+
+                if(typeof(Storage) !== "undefined") {
+                    if (!sessionStorage.errorLog)
+                    {
+
+                    } 
+                }
             }
         }
     }
