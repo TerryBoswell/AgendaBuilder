@@ -124,14 +124,34 @@ Ext.define('AgendaBuilder.MainContainer', {
                         observer.logDatabase.readAll(function(errors){
                             if (!errors || !errors.length)
                                 return;
+                            var data = [];
+                            Ext.each(errors, function(e){
+                                data.push(e.value);
+                            })
+                            var html = new Ext.XTemplate(
+                                '<table>',
+                                    '<tr>',
+                                        '<tpl for=".">',
+                                            '<td>{id}-{msg}</td>',
+                                        '</tpl>',
+                                    '</tr>', 				                                    
+                                '</table>',
+                                {
+                                    strict: true
+                            }).apply(data);
+                            window.tempdata = data;
                             new Ext.Window({
                                 modal:true,
                                 height: 200,
                                 width: 200,
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
                                 items: [
                                     {
                                         xtype: 'box',
-                                        html: errors
+                                        html: html
                                     }
                                 ]
                             }).show();
