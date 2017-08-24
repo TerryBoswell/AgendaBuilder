@@ -115,7 +115,31 @@ Ext.define('AgendaBuilder.MainContainer', {
             xtype   : 'container',
             itemId  : 'versionbox',
             height  : 5,
-            cls     : 'fill-color'
+            cls     : 'fill-color',
+            listeners: {
+                scope : this,
+                delay   : 100,
+                render : function(c){
+                    Ext.ComponentQuery.query('#versionbox')[0].mon(Ext.ComponentQuery.query('#versionbox')[0].el, 'click', function(){
+                        observer.logDatabase.readAll(function(errors){
+                            if (!errors || !errors.length)
+                                return;
+                            new Ext.Window({
+                                modal:true,
+                                height: 200,
+                                width: 200,
+                                items: [
+                                    {
+                                        xtype: 'box',
+                                        html: errors
+                                    }
+                                ]
+                            }).show();
+                        });
+                    });
+                }
+
+            }
         }
     ],
     listeners: {
@@ -161,6 +185,7 @@ Ext.define('AgendaBuilder.MainContainer', {
                 observer.setNumberOfPeople(cmp.numberOfPeople);
                 observer.setAgendaMode(cmp.agendaMode);
                 observer.initAjaxController(cmp.apiUrl, observer);
+                observer.initDatabase(observer);
                 observer.getRoomSetups();
                 observer.on({
                     scope: this,

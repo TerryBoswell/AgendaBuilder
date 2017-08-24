@@ -185,6 +185,7 @@ Ext.define('MeetingEditor', {
                                                 cmp.el.down('.timeInput').el.dom.classList.remove('timeInvalid')
                                                 cmp.validTime = true;
                                             }
+                                            cmp.foo.foo();
                                         }
                                     }
                                 },

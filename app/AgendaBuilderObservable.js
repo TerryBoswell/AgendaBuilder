@@ -29,12 +29,88 @@ Ext.define('AgendaBuilderObservable', {
     lastRecordedY: 0,
     lastRecordedXs: null, //This is used to determine the position of the title items. We need to persist it for drag and drops because it repositions the items on the drop
     tipTextLen: 23,
+    logDatabase: null,
     initAjaxController: function(url, scope){
         var me = scope;
         me.ajaxController = Ext.create('AjaxController', {
             rfpNumber: me.rfpNumber,
             ajaxUrlBase: url
         })
+    },
+    initDatabase: function(scope){
+        var me = this;
+        window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+        //prefixes of window.IDB objects
+        window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
+        window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange
+        //no index db support
+        
+        me.logDatabase = {
+            seed: 0,
+            addItem : function(){},
+            clear: function(){},
+            readAll : function(){
+                return [];
+            },
+            db: null
+        };
+        if (!window.indexedDB) {
+            return;
+        } 
+
+        //otherwise lets structure it
+       
+        var request = window.indexedDB.open("logDb", 1);
+         
+         request.onerror = function(event) {
+            return;
+         };
+         
+         request.onsuccess = function(event) {
+            me.logDatabase.db = request.result;
+            var transaction = me.logDatabase.db.transaction(['errorLog'], 'readonly');
+            var objectStore = transaction.objectStore('errorLog');
+                
+            var countRequest = objectStore.count();
+            countRequest.onsuccess = function() {
+                me.logDatabase.seed = countRequest.result;
+            }
+         };
+         
+         request.onupgradeneeded = function(event) {
+            var objectStore = request.result.createObjectStore("errorLog", { keyPath: "id"});
+            objectStore.createIndex("msg", "msg", { unique: false });
+            me.logDatabase.db = request.result;
+         }
+
+         me.logDatabase.addItem = function(msg){
+            var transaction = me.logDatabase.db.transaction(["errorLog"], "readwrite");  
+            me.logDatabase.seed++;
+            transaction.objectStore("errorLog").add({id: me.logDatabase.seed, msg, msg});
+         }
+
+        me.logDatabase.clear = function(){
+            var transaction = me.logDatabase.db.transaction(["errorLog"], "readwrite");  
+            transaction.objectStore("errorLog").clear();
+        }
+
+         me.logDatabase.readAll = function(callback){
+             var transaction = me.logDatabase.db.transaction(["errorLog"], "readwrite");  
+             var results = [];
+             transaction.objectStore("errorLog").openCursor().onsuccess = function(event) {  
+			  var cursor = event.target.result;  
+			  if (cursor) {  
+                  results.push({id: cursor.key, value: cursor.value});
+			  	cursor.continue();  
+			  }  
+			  else {  
+			  	callback(results);
+              }  
+              
+			};  
+         }
+
+
     },
     clearAllCmps: function(){
         Ext.ComponentQuery.query('#datesCtr')[0].removeAll(true);
@@ -3766,15 +3842,10 @@ Ext.define('AgendaBuilderObservable', {
         {
             if (Ext.isSafari)
             {
-                var msg = Ext.String.format("{0} occurred in {1} at line #{2} and column #{3} ", message, file, line, col);
-                alert(msg);
-
-                if(typeof(Storage) !== "undefined") {
-                    if (!sessionStorage.errorLog)
-                    {
-
-                    } 
-                }
+                var msg = Ext.String.format("{0} occurred in {1} at line #{2} and column #{3} at {4}", message, file, line, col, new Date());
+                window.agendaBuilder.observer.logDatabase.addItem(msg)
+                Ext.ComponentQuery.query('#versionbox')[0].update('<div style="padding-bottom:10px;">Version:' + window.agendaBuilder.observer.version + 
+                '<i style="margin-left:2px;" class="fa fa-exclamation-circle" aria-hidden="true"></i></div>');
             }
         }
     }
