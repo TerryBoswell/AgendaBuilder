@@ -129,12 +129,20 @@ Ext.define('AgendaBuilder.MainContainer', {
                                 data.push(e.value);
                             })
                             var html = new Ext.XTemplate(
-                                '<table>',
+                                '<table border="1" style="width:100%;display:block;height:100%;overflow:scroll;">',
+                                    '<col width="75px" max-width="75px"/>',
+                                    '<col width="325px" max-width="325px"/>',
                                     '<tr>',
-                                        '<tpl for=".">',
-                                            '<td>{id}-{msg}</td>',
-                                        '</tpl>',
-                                    '</tr>', 				                                    
+                                        '<th>Id</th>',
+                                        '<th>Error</th>',
+                                    '</tr>',    
+                                    '<tpl for=".">',
+                                        '<tr>',
+                                            '<td>{id}</td>',
+                                            '<td>{msg}</td>',
+                                        '</tr>',
+                                    '</tpl>',
+                                    				                                    
                                 '</table>',
                                 {
                                     strict: true
@@ -142,12 +150,9 @@ Ext.define('AgendaBuilder.MainContainer', {
                             window.tempdata = data;
                             new Ext.Window({
                                 modal:true,
-                                height: 200,
-                                width: 200,
-                                layout: {
-                                    type: 'hbox',
-                                    align: 'stretch'
-                                },
+                                height: 400,
+                                width: 400,
+                                layout: 'fit',
                                 items: [
                                     {
                                         xtype: 'box',

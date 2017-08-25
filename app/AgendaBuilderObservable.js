@@ -3840,13 +3840,13 @@ Ext.define('AgendaBuilderObservable', {
 
         window.onerror = function(message, file, line, col, error)
         {
-            //if (Ext.isSafari)
-            //{
+            if (Ext.isSafari)
+            {
                 var msg = Ext.String.format("{0} occurred in {1} at line #{2} and column #{3} at {4}", message, file, line, col, new Date());
                 window.agendaBuilder.observer.logDatabase.addItem(msg)
                 Ext.ComponentQuery.query('#versionbox')[0].update('<div style="padding-bottom:10px;">Version:' + window.agendaBuilder.observer.version + 
                 '<i style="margin-left:2px;" class="fa fa-exclamation-circle" aria-hidden="true"></i></div>');
-           // }
+           }
         }
     }
     
