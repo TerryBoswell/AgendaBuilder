@@ -396,6 +396,7 @@ div.meetingTip:before {
     font-weight: bold;
     position: absolute;
     top: 10px;
+    font-family: tahoma, arial, verdana, sans-serif !important;
 }
 
 .amFirst
